@@ -31,16 +31,16 @@ if (animatedAsciiArtContainer) {
         "<": ["<", "{", "(", "[", "⟨", "❮"],
     };
     const BASE_REVEAL_THRESHOLD = 2;
-    const NUM_TENDRILS = 8;
-    const TENDRIL_STEP_INTERVAL = 35;
-    const TENDRIL_LIFE_MAX = 200;
-    const CHAR_AWAKEN_FLICKER_DURATION = 120;
-    const POST_REVEAL_UPDATE_INTERVAL = 80;
-    const METAMORPHOSIS_CHANCE = 0.012;
-    const RESPIRATION_WAVE_SPEED = 0.038;
-    const RIPPLE_CHANCE = 0.035;
-    const RIPPLE_DURATION = 1500;
-    const LINE_STAGGER_DELAY = 150;
+    const NUM_TENDRILS = 4; // Reduced from 8
+    const TENDRIL_STEP_INTERVAL = 50; // Increased from 35
+    const TENDRIL_LIFE_MAX = 150; // Reduced from 200
+    const CHAR_AWAKEN_FLICKER_DURATION = 80; // Reduced from 120
+    const POST_REVEAL_UPDATE_INTERVAL = 120; // Increased from 80
+    const METAMORPHOSIS_CHANCE = 0.008; // Reduced from 0.012
+    const RESPIRATION_WAVE_SPEED = 0.025; // Reduced from 0.038
+    const RIPPLE_CHANCE = 0.02; // Reduced from 0.035
+    const RIPPLE_DURATION = 1000; // Reduced from 1500
+    const LINE_STAGGER_DELAY = 100; // Reduced from 150
 
     let charGrid = [];
     let isFullyRevealed = false;
@@ -154,6 +154,9 @@ if (animatedAsciiArtContainer) {
         const interval = isFullyRevealed ? POST_REVEAL_UPDATE_INTERVAL : TENDRIL_STEP_INTERVAL;
         if (deltaTime < interval) return;
         lastUpdateTime = timestamp;
+        
+        // Throttle animation when page is not visible
+        if (document.hidden) return;
 
         if (charGrid.length === 0 || charGrid[0].length === 0) return;
 
@@ -478,17 +481,18 @@ function loadRemainingContent() {
         console.error('Footer element not found!');
     }
 
-    // Add background effects
-    const bgOverlay = document.createElement('div');
-    bgOverlay.className = 'fixed-background-overlay';
-    bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
-    document.body.insertBefore(bgOverlay, document.body.firstChild);
-
-    const particleContainer = document.createElement('div');
-    particleContainer.className = 'particle-effects-container';
-    particleContainer.id = 'particle-container';
-    document.body.insertBefore(particleContainer, document.body.firstChild);
-    console.log('Background effects added');
+    // Add background effects with delay to improve initial load
+    setTimeout(() => {
+        const bgOverlay = document.createElement('div');
+        bgOverlay.className = 'fixed-background-overlay';
+        bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
+        document.body.insertBefore(bgOverlay, document.body.firstChild);
+        
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'particle-effects-container';
+        particleContainer.id = 'particle-container';
+        document.body.insertBefore(particleContainer, document.body.firstChild);
+    }, 500);    console.log('Background effects added');
     console.log('loadRemainingContent function completed');
 }
 
@@ -554,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Particle generation
     const particleContainer = document.getElementById('particle-container');
     if (particleContainer) {
-        const numParticles = 40;
+        const numParticles = 20; // Reduced from 40
         for (let i = 0; i < numParticles; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
