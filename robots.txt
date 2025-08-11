@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Main sitemap
+Sitemap: https://sahilchouksey.in/sitemap.xml
+
+# Allow search engines to crawl all content
+Crawl-delay: 1
+
+# Block unnecessary files
+Disallow: /app.js.map
+Disallow: /style.css.map
+Disallow: /*.log
+
+# Allow robots to access important files
+Allow: /RESUME.pdf
+Allow: /manifest.json
+Allow: /favicon.ico
