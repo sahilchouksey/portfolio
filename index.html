@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <!-- Primary Meta Tags -->
-<title>Sahil Chouksey - Full-Stack Developer | AI & Web Development Expert</title>
+<title>Sahil Chouksey - Full-Stack Developer</title>
 <meta name="title" content="Sahil Chouksey - Full-Stack Developer | AI & Web Development Expert">
 <meta name="description" content="Full-Stack Developer specializing in AI-powered web applications, RAG systems, and modern JavaScript frameworks. Expertise in React, Next.js, Golang, and Python.">
 <meta name="keywords" content="Full-Stack Developer, AI Developer, RAG Systems, React, Next.js, Golang, Python, JavaScript, TypeScript, Portfolio, Sahil Chouksey">
@@ -99,7 +99,7 @@
       "description": "MCA - Master of Computer Applications (Pursuing)"
     },
     {
-      "@type": "CollegeOrUniversity", 
+      "@type": "CollegeOrUniversity",
       "name": "Makhanlal Chaturvedi National University",
       "description": "BCA - Bachelor of Computer Applications"
     }
@@ -173,8 +173,7 @@ section{scroll-margin-top:120px}
 .lucide-icon{display:inline-block;vertical-align:middle}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
-<link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="style.css"></noscript>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <a href="#main-content" class="sr-only">Skip to main content</a>
@@ -185,24 +184,23 @@ section{scroll-margin-top:120px}
 <div class="nav-container">
 <div class="nav-flex">
 <a href="#hero" class="logo-link" aria-label="Sahil Chouksey - Go to homepage">
-<pre class="ascii-logo" aria-hidden="true">.                   
-           .=.    .             
-    ..     :+-    :-            
-   .=.     -+=.   :+:           
-   -+:    .=++:   :+=:          
-  :++:    :+++=.  :++=.         
- .=++:   .=++++:  :+++=.          
- -+++-   .=++++:  :++++-         
-.=+++-   .-+++=.  .+++=.         
- -+++-    -+++-.  .=++:       
- .-++-    :+++:   .=+=.         
-  .=+=.   .=+=.   .==.          
-   :==.   .=+-    .=:           
-    :=.   .-+:     :            
-     .     -=.                  
-           ::                   
-</pre>
-</a>
+<pre class="ascii-logo" aria-hidden="true">                          .          
+              .=.    .             
+       ..     :+-    :-            
+      .=.     -+=.   :+:           
+      -+:    .=++:   :+=:          
+     :++:    :+++=.  :++=.         
+    .=++:   .=++++:  :+++=.          
+    -+++-   .=++++:  :++++-         
+   .=+++-   .-+++=.  .+++=.         
+    -+++-    -+++-.  .=++:       
+    .-++-    :+++:   .=+=.         
+     .=+=.   .=+=.   .==.          
+      :==.   .=+-    .=:           
+       :=.   .-+:     :            
+        .     -=.                  
+              ::                   
+</pre></a>
 <nav class="main-nav" role="navigation" aria-label="Main navigation">
 <a href="#hero" class="active" aria-current="page">Home</a>
 <a href="#showcase">Showcase</a>
@@ -247,19 +245,20 @@ Email
 </div>
 </section>
 
-<main id="main-content" role="main"></main>
+<main id="main-content" role="main">
+    <!-- Content will be loaded by JavaScript -->
+    <section id="showcase" style="display: none;">
+        <h2>Loading...</h2>
+    </section>
+    <section id="connect" style="display: none;">
+        <h2>Loading...</h2>
+    </section>
+</main>
 </div>
 
 <footer id="site-footer" role="contentinfo"></footer>
 
 <script async src="app.js"></script>
-<script>
-(function(){
-const l=document.createElement('link');
-l.rel='stylesheet';
-l.href='style.css';
-document.head.appendChild(l);
-})();
-</script>
+
 </body>
 </html>

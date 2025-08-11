@@ -1,24 +1,22 @@
 // ASCII Art Animation and Portfolio JavaScript
 const asciiArtContent = `
-              .                   
-             .=.    .             
-      ..     :+-    :-            
-     .=.     -+=.   :+:           
-     -+:    .=++:   :+=:          
-    :++:    :+++=.  :++=.         
-   .=++:   .=++++:  :+++=.          
-   -+++-   .=++++:  :++++-         
-  .=+++-   .-+++=.  .+++=.         
-   -+++-    -+++-.  .=++:       
-   .-++-    :+++:   .=+=.         
-    .=+=.   .=+=.   .==.          
-     :==.   .=+-    .=:           
-      :=.   .-+:     :            
-       .     -=.                  
-             ::                   
-`;
-
-const animatedAsciiArtContainer = document.getElementById('animatedAsciiArtContainer');
+               .                   
+              .=.    .             
+       ..     :+-    :-            
+      .=.     -+=.   :+:           
+      -+:    .=++:   :+=:          
+     :++:    :+++=.  :++=.         
+    .=++:   .=++++:  :+++=.          
+    -+++-   .=++++:  :++++-         
+   .=+++-   .-+++=.  .+++=.         
+    -+++-    -+++-.  .=++:       
+    .-++-    :+++:   .=+=.         
+     .=+=.   .=+=.   .==.          
+      :==.   .=+-    .=:           
+       :=.   .-+:     :            
+        .     -=.                  
+              ::                   
+`;const animatedAsciiArtContainer = document.getElementById('animatedAsciiArtContainer');
 if (animatedAsciiArtContainer) {
     const NOISE_CHARS = [".", "`", "'", " ", "~", ","];
     const TENDRIL_CHARS = ["*", "+", "o", "·", "❖", "◊", "◈", "⧫"];
@@ -60,7 +58,8 @@ if (animatedAsciiArtContainer) {
 
     function initializeArt() {
         originalArtLines = asciiArtContent.trim().split("\n");
-        
+
+        // Remove leading and trailing empty lines
         while (originalArtLines.length > 0 && originalArtLines[0].trim() === "") {
             originalArtLines.shift();
         }
@@ -89,10 +88,10 @@ if (animatedAsciiArtContainer) {
                 };
             })
         );
-        
+
         revealStartTime = performance.now();
         renderArt();
-        
+
         if (artDimensions.width > 0 && tendrils.length === 0 && !isFullyRevealed) {
             for (let i = 0; i < NUM_TENDRILS; i++) {
                 tendrils.push(createTendril(i));
@@ -103,10 +102,10 @@ if (animatedAsciiArtContainer) {
     function createTendril(id) {
         const { width, height } = artDimensions;
         if (width === 0 || height === 0) return { id, x: 0, y: 0, dx: 0, dy: 0, life: 0, char: "" };
-        
+
         let x, y, dx, dy;
         const side = Math.floor(Math.random() * 4);
-        
+
         switch(side) {
             case 0:
                 x = getRandomInt(0, width - 1);
@@ -133,9 +132,9 @@ if (animatedAsciiArtContainer) {
                 dy = getRandomInt(-1, 1);
                 break;
         }
-        
+
         if (dx === 0 && dy === 0) dy = 1;
-        
+
         return {
             id,
             x: Math.max(0, Math.min(x, width - 1)),
@@ -157,7 +156,7 @@ if (animatedAsciiArtContainer) {
         lastUpdateTime = timestamp;
 
         if (charGrid.length === 0 || charGrid[0].length === 0) return;
-        
+
         let allRevealedCheck = true;
 
         if (!isFullyRevealed) {
@@ -167,16 +166,16 @@ if (animatedAsciiArtContainer) {
                 const nextY = y + dy;
                 life--;
 
-                if (nextX < 0 || nextX >= artDimensions.width || 
-                    nextY < 0 || nextY >= artDimensions.height || 
+                if (nextX < 0 || nextX >= artDimensions.width ||
+                    nextY < 0 || nextY >= artDimensions.height ||
                     Math.random() < 0.12) {
-                    
+
                     const angles = [0, 45, 90, 135, 180, 225, 270, 315];
                     const angle = angles[Math.floor(Math.random() * angles.length)];
                     const rad = (angle * Math.PI) / 180;
                     dx = Math.round(Math.cos(rad));
                     dy = Math.round(Math.sin(rad));
-                    
+
                     x = Math.max(0, Math.min(x, artDimensions.width - 1));
                     y = Math.max(0, Math.min(y, artDimensions.height - 1));
                 } else {
@@ -192,7 +191,7 @@ if (animatedAsciiArtContainer) {
                     if (cell && cell.original !== " " && !cell.revealed) {
                         const timeSinceStart = timestamp - revealStartTime;
                         const lineDelay = cell.lineIndex * LINE_STAGGER_DELAY;
-                        
+
                         if (timeSinceStart > lineDelay) {
                             cell.revealScore = Math.min(cell.revealScore + 1, BASE_REVEAL_THRESHOLD + 3);
                             if (!cell.isFlickering) cell.display = char;
@@ -201,7 +200,7 @@ if (animatedAsciiArtContainer) {
                                 cell.isFlickering = true;
                                 cell.display = getRandomChar(AWAKENING_FLICKER_CHARS);
                                 cell.revealTime = timestamp;
-                                
+
                                 setTimeout(() => {
                                     const currentCell = charGrid[y]?.[x];
                                     if (currentCell) {
@@ -213,7 +212,7 @@ if (animatedAsciiArtContainer) {
                             }
                         }
                     }
-                    
+
                     trail.forEach((pos, index) => {
                         const trailCell = charGrid[pos.y]?.[pos.x];
                         if (trailCell && trailCell.original !== " " && !trailCell.revealed && !trailCell.isFlickering) {
@@ -224,7 +223,7 @@ if (animatedAsciiArtContainer) {
                         }
                     });
                 }
-                
+
                 return { ...t, x, y, dx, dy, life, char, trail };
             }).filter(t => t.life > 0);
 
@@ -241,14 +240,14 @@ if (animatedAsciiArtContainer) {
                 }
                 if (!allRevealedCheck) break;
             }
-            
+
             if (allRevealedCheck && charGrid.length > 0 && charGrid[0].length > 0) {
                 isFullyRevealed = true;
                 tendrils = [];
             }
         } else {
             respirationOffset += RESPIRATION_WAVE_SPEED;
-            
+
             if (Math.random() < RIPPLE_CHANCE && ripples.length < 3) {
                 ripples.push({
                     id: Date.now(),
@@ -306,14 +305,43 @@ if (animatedAsciiArtContainer) {
 
     function renderArt() {
         if (animatedAsciiArtContainer && charGrid.length > 0) {
-            const rendered = charGrid.map(row => 
+            const rendered = charGrid.map(row =>
                 row.map(cell => cell.display).join("")
             ).join("\n");
             animatedAsciiArtContainer.textContent = rendered;
         }
     }
-    
+
     initializeArt();
+    
+    // IMMEDIATE FIX: Force correct positioning of first character
+    if (charGrid.length > 0 && charGrid[0] && charGrid[0].length > 15) {
+        // Move the dot from position 0 to position 15 (centered)
+        if (charGrid[0][0] && charGrid[0][0].original === '.') {
+            charGrid[0][0].original = ' ';
+            charGrid[0][0].display = ' ';
+        }
+        // Clear position 26 if it exists
+        if (charGrid[0][26]) {
+            charGrid[0][26].original = ' ';
+            charGrid[0][26].display = ' ';
+        }
+        // Set the correct centered position
+        charGrid[0][15] = {
+            original: '.',
+            display: '.',
+            revealed: true,
+            revealScore: 0,
+            isFlickering: false,
+            metaCycleIndex: 0,
+            metaActive: true,
+            lineIndex: 0,
+            revealTime: 0,
+        };
+        // Force immediate render
+        renderArt();
+    }
+    
     if (charGrid.length > 0 && artDimensions.width > 0) {
         animationFrameId = requestAnimationFrame(animate);
     }
@@ -321,107 +349,123 @@ if (animatedAsciiArtContainer) {
 
 // Load remaining content dynamically
 function loadRemainingContent() {
+    console.log('Loading remaining content...');
     const mainContent = document.getElementById('main-content');
     const footer = document.getElementById('site-footer');
-    
-    if (mainContent) {
-        mainContent.innerHTML = `
-            <section id="showcase">
-                <h2 class="section-title-container">
-                    <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-                    Featured Work
-                </h2>
-                <div class="project-grid">
-                    <div class="project-card">
-                        <h3 class="project-title">BRIO Health AI</h3>
-                        <span class="project-company">Suryavanshi Ventures</span>
-                        <p class="project-description">
-                            Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
-                            Gemini models to enhance information access for healthcare professionals.
-                        </p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Gemini Models</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
-                            <span class="tech-tag">Vector DBs</span> <span class="tech-tag">APIs</span>
-                        </div>
-                    </div>
-                    <div class="project-card">
-                        <h3 class="project-title">Doctor Help Platform</h3>
-                        <span class="project-company">TVM Consulting Private Limited</span>
-                        <p class="project-description">
-                            Full-stack development of a healthcare management platform using Golang (backend) and Next.js/TypeScript (frontend). Implemented
-                            GraphQL, real-time notifications, AWS S3 storage, and CI/CD pipelines.
-                        </p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Golang</span> <span class="tech-tag">Next.js</span> <span class="tech-tag">TypeScript</span>
-                            <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">Docker</span> <span class="tech-tag">AWS S3</span>
-                        </div>
-                    </div>
-                    <div class="project-card">
-                        <h3 class="project-title">Serma Event Management App</h3>
-                        <span class="project-company">Suryavanshi Ventures</span>
-                        <p class="project-description">
-                            Directed Next.js front-end development for key modules and managed the Node.js/Express.js backend for the Finance module,
-                            including Stripe integration, ensuring timely delivery under pressure.
-                        </p>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Next.js</span> <span class="tech-tag">Node.js</span> <span class="tech-tag">Express.js</span>
-                            <span class="tech-tag">Stripe</span> <span class="tech-tag">React</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <section id="connect">
-                <h2 class="section-title-container">
-                     <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-                    Connect & Skills
-                </h2>
-                <div class="connect-skills-grid">
-                    <div class="skills-column">
-                        <h3 class="column-title">Core Skills</h3>
-                        <ul class="skills-list">
-                            <li><span class="skill-bullet">•</span> JavaScript, TypeScript, Go, Python</li>
-                            <li><span class="skill-bullet">•</span> React.js, Next.js, Node.js</li>
-                            <li><span class="skill-bullet">•</span> PostgreSQL, MongoDB, REST APIs</li>
-                            <li><span class="skill-bullet">•</span> HTML5, CSS3, Tailwind CSS</li>
-                            <li><span class="skill-bullet">•</span> Docker, Git, CI/CD</li>
-                            <li><span class="skill-bullet">•</span> AI/ML Integration</li>
-                        </ul>
-                    </div>
-                    <div class="education-column">
-                        <h3 class="column-title">Education</h3>
-                        <div class="education-item" style="margin-bottom: 1rem;">
-                            <p class="education-degree">MCA - Master of Computer Applications</p>
-                            <p class="education-institution">Rajiv Gandhi Proudyogiki Vishwavidyalaya (Pursuing)</p>
-                        </div>
-                        <div class="education-item">
-                            <p class="education-degree">BCA - Bachelor of Computer Applications</p>
-                            <p class="education-institution">Makhanlal Chaturvedi National University</p>
-                        </div>
-                    </div>
-                    <div class="contact-column">
-                        <h3 class="column-title">Get in Touch</h3>
-                        <p class="contact-text">
-                            Open to new projects and collaborations. Let's build something great together.
-                        </p>
-                        <p>
-                            <a href="mailto:me@sahilchouksey.in" class="contact-email">me@sahilchouksey.in</a>
-                        </p>
-                        <div class="contact-social-icons">
-                            <a href="https://github.com/sahilchouksey" target="_blank" rel="noopener noreferrer">
-                                <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                            </a>
-                            <a href="https://linkedin.com/in/sahilchouksey" target="_blank" rel="noopener noreferrer">
-                                <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                            </a>
-                        </div>
+    console.log('Main content element:', mainContent);
+    console.log('Footer element:', footer);
+
+    if (mainContent) {
+        // Clear any existing content first
+        mainContent.innerHTML = '';
+
+        // Add content with proper structure
+        const showcaseSection = document.createElement('section');
+        showcaseSection.id = 'showcase';
+        showcaseSection.innerHTML = `
+            <h2 class="section-title-container">
+                <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+                Featured Work
+            </h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <h3 class="project-title">BRIO Health AI</h3>
+                    <span class="project-company">Suryavanshi Ventures</span>
+                    <p class="project-description">
+                        Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
+                        Gemini models to enhance information access for healthcare professionals.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Gemini Models</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Vector DBs</span> <span class="tech-tag">APIs</span>
                     </div>
                 </div>
-            </section>
+                <div class="project-card">
+                    <h3 class="project-title">Doctor Help Platform</h3>
+                    <span class="project-company">TVM Consulting Private Limited</span>
+                    <p class="project-description">
+                        Full-stack development of a healthcare management platform using Golang (backend) and Next.js/TypeScript (frontend). Implemented
+                        GraphQL, real-time notifications, AWS S3 storage, and CI/CD pipelines.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Golang</span> <span class="tech-tag">Next.js</span> <span class="tech-tag">TypeScript</span>
+                        <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">Docker</span> <span class="tech-tag">AWS S3</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <h3 class="project-title">Serma Event Management App</h3>
+                    <span class="project-company">Suryavanshi Ventures</span>
+                    <p class="project-description">
+                        Directed Next.js front-end development for key modules and managed the Node.js/Express.js backend for the Finance module,
+                        including Stripe integration, ensuring timely delivery under pressure.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Next.js</span> <span class="tech-tag">Node.js</span> <span class="tech-tag">Express.js</span>
+                        <span class="tech-tag">Stripe</span> <span class="tech-tag">React</span>
+                    </div>
+                </div>
+            </div>
         `;
+
+        const connectSection = document.createElement('section');
+        connectSection.id = 'connect';
+        connectSection.innerHTML = `
+            <h2 class="section-title-container">
+                 <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+                Connect & Skills
+            </h2>
+            <div class="connect-skills-grid">
+                <div class="skills-column">
+                    <h3 class="column-title">Core Skills</h3>
+                    <ul class="skills-list">
+                        <li><span class="skill-bullet">•</span> JavaScript, TypeScript, Go, Python</li>
+                        <li><span class="skill-bullet">•</span> React.js, Next.js, Node.js</li>
+                        <li><span class="skill-bullet">•</span> PostgreSQL, MongoDB, REST APIs</li>
+                        <li><span class="skill-bullet">•</span> HTML5, CSS3, Tailwind CSS</li>
+                        <li><span class="skill-bullet">•</span> Docker, Git, CI/CD</li>
+                        <li><span class="skill-bullet">•</span> AI/ML Integration</li>
+                    </ul>
+                </div>
+                <div class="education-column">
+                    <h3 class="column-title">Education</h3>
+                    <div class="education-item" style="margin-bottom: 1rem;">
+                        <p class="education-degree">MCA - Master of Computer Applications</p>
+                        <p class="education-institution">Rajiv Gandhi Proudyogiki Vishwavidyalaya (Pursuing)</p>
+                    </div>
+                    <div class="education-item">
+                        <p class="education-degree">BCA - Bachelor of Computer Applications</p>
+                        <p class="education-institution">Makhanlal Chaturvedi National University</p>
+                    </div>
+                </div>
+                <div class="contact-column">
+                    <h3 class="column-title">Get in Touch</h3>
+                    <p class="contact-text">
+                        Open to new projects and collaborations. Let's build something great together.
+                    </p>
+                    <p>
+                        <a href="mailto:me@sahilchouksey.in" class="contact-email">me@sahilchouksey.in</a>
+                    </p>
+                    <div class="contact-social-icons">
+                        <a href="https://github.com/sahilchouksey" target="_blank" rel="noopener noreferrer">
+                            <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                        </a>
+                        <a href="https://linkedin.com/in/sahilchouksey" target="_blank" rel="noopener noreferrer">
+                            <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        mainContent.appendChild(showcaseSection);
+        mainContent.appendChild(connectSection);
         mainContent.className = 'main-content';
+        console.log('Content loaded successfully, sections count:', mainContent.children.length);
+    } else {
+        console.error('Main content element not found!');
     }
-    
+
     if (footer) {
         footer.innerHTML = `
             <div class="footer-content">
@@ -429,25 +473,43 @@ function loadRemainingContent() {
             </div>
         `;
         footer.className = 'site-footer';
+        console.log('Footer loaded successfully');
+    } else {
+        console.error('Footer element not found!');
     }
-    
+
     // Add background effects
     const bgOverlay = document.createElement('div');
     bgOverlay.className = 'fixed-background-overlay';
     bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
     document.body.insertBefore(bgOverlay, document.body.firstChild);
-    
+
     const particleContainer = document.createElement('div');
     particleContainer.className = 'particle-effects-container';
     particleContainer.id = 'particle-container';
     document.body.insertBefore(particleContainer, document.body.firstChild);
+    console.log('Background effects added');
+    console.log('loadRemainingContent function completed');
 }
 
 // Portfolio specific functionality
 document.addEventListener('DOMContentLoaded', () => {
-    // Load remaining content after initial render
-    requestIdleCallback ? requestIdleCallback(loadRemainingContent) : setTimeout(loadRemainingContent, 0);
-    
+    // Ensure content loads reliably - try multiple times if needed
+    function ensureContentLoaded() {
+        const mainContent = document.getElementById('main-content');
+        if (mainContent && (!mainContent.innerHTML || mainContent.innerHTML.trim() === '')) {
+            console.log('Content not loaded, loading now...');
+            loadRemainingContent();
+        }
+    }
+
+    // Load content immediately
+    loadRemainingContent();
+
+    // Double-check after a short delay to ensure it loaded
+    setTimeout(ensureContentLoaded, 100);
+    setTimeout(ensureContentLoaded, 500);
+
     // Set current year
     setTimeout(() => {
         const currentYearSpan = document.getElementById('currentYear');
@@ -462,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function changeNavActiveState() {
         let currentSectionId = 'hero';
-        
+
         sections.forEach(section => {
             const sectionTop = section.offsetTop - 80;
             const sectionBottom = sectionTop + section.offsetHeight;
@@ -470,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSectionId = section.id;
             }
         });
-        
+
         if (window.scrollY < sections[0].offsetTop - 80) {
              currentSectionId = 'hero';
         }
