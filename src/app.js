@@ -1,21 +1,21 @@
 // ASCII Art Animation and Portfolio JavaScript
 const asciiArtContent = `
-               .                   
-              .=.    .             
-       ..     :+-    :-            
-      .=.     -+=.   :+:           
-      -+:    .=++:   :+=:          
-     :++:    :+++=.  :++=.         
-    .=++:   .=++++:  :+++=.          
-    -+++-   .=++++:  :++++-         
-   .=+++-   .-+++=.  .+++=.         
-    -+++-    -+++-.  .=++:       
-    .-++-    :+++:   .=+=.         
-     .=+=.   .=+=.   .==.          
-      :==.   .=+-    .=:           
-       :=.   .-+:     :            
-        .     -=.                  
-              ::                   
+               .
+              .=.    .
+       ..     :+-    :-
+      .=.     -+=.   :+:
+      -+:    .=++:   :+=:
+     :++:    :+++=.  :++=.
+    .=++:   .=++++:  :+++=.
+    -+++-   .=++++:  :++++-
+   .=+++-   .-+++=.  .+++=.
+    -+++-    -+++-.  .=++:
+    .-++-    :+++:   .=+=.
+     .=+=.   .=+=.   .==.
+      :==.   .=+-    .=:
+       :=.   .-+:     :
+        .     -=.
+              ::
 `;const animatedAsciiArtContainer = document.getElementById('animatedAsciiArtContainer');
 if (animatedAsciiArtContainer) {
     const NOISE_CHARS = [".", "`", "'", " ", "~", ","];
@@ -154,7 +154,7 @@ if (animatedAsciiArtContainer) {
         const interval = isFullyRevealed ? POST_REVEAL_UPDATE_INTERVAL : TENDRIL_STEP_INTERVAL;
         if (deltaTime < interval) return;
         lastUpdateTime = timestamp;
-        
+
         // Throttle animation when page is not visible
         if (document.hidden) return;
 
@@ -316,7 +316,7 @@ if (animatedAsciiArtContainer) {
     }
 
     initializeArt();
-    
+
     // IMMEDIATE FIX: Force correct positioning of first character
     if (charGrid.length > 0 && charGrid[0] && charGrid[0].length > 15) {
         // Move the dot from position 0 to position 15 (centered)
@@ -344,7 +344,7 @@ if (animatedAsciiArtContainer) {
         // Force immediate render
         renderArt();
     }
-    
+
     if (charGrid.length > 0 && artDimensions.width > 0) {
         animationFrameId = requestAnimationFrame(animate);
     }
@@ -373,10 +373,22 @@ function loadRemainingContent() {
             </h2>
             <div class="project-grid">
                 <div class="project-card">
+                    <h3 class="project-title">BRIO Health AI</h3>
+                    <span class="project-company">Suryavanshi Ventures</span>
+                    <p class="project-description">
+                        Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
+                        LangGraph agents to enhance information access for healthcare professionals.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">LangGraph</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
+                        <span class="tech-tag">FastAPI</span> <span class="tech-tag">Redis</span> <span class="tech-tag">Poetry</span>
+                    </div>
+                </div>
+                <div class="project-card">
                     <h3 class="project-title">Monefy - Expense Manager</h3>
                     <span class="project-company">Personal Project</span>
                     <p class="project-description">
-                        Developed a secure, self-hosted expense management application prioritizing user data privacy. Built solo using modern full-stack 
+                        Developed a secure, self-hosted expense management application prioritizing user data privacy. Built solo using modern full-stack
                         technologies with containerized deployment for seamless scaling and maintenance.
                     </p>
                     <div class="tech-stack">
@@ -397,18 +409,6 @@ function loadRemainingContent() {
                     </div>
                     <div class="project-links">
                         <a href="https://soundrex.vercel.app" target="_blank" rel="noopener noreferrer" class="project-link">Live Demo</a>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <h3 class="project-title">BRIO Health AI</h3>
-                    <span class="project-company">Suryavanshi Ventures</span>
-                    <p class="project-description">
-                        Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
-                        LangGraph agents to enhance information access for healthcare professionals.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">LangGraph</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
-                        <span class="tech-tag">FastAPI</span> <span class="tech-tag">Redis</span> <span class="tech-tag">Poetry</span>
                     </div>
                 </div>
             </div>
@@ -467,11 +467,11 @@ function loadRemainingContent() {
         mainContent.appendChild(showcaseSection);
         mainContent.appendChild(connectSection);
         mainContent.className = 'main-content';
-        
+
         // Show the sections after they're loaded
         showcaseSection.style.display = 'block';
         connectSection.style.display = 'block';
-        
+
         console.log('Content loaded successfully, sections count:', mainContent.children.length);
     } else {
         console.error('Main content element not found!');
@@ -495,7 +495,7 @@ function loadRemainingContent() {
         bgOverlay.className = 'fixed-background-overlay';
         bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
         document.body.insertBefore(bgOverlay, document.body.firstChild);
-        
+
         const particleContainer = document.createElement('div');
         particleContainer.className = 'particle-effects-container';
         particleContainer.id = 'particle-container';
@@ -511,12 +511,12 @@ function initializePortfolio() {
         const mainContent = document.getElementById('main-content');
         const showcaseSection = document.getElementById('showcase');
         const connectSection = document.getElementById('connect');
-        
+
         // Check if sections exist but are hidden or have placeholder content
-        const needsLoad = !showcaseSection || !connectSection || 
+        const needsLoad = !showcaseSection || !connectSection ||
                          showcaseSection.innerHTML.includes('Loading...') ||
                          connectSection.innerHTML.includes('Loading...');
-        
+
         if (needsLoad) {
             console.log('Content not loaded, loading now...');
             loadRemainingContent();
@@ -543,7 +543,7 @@ if (document.readyState === 'loading') {
     initializePortfolio();
 }
 
-// Set current year  
+// Set current year
 setTimeout(() => {
     const currentYearSpan = document.getElementById('currentYear');
     if (currentYearSpan) {
