@@ -124,7 +124,7 @@
 )
 
 #exp(
-  role: link("https://soundrex.vercel.app")[Soundrex - Music Player],
+  role: link("https://soundrex.netlify.app")[Soundrex - Music Player],
   project: "Creator & Full-Stack Developer",
   date: "Aug 2021 - Feb 2022",
   summary: "Developed a full-stack frontend for YouTube Music with an integrated downloader service",
