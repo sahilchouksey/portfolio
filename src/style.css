@@ -15,7 +15,7 @@
 
 .project-grid{display:grid;gap:2rem}
 @media (min-width:1024px){.project-grid{gap:2.5rem}}
-.project-card{background-color:var(--card-bg-rgba);border:1px solid rgba(var(--border-color-rgb),0.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:1.5rem;border-radius:0.5rem;transition:all 0.3s ease-in-out}
+.project-card{background-color:var(--card-bg-rgba);border:1px solid rgba(var(--border-color-rgb),0.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:1.5rem;border-radius:0.5rem;transition:all 0.3s ease-in-out;display:block;text-decoration:none;color:inherit}
 .project-card:hover{transform:scale(1.02);box-shadow:0 10px 15px -3px rgba(var(--cyan-700-rgb),0.2),0 4px 6px -4px rgba(var(--cyan-700-rgb),0.2);border-color:rgba(var(--cyan-600-rgb),0.6)}
 .project-title{font-size:1.25rem;line-height:1.75rem;font-weight:600;color:var(--cyan-300)}
 .project-company{display:block;font-size:0.875rem;line-height:1.25rem;color:var(--slate-400);margin-top:0.25rem;margin-bottom:0.75rem}
@@ -41,7 +41,7 @@
 .contact-social-icons a:hover{color:var(--cyan-300)}
 .contact-social-icons svg{width:20px;height:20px}
 
-.site-footer{padding-top:2rem;padding-bottom:2rem;border-top:1px solid rgba(var(--border-color-rgb),0.7)}
+.site-footer{padding-top:2rem;padding-bottom:2rem}
 .footer-content{max-width:1024px;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem;text-align:center}
 @media (min-width:640px){.footer-content{padding-left:1.5rem;padding-right:1.5rem}}
 @media (min-width:1024px){.footer-content{padding-left:2rem;padding-right:2rem}}
