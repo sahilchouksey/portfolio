@@ -1,0 +1,26 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "Performance-optimized portfolio following the 14KB rule for maximum speed",
+  "main": "app.js",
+  "scripts": {
+    "clean": "rm -rf dist && mkdir dist",
+    "copy-assets": "cp src/*.pdf src/*.json src/*.txt src/*.xml src/.htaccess src/structured-data.json dist/ 2>/dev/null || true",
+    "minify:html": "html-minifier-terser --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true src/index-minimal.html -o dist/index.html",
+    "minify:css": "uglifycss src/style.css --output dist/style.css",
+    "minify:js": "terser src/app.js -o dist/app.js -c -m",
+    "compress": "gzip -9 -c dist/index.html > dist/index.html.gz && gzip -9 -c dist/style.css > dist/style.css.gz && gzip -9 -c dist/app.js > dist/app.js.gz",
+    "build": "npm run clean && npm run minify:html && npm run minify:css && npm run minify:js && npm run copy-assets && npm run compress",
+    "dev": "python3 -m http.server 8000 --directory src",
+    "serve": "python3 -m http.server 8000 --directory dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["portfolio", "performance", "14kb-rule", "optimization"],
+  "author": "Sahil Chouksey",
+  "license": "ISC",
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.43.1",
+    "uglifycss": "^0.0.29"
+  }
+}

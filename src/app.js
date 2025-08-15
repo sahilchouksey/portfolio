@@ -464,6 +464,11 @@ function loadRemainingContent() {
         mainContent.appendChild(showcaseSection);
         mainContent.appendChild(connectSection);
         mainContent.className = 'main-content';
+        
+        // Show the sections after they're loaded
+        showcaseSection.style.display = 'block';
+        connectSection.style.display = 'block';
+        
         console.log('Content loaded successfully, sections count:', mainContent.children.length);
     } else {
         console.error('Main content element not found!');
@@ -497,30 +502,50 @@ function loadRemainingContent() {
 }
 
 // Portfolio specific functionality
-document.addEventListener('DOMContentLoaded', () => {
-    // Ensure content loads reliably - try multiple times if needed
+function initializePortfolio() {
+    // Load content and make sections visible
     function ensureContentLoaded() {
         const mainContent = document.getElementById('main-content');
-        if (mainContent && (!mainContent.innerHTML || mainContent.innerHTML.trim() === '')) {
+        const showcaseSection = document.getElementById('showcase');
+        const connectSection = document.getElementById('connect');
+        
+        // Check if sections exist but are hidden or have placeholder content
+        const needsLoad = !showcaseSection || !connectSection || 
+                         showcaseSection.innerHTML.includes('Loading...') ||
+                         connectSection.innerHTML.includes('Loading...');
+        
+        if (needsLoad) {
             console.log('Content not loaded, loading now...');
             loadRemainingContent();
+            return true;
+        } else {
+            // Ensure sections are visible
+            if (showcaseSection) showcaseSection.style.display = 'block';
+            if (connectSection) connectSection.style.display = 'block';
+            return false;
         }
     }
 
-    // Load content immediately
-    loadRemainingContent();
+    // Try to load content, with fallback
+    const loaded = ensureContentLoaded();
+    if (loaded) {
+        setTimeout(ensureContentLoaded, 250);
+    }
+}
 
-    // Double-check after a short delay to ensure it loaded
-    setTimeout(ensureContentLoaded, 100);
-    setTimeout(ensureContentLoaded, 500);
+// Initialize when DOM is ready OR immediately if already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePortfolio);
+} else {
+    initializePortfolio();
+}
 
-    // Set current year
-    setTimeout(() => {
-        const currentYearSpan = document.getElementById('currentYear');
-        if (currentYearSpan) {
-            currentYearSpan.textContent = new Date().getFullYear().toString();
-        }
-    }, 100);
+// Set current year  
+setTimeout(() => {
+    const currentYearSpan = document.getElementById('currentYear');
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear().toString();
+    }
 
     // Active nav scrolling
     const navLinks = document.querySelectorAll('.main-nav a');
@@ -572,4 +597,4 @@ document.addEventListener('DOMContentLoaded', () => {
             particleContainer.appendChild(particle);
         }
     }
-});
+}, 100);
