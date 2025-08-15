@@ -19,14 +19,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg-color:#020617;--text-content:#cbd5e1;--accent-color:#22d3ee;--cyan-300:#67e8f9;--cyan-600:#0891b2;--cyan-700:#0e7490;--slate-200:#e2e8f0;--slate-400:#94a3b8;--header-bg-rgba:rgba(2,6,23,0.85);--border-color-rgb:51,65,85}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-content);line-height:1.7;overflow-x:hidden;padding-top:4rem}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-content);line-height:1.7;overflow-x:hidden}
 h1{color:var(--accent-color)}
 a{color:var(--accent-color);text-decoration:none}
 .dev-banner{background:linear-gradient(90deg,var(--cyan-600),var(--cyan-700));color:#fff;text-align:center;padding:.5rem 1rem;font-size:.875rem;font-weight:500;position:relative;z-index:60}
 @media(min-width:640px){.dev-banner{display:none}}
-@media(max-width:639px){body{padding-top:8rem}}
-.site-header{position:fixed;top:0;z-index:50;width:100%;background-color:var(--header-bg-rgba);backdrop-filter:blur(12px);border-bottom:1px solid rgba(var(--border-color-rgb),.7)}
-@media(max-width:639px){.site-header{top:40px}}
+.site-header{position:relative;width:100%;background-color:var(--header-bg-rgba);backdrop-filter:blur(12px);border-bottom:1px solid rgba(var(--border-color-rgb),.7)}
 .nav-container{max-width:1024px;margin:0 auto;padding:0 1rem}
 .nav-flex{display:flex;align-items:center;justify-content:space-between;height:4rem}
 .logo-link{display:flex;align-items:center}
@@ -37,7 +35,7 @@ a{color:var(--accent-color);text-decoration:none}
 .main-nav a:hover{color:var(--cyan-300)}
 .main-nav a.active{color:var(--cyan-300)}
 .content-container{max-width:1024px;margin:0 auto;padding:0 1rem}
-#hero{min-height:calc(100vh - 8rem);padding:4rem 0;display:flex;align-items:center}
+#hero{min-height:100vh;padding:4rem 0;display:flex;align-items:center}
 .hero-grid{display:grid;gap:2rem;align-items:center}
 @media(min-width:768px){.hero-grid{grid-template-columns:1fr 1fr;gap:4rem}}
 .hero-title-main{font-size:2.25rem;line-height:1.1;font-weight:800}
