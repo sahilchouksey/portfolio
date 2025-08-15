@@ -14,7 +14,7 @@
 
 = Education
 #edu(
-  institution: "Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)",
+  institution: link("rgpv.ac.in")[Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)],
   date: "July 2024 - Aug 2026",
   location: "Bhopal, India",
   gpa: "7.8/10",
@@ -24,7 +24,7 @@
 )
 
 #edu(
-  institution: "Makhanlal Chaturvedi University",
+  institution: link("mcu.ac.in")[Makhanlal Chaturvedi University],
   date: "July 2020 - Aug 2023",
   location: "Bhopal, India",
   gpa: "7.9/10",
@@ -77,7 +77,7 @@
   project: "Suryavanshi Ventures",
   date: "July 2023 - Present",
   location: "Jabalpur, India",
-  summary: "Led backend for BRIO Health AI and owned cross-team integrations",
+  summary: [Led backend for #link("https://briohealth.ai")[BRIO Health AI] and owned cross-team integrations],
   details: [
     - Created *LangGraph* agent with custom *RAG pipeline* for intelligent query routing
     - Achieved *80% performance gains* in data pipelines using *Python/FastAPI* and *Redis*
