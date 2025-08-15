@@ -77,7 +77,8 @@
   project: "Suryavanshi Ventures",
   date: "July 2023 - Present",
   location: "Jabalpur, India",
-  summary: link("https://briohealth.ai")[Led backend for BRIO Health AI and owned cross-team integrations],
+  summary: [Led backend for ] + link("https://briohealth.ai")[BRIO Health AI] + [ and owned cross-team integrations],
+
   details: [
     - Created *LangGraph* agent with custom *RAG pipeline* for intelligent query routing
     - Achieved *80% performance gains* in data pipelines using *Python/FastAPI* and *Redis*
