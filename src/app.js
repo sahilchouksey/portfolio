@@ -350,199 +350,6 @@ if (animatedAsciiArtContainer) {
     }
 }
 
-// Load remaining content dynamically
-function loadRemainingContent() {
-    console.log('Loading remaining content...');
-    const mainContent = document.getElementById('main-content');
-    const footer = document.getElementById('site-footer');
-
-    console.log('Main content element:', mainContent);
-    console.log('Footer element:', footer);
-
-    if (mainContent) {
-        // Clear any existing content first
-        mainContent.innerHTML = '';
-
-        // Add content with proper structure
-        const showcaseSection = document.createElement('section');
-        showcaseSection.id = 'showcase';
-        showcaseSection.innerHTML = `
-            <h2 class="section-title-container">
-                <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-                Featured Work
-            </h2>
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3 class="project-title">BRIO Health AI</h3>
-                    <span class="project-company">Suryavanshi Ventures</span>
-                    <p class="project-description">
-                        Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
-                        LangGraph agents to enhance information access for healthcare professionals.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">LangGraph</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
-                        <span class="tech-tag">FastAPI</span> <span class="tech-tag">Redis</span> <span class="tech-tag">Poetry</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <h3 class="project-title">Monefy - Expense Manager</h3>
-                    <span class="project-company">Personal Project</span>
-                    <p class="project-description">
-                        Developed a secure, self-hosted expense management application prioritizing user data privacy. Built solo using modern full-stack
-                        technologies with containerized deployment for seamless scaling and maintenance.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">React</span> <span class="tech-tag">Next.js</span> <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">Docker</span> <span class="tech-tag">Vercel</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <h3 class="project-title">Soundrex - Music Player</h3>
-                    <span class="project-company">Personal Project</span>
-                    <p class="project-description">
-                        Created a full-stack YouTube Music frontend with integrated downloader service. Features responsive design with Material UI,
-                        Node.js backend for audio streaming, and MongoDB for metadata management.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">React</span> <span class="tech-tag">Material UI</span> <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">MongoDB</span> <span class="tech-tag">YouTube API</span> <span class="tech-tag">Express</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="https://soundrex.vercel.app" target="_blank" rel="noopener noreferrer" class="project-link">Live Demo</a>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const connectSection = document.createElement('section');
-        connectSection.id = 'connect';
-        connectSection.innerHTML = `
-            <h2 class="section-title-container">
-                 <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-                Connect & Skills
-            </h2>
-            <div class="connect-skills-grid">
-                <div class="skills-column">
-                    <h3 class="column-title">Core Skills</h3>
-                    <ul class="skills-list">
-                        <li><span class="skill-bullet">•</span> JavaScript, TypeScript, Go, Python</li>
-                        <li><span class="skill-bullet">•</span> React.js, Next.js, Node.js</li>
-                        <li><span class="skill-bullet">•</span> PostgreSQL, MongoDB, REST APIs</li>
-                        <li><span class="skill-bullet">•</span> HTML5, CSS3, Tailwind CSS</li>
-                        <li><span class="skill-bullet">•</span> Docker, Git, CI/CD</li>
-                        <li><span class="skill-bullet">•</span> AI/ML Integration</li>
-                    </ul>
-                </div>
-                <div class="education-column">
-                    <h3 class="column-title">Education</h3>
-                    <div class="education-item" style="margin-bottom: 1rem;">
-                        <p class="education-degree">MCA - Master of Computer Applications</p>
-                        <p class="education-institution">Rajiv Gandhi Proudyogiki Vishwavidyalaya (Pursuing)</p>
-                    </div>
-                    <div class="education-item">
-                        <p class="education-degree">BCA - Bachelor of Computer Applications</p>
-                        <p class="education-institution">Makhanlal Chaturvedi National University</p>
-                    </div>
-                </div>
-                <div class="contact-column">
-                    <h3 class="column-title">Get in Touch</h3>
-                    <p class="contact-text">
-                        Open to new projects and collaborations. Let's build something great together.
-                    </p>
-                    <p>
-                        <a href="mailto:me@sahilchouksey.in" class="contact-email">me@sahilchouksey.in</a>
-                    </p>
-                    <div class="contact-social-icons">
-                        <a href="https://github.com/sahilchouksey" target="_blank" rel="noopener noreferrer">
-                            <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                        </a>
-                        <a href="https://linkedin.com/in/sahilchouksey" target="_blank" rel="noopener noreferrer">
-                            <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        mainContent.appendChild(showcaseSection);
-        mainContent.appendChild(connectSection);
-        mainContent.className = 'main-content';
-
-        // Show the sections after they're loaded
-        showcaseSection.style.display = 'block';
-        connectSection.style.display = 'block';
-
-        console.log('Content loaded successfully, sections count:', mainContent.children.length);
-    } else {
-        console.error('Main content element not found!');
-    }
-
-    if (footer) {
-        footer.innerHTML = `
-            <div class="footer-content">
-                <p class="footer-text">&copy; <span id="currentYear"></span> Sahil Chouksey. System Online.</p>
-            </div>
-        `;
-        footer.className = 'site-footer';
-        console.log('Footer loaded successfully');
-    } else {
-        console.error('Footer element not found!');
-    }
-
-    // Add background effects with delay to improve initial load
-    setTimeout(() => {
-        const bgOverlay = document.createElement('div');
-        bgOverlay.className = 'fixed-background-overlay';
-        bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
-        document.body.insertBefore(bgOverlay, document.body.firstChild);
-
-        const particleContainer = document.createElement('div');
-        particleContainer.className = 'particle-effects-container';
-        particleContainer.id = 'particle-container';
-        document.body.insertBefore(particleContainer, document.body.firstChild);
-    }, 500);    console.log('Background effects added');
-    console.log('loadRemainingContent function completed');
-}
-
-// Portfolio specific functionality
-function initializePortfolio() {
-    // Load content and make sections visible
-    function ensureContentLoaded() {
-        const mainContent = document.getElementById('main-content');
-        const showcaseSection = document.getElementById('showcase');
-        const connectSection = document.getElementById('connect');
-
-        // Check if sections exist but are hidden or have placeholder content
-        const needsLoad = !showcaseSection || !connectSection ||
-                         showcaseSection.innerHTML.includes('Loading...') ||
-                         connectSection.innerHTML.includes('Loading...');
-
-        if (needsLoad) {
-            console.log('Content not loaded, loading now...');
-            loadRemainingContent();
-            return true;
-        } else {
-            // Ensure sections are visible
-            if (showcaseSection) showcaseSection.style.display = 'block';
-            if (connectSection) connectSection.style.display = 'block';
-            return false;
-        }
-    }
-
-    // Try to load content, with fallback
-    const loaded = ensureContentLoaded();
-    if (loaded) {
-        setTimeout(ensureContentLoaded, 250);
-    }
-}
-
-// Initialize when DOM is ready OR immediately if already loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializePortfolio);
-} else {
-    initializePortfolio();
-}
-
 // Set current year
 setTimeout(() => {
     const currentYearSpan = document.getElementById('currentYear');
@@ -583,21 +390,33 @@ setTimeout(() => {
         window.addEventListener('scroll', changeNavActiveState);
     }
 
-    // Particle generation
-    const particleContainer = document.getElementById('particle-container');
-    if (particleContainer) {
-        const numParticles = 20; // Reduced from 40
-        for (let i = 0; i < numParticles; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            const size = Math.random() * 2.5 + 1;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.top = `${Math.random() * 100}%`;
-            particle.style.animationDuration = `${Math.random() * 25 + 20}s`;
-            particle.style.animationDelay = `${Math.random() * -20}s`;
-            particleContainer.appendChild(particle);
+    // Add background effects with delay to improve initial load
+    setTimeout(() => {
+        const bgOverlay = document.createElement('div');
+        bgOverlay.className = 'fixed-background-overlay';
+        bgOverlay.innerHTML = '<div class="bg-grid-pattern-container"><div class="bg-grid-pattern"></div></div>';
+        document.body.insertBefore(bgOverlay, document.body.firstChild);
+
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'particle-effects-container';
+        particleContainer.id = 'particle-container';
+        document.body.insertBefore(particleContainer, document.body.firstChild);
+
+        // Particle generation
+        if (particleContainer) {
+            const numParticles = 20;
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 2.5 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 25 + 20}s`;
+                particle.style.animationDelay = `${Math.random() * -20}s`;
+                particleContainer.appendChild(particle);
+            }
         }
-    }
+    }, 500);
 }, 100);
