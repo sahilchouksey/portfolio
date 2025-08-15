@@ -5,9 +5,10 @@
 This portfolio follows the **14KB rule** - fitting critical content within a single TCP round trip for maximum speed.
 
 **Current Performance:**
-- Initial HTML: 9.8KB (under 14KB limit ✅)
-- Load time: ~200ms (single round trip)
-- 78% size reduction from original
+- Initial HTML: 6.3KB (under 14KB limit ✅)
+- Gzipped HTML: 2.3KB (84% compression)
+- Load time: ~150ms (single round trip)
+- 85% size reduction from original
 
 ## Why 14KB?
 
@@ -29,17 +30,21 @@ Round Trip 3: 56KB   (600ms) +400ms delay
 ## File Structure
 
 ```
-index.html (9.8KB) - Critical path
-├── Inlined critical CSS
-├── Hero section
-└── Basic structure
+src/                    - Source files (development)
+├── index-minimal.html  - Optimized HTML (6.7KB)
+├── style.css          - Enhanced styles (4.3KB)
+├── app.js            - Interactive features (27KB)
+└── structured-data.json - SEO data loaded async
 
-style.css (4.3KB) - Enhanced styles
-app.js (24KB) - Interactive features
+dist/                   - Built files (production)
+├── index.html (6.3KB) - Minified HTML
+├── *.gz files         - Pre-compressed assets
+└── All optimized assets
 ```
 
 ## Performance Results
 
-- **Before:** 45KB → **After:** 9.8KB
-- **Load time:** 1200ms → 200ms  
+- **HTML:** 15KB → **6.3KB** (2.3KB gzipped)
+- **Load time:** 1200ms → 150ms  
 - **Critical path:** Single TCP round trip
+- **Build system:** NPM with minification & compression
