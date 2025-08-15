@@ -373,39 +373,42 @@ function loadRemainingContent() {
             </h2>
             <div class="project-grid">
                 <div class="project-card">
+                    <h3 class="project-title">Monefy - Expense Manager</h3>
+                    <span class="project-company">Personal Project</span>
+                    <p class="project-description">
+                        Developed a secure, self-hosted expense management application prioritizing user data privacy. Built solo using modern full-stack 
+                        technologies with containerized deployment for seamless scaling and maintenance.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">React</span> <span class="tech-tag">Next.js</span> <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">Docker</span> <span class="tech-tag">Vercel</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <h3 class="project-title">Soundrex - Music Player</h3>
+                    <span class="project-company">Personal Project</span>
+                    <p class="project-description">
+                        Created a full-stack YouTube Music frontend with integrated downloader service. Features responsive design with Material UI,
+                        Node.js backend for audio streaming, and MongoDB for metadata management.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">React</span> <span class="tech-tag">Material UI</span> <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">MongoDB</span> <span class="tech-tag">YouTube API</span> <span class="tech-tag">Express</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://soundrex.vercel.app" target="_blank" rel="noopener noreferrer" class="project-link">Live Demo</a>
+                    </div>
+                </div>
+                <div class="project-card">
                     <h3 class="project-title">BRIO Health AI</h3>
                     <span class="project-company">Suryavanshi Ventures</span>
                     <p class="project-description">
                         Led backend development for an AI-powered medical search engine, engineering a Retrieval Augmented Generation (RAG) system with
-                        Gemini models to enhance information access for healthcare professionals.
+                        LangGraph agents to enhance information access for healthcare professionals.
                     </p>
                     <div class="tech-stack">
-                        <span class="tech-tag">Gemini Models</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
-                        <span class="tech-tag">Vector DBs</span> <span class="tech-tag">APIs</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <h3 class="project-title">Doctor Help Platform</h3>
-                    <span class="project-company">TVM Consulting Private Limited</span>
-                    <p class="project-description">
-                        Full-stack development of a healthcare management platform using Golang (backend) and Next.js/TypeScript (frontend). Implemented
-                        GraphQL, real-time notifications, AWS S3 storage, and CI/CD pipelines.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Golang</span> <span class="tech-tag">Next.js</span> <span class="tech-tag">TypeScript</span>
-                        <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">Docker</span> <span class="tech-tag">AWS S3</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <h3 class="project-title">Serma Event Management App</h3>
-                    <span class="project-company">Suryavanshi Ventures</span>
-                    <p class="project-description">
-                        Directed Next.js front-end development for key modules and managed the Node.js/Express.js backend for the Finance module,
-                        including Stripe integration, ensuring timely delivery under pressure.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Next.js</span> <span class="tech-tag">Node.js</span> <span class="tech-tag">Express.js</span>
-                        <span class="tech-tag">Stripe</span> <span class="tech-tag">React</span>
+                        <span class="tech-tag">LangGraph</span> <span class="tech-tag">RAG</span> <span class="tech-tag">Python</span>
+                        <span class="tech-tag">FastAPI</span> <span class="tech-tag">Redis</span> <span class="tech-tag">Poetry</span>
                     </div>
                 </div>
             </div>
