@@ -75,7 +75,7 @@
 #exp(
   role: "Full Stack Developer",
   project: "Suryavanshi Ventures",
-  date: "July 2023 - Present",
+  date: "July 2024 - Present",
   location: "Jabalpur, India",
   summary: [Led backend for ] + link("https://briohealth.ai")[BRIO Health AI] + [ and owned cross-team integrations],
 
