@@ -12,65 +12,6 @@
   // footer: [#align(center)[#emph[References available on request]]]
 )
 
-= Education
-#edu(
-  institution: link("https://rgpv.ac.in")[Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)],
-  date: "July 2024 - Aug 2026",
-  location: "Bhopal, India",
-  gpa: "7.8/10",
-  degrees: (
-    ("Master of Computer Applications", "Computer Science and Engineering"),
-  ),
-)
-
-#edu(
-  institution: link("https://mcu.ac.in")[Makhanlal Chaturvedi University],
-  date: "July 2020 - Aug 2023",
-  location: "Bhopal, India",
-  gpa: "7.9/10",
-  degrees: (
-    ("Bachelor of Computer Applications", "Computer Applications"),
-  ),
-)
-
-= Skills
-#skills((
-  ("Programming Languages", (
-    [JavaScript (ESNext)],
-    [TypeScript],
-    [Python],
-    [Go],
-    [PHP],
-  )),
-  ("Frameworks & Libraries", (
-    [Node.js],
-    [Next.js],
-    [React.js],
-    [NestJS],
-    [LangChain],
-    [LangGraph],
-    [Express.js],
-    [React Native],
-    [Tailwind CSS],
-  )),
-  ("Databases & DevOps", (
-    [PostgreSQL],
-    [MongoDB],
-    [MySQL],
-    [Docker],
-    [Git],
-    [GitLab CI/CD],
-    [Linux],
-  )),
-  ("Technical Skills", (
-    [Full-Stack Development],
-    [RAG Architecture],
-    [LLM Integration],
-    [API Design (RESTful)],
-  )),
-))
-
-
 = Experience
 #exp(
   role: "Full Stack Developer",
@@ -134,6 +75,66 @@
     - Used MongoDB for metadata, React/Material UI for responsive frontend
   ]
 )
+
+= Skills
+#skills((
+  ("Programming Languages", (
+    [JavaScript (ESNext)],
+    [TypeScript],
+    [Python],
+    [Go],
+    [PHP],
+  )),
+  ("Frameworks & Libraries", (
+    [Node.js],
+    [Next.js],
+    [React.js],
+    [NestJS],
+    [LangChain],
+    [LangGraph],
+    [Express.js],
+    [React Native],
+    [Tailwind CSS],
+  )),
+  ("Databases & DevOps", (
+    [PostgreSQL],
+    [MongoDB],
+    [MySQL],
+    [Docker],
+    [Git],
+    [GitLab CI/CD],
+    [Linux],
+  )),
+  ("Technical Skills", (
+    [Full-Stack Development],
+    [RAG Architecture],
+    [LLM Integration],
+    [API Design (RESTful)],
+  )),
+))
+
+= Education
+#edu(
+  institution: link("https://rgpv.ac.in")[Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)],
+  date: "July 2024 - Aug 2026",
+  location: "Bhopal, India",
+  gpa: "7.8/10",
+  degrees: (
+    ("Master of Computer Applications", "Computer Science and Engineering"),
+  ),
+)
+
+#edu(
+  institution: link("https://mcu.ac.in")[Makhanlal Chaturvedi University],
+  date: "July 2020 - Aug 2023",
+  location: "Bhopal, India",
+  gpa: "7.9/10",
+  degrees: (
+    ("Bachelor of Computer Applications", "Computer Applications"),
+  ),
+)
+
+
 
 
 = Certifications
