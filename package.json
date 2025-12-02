@@ -1,26 +1,39 @@
 {
-  "name": "portfolio",
+  "name": "osmic-portfolio-clone",
+  "private": true,
   "version": "1.0.0",
-  "description": "Performance-optimized portfolio following the 14KB rule for maximum speed",
-  "main": "app.js",
+  "type": "module",
+  "description": "A pixel-perfect clone of the Osmic portfolio website built with React + Vite",
+  "keywords": [
+    "react",
+    "vite",
+    "portfolio",
+    "webflow",
+    "clone",
+    "responsive"
+  ],
   "scripts": {
-    "clean": "rm -rf dist && mkdir dist",
-    "copy-assets": "cp src/*.pdf src/*.json src/*.txt src/*.xml src/.htaccess src/structured-data.json dist/ 2>/dev/null || true",
-    "minify:html": "html-minifier-terser --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true src/index-minimal.html -o dist/index.html",
-    "minify:css": "uglifycss src/style.css --output dist/style.css",
-    "minify:js": "terser src/app.js -o dist/app.js -c -m",
-    "compress": "gzip -9 -c dist/index.html > dist/index.html.gz && gzip -9 -c dist/style.css > dist/style.css.gz && gzip -9 -c dist/app.js > dist/app.js.gz",
-    "build": "npm run clean && npm run minify:html && npm run minify:css && npm run minify:js && npm run copy-assets && npm run compress",
-    "dev": "python3 -m http.server 8000 --directory src",
-    "serve": "python3 -m http.server 8000 --directory dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "npm run build:resume && vite build",
+    "build:resume": "typst compile src/resume/resume.typ public/resume.pdf",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "keywords": ["portfolio", "performance", "14kb-rule", "optimization"],
-  "author": "Sahil Chouksey",
-  "license": "ISC",
+  "dependencies": {
+    "motion": "^12.23.22",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "reactflow": "^11.11.4"
+  },
   "devDependencies": {
-    "html-minifier-terser": "^7.2.0",
-    "terser": "^5.43.1",
-    "uglifycss": "^0.0.29"
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "vite": "^7.1.7"
   }
 }

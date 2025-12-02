@@ -43,7 +43,7 @@ and creates the header and footer for the resume.
   show link: set text(
     fill: rgb("#0645AD")
   )
-  
+
   // Header parameters, including author and contact information.
   show heading: it => [
     #pad(top: 0pt, bottom: -15pt, [#smallcaps(it.body)])
@@ -59,7 +59,7 @@ and creates the header and footer for the resume.
   pad(
     top: 0.25em,
     align(center)[
-      #smallcaps[#contacts.join("  |  ")]
+      #contacts.join("  |  ")
     ],
   )
 
