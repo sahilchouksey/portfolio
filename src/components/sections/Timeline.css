@@ -1,0 +1,683 @@
+/* Timeline Container */
+.timeline-container {
+    position: relative;
+    /* padding-left: 20px; Removed to align line and dots */
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Vertical Line */
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    /* Center with the dot */
+    width: 2px;
+    background: linear-gradient(180deg, #333 0%, #333 90%, transparent 100%);
+}
+
+/* Timeline Item */
+.timeline-item {
+    position: relative;
+    padding-bottom: 48px;
+    padding-left: 32px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+/* Dot/Marker - MOVED TO animations.css */
+/* Old rules commented out - using animations.css version instead */
+/*
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #131315;
+    border: 2px solid #555;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover .timeline-marker {
+    border-color: #fff;
+    background-color: #333;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.timeline-marker.active {
+    background-color: #22d3ee;
+    border-color: #22d3ee;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}
+*/
+
+/* Content */
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5.6px;
+}
+
+.timeline-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-date {
+    font-size: 14px;
+    color: #888;
+    font-family: 'Inter Display', sans-serif;
+    margin-bottom: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.timeline-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.timeline-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.timeline-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.timeline-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+    background-color: #fff;
+}
+
+.timeline-subtitle {
+    font-size: 16px;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+
+/* Tags */
+.timeline-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.timeline-tag {
+    font-size: 11px;
+    color: #888;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.timeline-item:hover .timeline-tag {
+    color: #ccc;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Link Arrow */
+.link-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #888;
+    transition: all 0.2s ease;
+}
+
+.timeline-item:hover .link-arrow {
+    color: #fff;
+    transform: translate(2px, -2px);
+}
+
+/* Project Zigzag Layout */
+.project-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+.project-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.project-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.project-image-wrapper {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #131315;
+    border: 1px solid #333;
+    transition: transform 0.3s ease;
+}
+
+.project-row:hover .project-image-wrapper {
+    transform: translateY(-4px);
+    border-color: #555;
+}
+
+.project-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .timeline-container {
+        padding-left: 16px;
+    }
+
+    .timeline-item {
+        padding-left: 24px;
+    }
+
+    .project-row {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .project-row.reverse .project-content {
+        order: 2;
+    }
+}
+
+/* Education Section (Bento Integration) */
+.education-bento-card {
+    grid-column: 1 / -1;
+    /* Force full width across all columns */
+    width: 100%;
+    max-width: 100%;
+    /* Override default card max-width */
+}
+
+.education-card.clickable {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.education-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+/* Override EducationCard styles when inside bento grid */
+.education-bento-card .education-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    /* Lighter bg inside card */
+    border: none;
+    height: auto;
+    /* Allow auto height */
+}
+
+.education-bento-card .education-logo-container {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 140px;
+    /* Increased width */
+    height: auto;
+    /* Allow to stretch */
+    min-height: 100%;
+    /* Ensure full height */
+    padding: 8px;
+    /* Reduced padding */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.education-bento-card .education-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.education-card:hover .education-logo {
+    transform: scale(1.05);
+}
+
+.education-bento-card .education-content {
+    padding: 16px;
+}
+
+@media (max-width: 991px) {
+    .education-bento-card {
+        grid-column: span 1;
+    }
+
+    .education-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Education Section */
+.education-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    /* Wider cards for bento feel */
+    gap: 24px;
+}
+
+.education-card {
+    display: flex;
+    background-color: #131315;
+    border-radius: 24px;
+    overflow: hidden;
+    height: 160px;
+    /* Slightly taller */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.education-card:hover {
+    transform: none;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.education-logo-container {
+    width: 160px;
+    /* Square aspect ratio matching height */
+    height: 160px;
+    background-color: #fff;
+    /* White background for logos */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    flex-shrink: 0;
+}
+
+.education-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.education-logo-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #222;
+}
+
+.education-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.education-degree {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.education-university {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.education-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.education-date {
+    font-size: 13px;
+    color: #666;
+    font-family: 'Inter Display', sans-serif;
+}
+
+.education-gpa {
+    font-size: 13px;
+    color: #22d3ee;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .education-card {
+        height: auto;
+        flex-direction: column;
+    }
+
+    .education-logo-container {
+        width: 100%;
+        height: 120px;
+    }
+}
+
+/* Project Bento Grid */
+.project-bento-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Standard 8px gap matching other sections */
+    width: 100%;
+    /* Full width to match container */
+}
+
+.project-bento-row {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    /* 25% Visual, 75% Content */
+    gap: 8px;
+    /* Standard 8px gap */
+}
+
+.project-bento-row.reverse {
+    grid-template-columns: 3fr 1fr;
+    /* 75% Content, 25% Visual */
+}
+
+.project-card {
+    background-color: #131315;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.project-card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-title-card {
+    padding: 12px 40px 24px;
+    /* Shift text to top: 12px top, 24px bottom */
+    min-height: auto;
+    justify-content: center;
+    width: 100%;
+}
+
+.project-title-card h2 {
+    margin: 0 !important;
+    /* Remove all margins for perfect centering */
+}
+
+.project-visual-card {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Vertically center content */
+    height: 100%;
+    min-height: 380px;
+    /* Taller card */
+    position: relative;
+}
+
+.project-content-card {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Keep center vertical alignment as per bento grid usually, but maybe user wants top? Image shows center. */
+    /* Wait, the user said "properply align". The image shows centered text. Usually left aligned is better. */
+    /* I will set align-items to flex-start to ensure left alignment of text block. */
+    align-items: flex-start;
+    text-align: left;
+    height: 100%;
+    min-height: 380px;
+    /* Taller card */
+}
+
+.project-logo-container {
+    width: 80px;
+    height: 80px;
+    background-color: transparent;
+    /* Transparent bg */
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* Align left */
+    margin-bottom: 24px;
+}
+
+.project-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left;
+}
+
+.project-logo.rounded {
+    border-radius: 16px;
+}
+
+.project-title-group {
+    margin-top: 0;
+    /* Remove auto margin to allow centering */
+}
+
+.project-title {
+    font-size: 32px;
+    /* Larger title */
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.1;
+}
+
+.project-subtitle {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 24px;
+}
+
+.project-tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.project-tech-tag {
+    background: rgba(34, 211, 238, 0.1);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    color: #22d3ee;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.project-description {
+    font-family: 'Inter Display', sans-serif;
+    font-size: 34px;
+    /* Larger to match summary style */
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    /* White text */
+}
+
+.project-link-icon {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.project-visual-card:hover .project-link-icon {
+    color: #fff;
+}
+
+@media (max-width: 991px) {
+    .project-bento-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .project-bento-row.reverse {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Ensure visual card always comes first on mobile */
+    .project-bento-row .project-visual-card {
+        order: 1;
+    }
+
+    .project-bento-row .project-content-card {
+        order: 2;
+    }
+
+    .project-card {
+        min-height: auto;
+    }
+
+    .project-visual-card,
+    .project-content-card {
+        min-height: 300px;
+    }
+
+    /* Year always bottom-right on mobile */
+    .project-year {
+        left: auto !important;
+        right: 16px !important;
+    }
+}
+
+/* Project Year Indicator */
+.project-year {
+    position: absolute;
+    bottom: 16px;
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.28);
+    z-index: 2;
+}
+
+.project-year.year-left {
+    left: 16px;
+    right: auto;
+}
+
+.project-year.year-right {
+    right: 16px;
+    left: auto;
+}
+
+/* Custom Card Styles */
+.custom-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+    z-index: 0;
+}
+
+.custom-card:hover .custom-card-bg {
+    transform: scale(1.1);
+}
+
+.custom-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.custom-card:hover .custom-card-overlay {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.custom-logo-container {
+    background: transparent;
+    z-index: 2;
+    width: auto;
+    height: auto;
+    margin-bottom: 16px;
+}
+
+.custom-logo-text {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    transition: transform 0.3s ease;
+}
+
+.custom-card:hover .custom-logo-text {
+    transform: scale(1.1);
+    /* Zoom logo text */
+}
+
+.custom-subtitle {
+    color: #ddd;
+    /* Grayish */
+    font-size: 16px;
+    margin-bottom: 24px;
+}
+
+.custom-arrow {
+    color: #888;
+    /* Gray initially */
+    z-index: 3;
+}
+
+.custom-card:hover .custom-arrow {
+    color: #fff;
+    /* White on hover */
+}
+
+/* General Hover Brightness */
+.project-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    filter: brightness(1.1);
+}

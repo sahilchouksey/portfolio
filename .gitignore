@@ -1,23 +1,50 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
 # Logs
+logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Environment files
-.env
-.env.local
+node_modules
+dist
+dist-ssr
+*.local
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+.vscode
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 
+
+# Old source (migrated to src/)
+src-old/
+
+# IDE/Editor configs
+.claude/
+.cursor/
+.taskmaster/
+opencode.json
+
+# Misc
+.DS_Store
+dev-server.log
+osmic-portfolio-clone/

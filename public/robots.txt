@@ -1,0 +1,42 @@
+# Robots.txt for sahilchouksey.in
+# Full Stack Developer & AI Engineer Portfolio
+
+User-agent: *
+Allow: /
+
+# Main sitemap
+Sitemap: https://sahilchouksey.in/sitemap.xml
+
+# Allow search engines to crawl all content
+Crawl-delay: 1
+
+# Allow important files
+Allow: /resume.pdf
+Allow: /manifest.json
+Allow: /images/
+
+# Block unnecessary files
+Disallow: /*.map
+Disallow: /*.log
+Disallow: /src/
+Disallow: /node_modules/
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Allow social media crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /

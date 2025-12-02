@@ -1,0 +1,71 @@
+{
+  "name": "Sahil Chouksey - Full Stack Developer & AI Engineer",
+  "short_name": "Sahil Chouksey",
+  "description": "Full Stack Developer and Applied AI Engineer from Jabalpur, India. Specializing in AI-powered healthcare systems, LangGraph, RAG architectures, and scalable web applications.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#131315",
+  "theme_color": "#22d3ee",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ],
+  "categories": [
+    "portfolio",
+    "developer",
+    "technology",
+    "artificial intelligence",
+    "software engineering"
+  ],
+  "lang": "en-US",
+  "dir": "ltr",
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Experience",
+      "short_name": "Experience",
+      "description": "View my work experience and tech stack",
+      "url": "/#Experience"
+    },
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "Browse my projects and applications",
+      "url": "/#Projects"
+    },
+    {
+      "name": "Contact",
+      "short_name": "Contact",
+      "description": "Get in touch with me",
+      "url": "/#Footer"
+    }
+  ]
+}

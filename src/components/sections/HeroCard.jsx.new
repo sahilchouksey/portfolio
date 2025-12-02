@@ -1,0 +1,78 @@
+// HeroCard Component - Main hero section with ASCII avatar and intro
+import React from 'react';
+import { useScrollAnimation } from '../../hooks/useScrollAnimation';
+import AsciiAvatar from './AsciiAvatar';
+
+const HeroCard = ({
+  animationType = 'fadeInUp',
+  delay = 200,
+  threshold = 0.15,
+  name,
+  title,
+  subtitle,
+  description,
+  onContactClick,
+  resumeUrl = '/RESUME.pdf'
+}) => {
+  const animation = useScrollAnimation(animationType, {
+    delay,
+    threshold,
+    callbacks: {
+      onEnter: () => console.log('🎯 Hero card animated in')
+    }
+  });
+
+  return (
+    <div
+      id="w-node-_6d7a91e3-1796-9bef-6cf4-0eccd6b5b420-003f9adc"
+      className="card"
+      ref={animation.ref}
+    >
+      <div className="">
+        <AsciiAvatar />
+      </div>
+
+      <h1 className="h1-heading">
+        {name}<br />
+        {title}{' '}
+        <span className="span-gray">{subtitle}</span>
+      </h1>
+
+      {description && (
+        <p className="hero-description" dangerouslySetInnerHTML={{ __html: description }} />
+      )}
+
+      <div className="hero-actions">
+        <button 
+          onClick={onContactClick}
+          className="btn-primary"
+          aria-label="Get in touch"
+        >
+          <span>Get in touch</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m6 17 5-5-5-5"/>
+            <path d="m13 17 5-5-5-5"/>
+          </svg>
+        </button>
+        <a 
+          href={resumeUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="btn-secondary"
+          aria-label="View resume"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <path d="M16 13H8"/>
+            <path d="M16 17H8"/>
+            <path d="M10 9H8"/>
+          </svg>
+          <span>Resume</span>
+        </a>
+      </div>
+    </div>
+  );
+};
+
+export default HeroCard;

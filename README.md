@@ -1,50 +1,99 @@
-# Portfolio - Performance Optimized
+# Sahil Chouksey - Portfolio
 
-## The 14KB Rule
+A modern bento-grid portfolio website built with React + Vite, featuring a dark theme and responsive design.
 
-This portfolio follows the **14KB rule** - fitting critical content within a single TCP round trip for maximum speed.
+## Tech Stack
 
-**Current Performance:**
-- Initial HTML: 6.3KB (under 14KB limit ✅)
-- Gzipped HTML: 2.3KB (84% compression)
-- Load time: ~150ms (single round trip)
-- 85% size reduction from original
+- **React 19** - Modern React with hooks
+- **Vite 7** - Fast build tool and dev server
+- **Framer Motion** - Smooth animations
+- **Typst** - Resume generation
+- **CSS3** - Custom styling with modern features
 
-## Why 14KB?
-
-TCP slow start begins with ~10 packets × 1460 bytes = **14,600 bytes**. Every KB over this limit adds 200-800ms delay.
+## Project Structure
 
 ```
-Round Trip 1: 14KB   (200ms)
-Round Trip 2: 28KB   (400ms) +200ms delay
-Round Trip 3: 56KB   (600ms) +400ms delay
+portfolio/
+├── public/
+│   ├── images/          # Website images and logos
+│   ├── resume.pdf       # Generated resume
+│   └── ...              # Favicons and static assets
+├── src/
+│   ├── components/
+│   │   └── sections/    # Page sections
+│   │       ├── Navigation.jsx
+│   │       ├── HeroCard.jsx
+│   │       ├── ContactCard.jsx
+│   │       ├── TimezoneCard.jsx
+│   │       ├── DescriptionCard.jsx
+│   │       ├── SocialLinks.jsx
+│   │       ├── TechStackSection.jsx
+│   │       ├── ProjectSection.jsx
+│   │       └── FooterSection.jsx
+│   ├── resume/
+│   │   ├── resume.typ           # Resume content
+│   │   └── templates/           # Typst templates
+│   ├── App.jsx
+│   └── main.jsx
+├── index.html
+└── package.json
 ```
 
-## Optimization Strategy
+## Getting Started
 
-**Critical CSS:** Inlined for immediate rendering  
-**Non-critical CSS:** Async loaded (`style.css`)  
-**JavaScript:** Async loaded with progressive enhancement (`app.js`)  
-**Content:** Above-the-fold prioritized, rest loaded dynamically
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## File Structure
+2. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
+3. **Build for production**
+   ```bash
+   npm run build
+   ```
+
+4. **Build resume only**
+   ```bash
+   npm run build:resume
+   ```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build resume + site for production |
+| `npm run build:resume` | Compile Typst resume to PDF |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
+
+## Resume
+
+The resume is built using [Typst](https://typst.app/). Edit `src/resume/resume.typ` to update content. The build process automatically compiles it to `public/resume.pdf`.
+
+**Requirements:** Install Typst CLI to build the resume:
+```bash
+# macOS
+brew install typst
+
+# Other platforms: https://github.com/typst/typst
 ```
-src/                    - Source files (development)
-├── index-minimal.html  - Optimized HTML (6.7KB)
-├── style.css          - Enhanced styles (4.3KB)
-├── app.js            - Interactive features (27KB)
-└── structured-data.json - SEO data loaded async
 
-dist/                   - Built files (production)
-├── index.html (6.3KB) - Minified HTML
-├── *.gz files         - Pre-compressed assets
-└── All optimized assets
-```
+## Sections
 
-## Performance Results
+- **Hero** - Avatar, name, title with ASCII art animation
+- **Contact** - Email CTA card
+- **Social Links** - GitHub, LinkedIn, X, WakaTime
+- **Timezone** - Location and timezone info
+- **Description** - About me with specializations
+- **Tech Stack** - Skills and experience timeline
+- **Projects** - Featured work with links
+- **Footer** - Contact and copyright
 
-- **HTML:** 15KB → **6.3KB** (2.3KB gzipped)
-- **Load time:** 1200ms → 150ms  
-- **Critical path:** Single TCP round trip
-- **Build system:** NPM with minification & compression
+## License
+
+MIT

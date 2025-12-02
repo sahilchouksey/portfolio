@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+                            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://sahilchouksey.in/</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://sahilchouksey.in/images/og-image.png</image:loc>
+      <image:title>Sahil Chouksey - Full Stack Developer and AI Engineer</image:title>
+      <image:caption>Portfolio of Sahil Chouksey, Full Stack Developer and Applied AI Engineer from Jabalpur, India</image:caption>
+    </image:image>
+  </url>
+  
+  <!-- Experience Section -->
+  <url>
+    <loc>https://sahilchouksey.in/#Experience</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Projects Section -->
+  <url>
+    <loc>https://sahilchouksey.in/#Projects</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Contact/Footer Section -->
+  <url>
+    <loc>https://sahilchouksey.in/#Footer</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Resume PDF -->
+  <url>
+    <loc>https://sahilchouksey.in/resume.pdf</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+</urlset>
