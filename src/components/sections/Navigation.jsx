@@ -129,9 +129,22 @@ const Navigation = ({logoText, navLinks}) => {
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
               WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              appearance: 'none',
               background: 'transparent',
+              backgroundColor: 'transparent',
               border: 'none',
-              padding: '12px'
+              borderRadius: 0,
+              padding: '12px',
+              margin: 0,
+              outline: 'none',
+              boxShadow: 'none',
+              font: 'inherit',
+              color: 'inherit',
+              lineHeight: 'normal',
+              overflow: 'visible',
+              textAlign: 'inherit',
+              textDecoration: 'none'
             }}
             aria-label="Close menu"
             aria-expanded={isMenuOpen}
@@ -154,8 +167,22 @@ const Navigation = ({logoText, navLinks}) => {
             touchAction: 'manipulation',
             WebkitTapHighlightColor: 'transparent',
             WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            appearance: 'none',
             background: 'transparent',
-            border: 'none'
+            backgroundColor: 'transparent',
+            border: 'none',
+            borderRadius: 0,
+            padding: 0,
+            margin: 0,
+            outline: 'none',
+            boxShadow: 'none',
+            font: 'inherit',
+            color: 'inherit',
+            lineHeight: 'normal',
+            overflow: 'visible',
+            textAlign: 'inherit',
+            textDecoration: 'none'
           }}
           aria-label="Open menu"
           aria-expanded={isMenuOpen}
