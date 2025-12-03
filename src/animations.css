@@ -276,6 +276,16 @@ body {
   vertical-align: top;
 }
 
+/* Mobile: Fix height for 2-line text to prevent layout shift */
+@media (max-width: 480px) {
+  .rotating-text-container {
+    min-height: 2.4em;
+    /* 2 lines worth of height */
+    display: block;
+    /* Full width on mobile */
+  }
+}
+
 .rotating-text {
   display: inline-block;
   position: relative;
