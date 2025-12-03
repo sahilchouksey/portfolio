@@ -651,6 +651,12 @@
     z-index: 2;
 }
 
+@media screen and (max-width: 460px) {
+    .project-year {
+        font-size: 14px !important;
+    }
+}
+
 .project-year.year-left {
     left: 16px;
     right: auto;
