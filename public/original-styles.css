@@ -4514,34 +4514,52 @@ a {
 }
 
 /* ==========================================================================
-   iOS Safari/Chrome Touch Fix - Hamburger Menu Clickability
+   Navigation Button Reset - Cross-browser compatibility
    ========================================================================== */
 
-/* iOS WebKit requires cursor:pointer and touch-action for div elements to be clickable */
-.hamburger-menu.w-nav-button,
-.close-button.w-nav-button,
-.w-nav-button {
+/* Full button reset for hamburger and close buttons */
+button.hamburger-menu.w-nav-button,
+button.close-button.w-nav-button,
+button.nav-button-reset {
+  /* Reset all button defaults */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  color: inherit !important;
+  line-height: normal !important;
+  text-align: inherit !important;
+  text-decoration: none !important;
+  /* Touch behavior */
   cursor: pointer !important;
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
 }
 
-/* Ensure child elements dont intercept touch events on iOS */
+/* Remove focus outline on mobile */
+button.hamburger-menu.w-nav-button:focus,
+button.close-button.w-nav-button:focus,
+button.nav-button-reset:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure child elements don't intercept touch events */
 .hamburger-menu .menu-line,
 .hamburger-menu .nav-line,
 .close-button .close-button-lines,
 .close-button .close-line {
   pointer-events: none !important;
-}
-
-/* iOS fix: ensure the clickable area is properly sized */
-@supports (-webkit-touch-callout: none) {
-  /* iOS-specific styles */
-  .hamburger-menu.w-nav-button,
-  .close-button.w-nav-button {
-    -webkit-appearance: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
 }
