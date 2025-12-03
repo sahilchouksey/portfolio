@@ -3425,7 +3425,6 @@ a {
     justify-content: center;
     border-radius: 16px;
     background-color: #131315;
-    display: none;
   }
 
   .case-image-large {
@@ -3469,6 +3468,26 @@ a {
     padding-bottom: 0px;
     border-radius: 2px;
     background-color: #fff;
+  }
+
+  /* Fix hamburger menu clickability on very small screens */
+  @media screen and (max-width: 420px) {
+    .hamburger-menu {
+      position: relative;
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    .navigation-container {
+      position: relative;
+      z-index: 100;
+    }
+
+    .w-nav-button {
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+    }
   }
 
   .nav-line.last {
@@ -4512,131 +4531,4 @@ a {
     padding-right: 16px !important;
   }
 
-}
-
-/* ==========================================================================
-   Navigation Button Reset - Cross-browser compatibility
-   ========================================================================== */
-
-/* Full button reset for hamburger and close buttons */
-button.hamburger-menu.w-nav-button,
-button.close-button.w-nav-button,
-button.nav-button-reset {
-  /* Reset all button defaults */
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  font: inherit !important;
-  color: inherit !important;
-  line-height: normal !important;
-  text-align: inherit !important;
-  text-decoration: none !important;
-  /* Touch behavior */
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-touch-callout: none !important;
-  -webkit-user-select: none !important;
-  user-select: none !important;
-}
-
-/* Remove focus outline on mobile */
-button.hamburger-menu.w-nav-button:focus,
-button.close-button.w-nav-button:focus,
-button.nav-button-reset:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Ensure child elements don't intercept touch events */
-.hamburger-menu .menu-line,
-.hamburger-menu .nav-line,
-.close-button .close-button-lines,
-.close-button .close-line {
-  pointer-events: none !important;
-}
-
-/* ==========================================================================
-   Navigation Menu State Control - Hamburger/Close visibility
-   ========================================================================== */
-
-/* Close button: hidden by default, shown when menu is open */
-.close-button {
-  display: none !important;
-}
-
-.close-button.w--open {
-  display: flex !important;
-  position: absolute !important;
-  top: 48px !important;
-  right: 48px !important;
-  z-index: 1001 !important;
-}
-
-/* Overlay - disabled, we use nav-menu as fullscreen instead */
-.w-nav-overlay {
-  display: none !important;
-}
-
-/* ==========================================================================
-   Mobile Menu Animation & Centering Fix
-   ========================================================================== */
-
-/* Mobile nav menu - fullscreen slide from left */
-@media screen and (max-width: 991px) {
-  /* Open state - show the menu */
-  .nav-menu.w-nav-menu.w--nav-menu-open,
-  .nav-menu.w-nav-menu[data-nav-menu-open] {
-    display: flex !important;
-    position: fixed !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background-color: #131315 !important;
-    z-index: 1000 !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    animation: slideInFromLeft 0.4s ease forwards;
-  }
-  
-  @keyframes slideInFromLeft {
-    from {
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  /* Center the nav links vertically and horizontally */
-  .navlinks {
-    display: flex !important;
-    height: auto !important;
-    width: 100% !important;
-    padding: 0 !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-  }
-  
-  /* Nav link styling for centered layout */
-  .navlinks .nav-link {
-    text-align: center !important;
-    width: auto !important;
-    padding: 16px 24px !important;
-  }
 }
