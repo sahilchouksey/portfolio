@@ -46,7 +46,6 @@ const Navigation = ({logoText, navLinks}) => {
     const menuButton = nav.querySelector('.hamburger-menu');
     const closeButton = nav.querySelector('.close-button');
     const navMenu = nav.querySelector('.w-nav-menu');
-    const overlay = nav.querySelector('.w-nav-overlay');
     const links = nav.querySelectorAll('.w-nav-link');
 
     if (isMenuOpen) {
@@ -55,11 +54,6 @@ const Navigation = ({logoText, navLinks}) => {
       closeButton?.classList.add('w--open');
       navMenu?.classList.add('w--nav-menu-open');
       navMenu?.setAttribute('data-nav-menu-open', '');
-      if (overlay) {
-        overlay.style.display = 'block';
-        overlay.style.height = '100vh';
-        overlay.style.width = '100%';
-      }
       links?.forEach(link => link.classList.add('w--nav-link-open'));
       document.body.style.overflow = 'hidden';
     } else {
@@ -68,11 +62,6 @@ const Navigation = ({logoText, navLinks}) => {
       closeButton?.classList.remove('w--open');
       navMenu?.classList.remove('w--nav-menu-open');
       navMenu?.removeAttribute('data-nav-menu-open');
-      if (overlay) {
-        overlay.style.display = '';
-        overlay.style.height = '';
-        overlay.style.width = '';
-      }
       links?.forEach(link => link.classList.remove('w--nav-link-open'));
       document.body.style.overflow = '';
     }
