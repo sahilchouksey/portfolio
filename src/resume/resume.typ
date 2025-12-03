@@ -6,7 +6,7 @@
   author: "Sahil Chouksey",
   location: "Jabalpur, IN",
   contacts: (
-    [#link("mailto:me@sahilchouksey.in")[me\@sahilchouksey.in]],
+    [#link("mailto:hey@sahilchouksey.in")[hey\@sahilchouksey.in]],
     [#link("https://sahilchouksey.in")[sahilchouksey.in]],
     [#link("https://github.com/sahilchouksey")[github/sahilchouksey]],
     [#link("https://linkedin.com/in/sahilchouksey")[linkedin/sahilchouksey]],
