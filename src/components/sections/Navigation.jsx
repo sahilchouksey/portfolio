@@ -1,16 +1,88 @@
 // Navigation Component - Reusable site navigation
-import React, { useCallback } from 'react';
+// Custom implementation to fix iOS Safari/Chrome touch issues
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 const Navigation = ({logoText, navLinks}) => {
-  // iOS Safari/Chrome fix: Empty handler to make div clickable on iOS
-  // iOS WebKit doesn't fire click events on non-interactive elements without this
-  const handleTouchEnd = useCallback((e) => {
-    // This helps iOS recognize the element as interactive
-    // The actual click handling is done by Webflow's JS
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef(null);
+
+  // Toggle menu - handles both touch and click for iOS compatibility
+  const toggleMenu = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setIsMenuOpen(prev => !prev);
   }, []);
+
+  // Close menu
+  const closeMenu = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setIsMenuOpen(false);
+  }, []);
+
+  // Handle link clicks - close menu after navigation
+  const handleLinkClick = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
+
+  // Sync React state with Webflow CSS classes
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const menuButton = nav.querySelector('.hamburger-menu');
+    const closeButton = nav.querySelector('.close-button');
+    const navMenu = nav.querySelector('.w-nav-menu');
+    const overlay = nav.querySelector('.w-nav-overlay');
+    const links = nav.querySelectorAll('.w-nav-link');
+
+    if (isMenuOpen) {
+      // Open state
+      menuButton?.classList.add('w--open');
+      closeButton?.classList.add('w--open');
+      navMenu?.classList.add('w--nav-menu-open');
+      navMenu?.setAttribute('data-nav-menu-open', '');
+      if (overlay) {
+        overlay.style.display = 'block';
+        overlay.style.height = '100vh';
+        overlay.style.width = '100%';
+      }
+      links?.forEach(link => link.classList.add('w--nav-link-open'));
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Closed state
+      menuButton?.classList.remove('w--open');
+      closeButton?.classList.remove('w--open');
+      navMenu?.classList.remove('w--nav-menu-open');
+      navMenu?.removeAttribute('data-nav-menu-open');
+      if (overlay) {
+        overlay.style.display = '';
+        overlay.style.height = '';
+        overlay.style.width = '';
+      }
+      links?.forEach(link => link.classList.remove('w--nav-link-open'));
+      document.body.style.overflow = '';
+    }
+  }, [isMenuOpen]);
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMenuOpen]);
 
   return (
     <div
+      ref={navRef}
       data-animation="default"
       data-collapse="medium"
       data-duration="400"
@@ -34,66 +106,70 @@ const Navigation = ({logoText, navLinks}) => {
 
         <nav role="navigation" className="nav-menu w-nav-menu">
           <div className="navlinks">
-            {
-                navLinks.map((link) => {
-
-                    return (
-                        <a href={link.href} aria-current="page" className={`nav-link w-nav-link ${link.current ? "w--current" : ""}`}>
-                            {link.text}
-                        </a>
-                    )
-                })
-
-            }
+            {navLinks.map((link, index) => (
+              <a 
+                key={index}
+                href={link.href} 
+                aria-current="page" 
+                className={`nav-link w-nav-link ${link.current ? "w--current" : ""}`}
+                onClick={handleLinkClick}
+                onTouchEnd={handleLinkClick}
+              >
+                {link.text}
+              </a>
+            ))}
           </div>
 
-          <div
+          {/* Close button (X) - visible when menu is open */}
+          <button
+            type="button"
             className="close-button w-nav-button"
             style={{
-              WebkitUserSelect: 'text',
               cursor: 'pointer',
               touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent'
+              WebkitTapHighlightColor: 'transparent',
+              WebkitAppearance: 'none',
+              background: 'transparent',
+              border: 'none',
+              padding: '12px'
             }}
-            aria-label="menu"
-            role="button"
-            tabIndex="0"
-            aria-controls="w-nav-overlay-0"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            onClick={() => {}} // iOS fix: empty onclick makes element "clickable" for iOS WebKit
-            onTouchEnd={handleTouchEnd} // iOS fix: touchend as backup for iOS
+            aria-label="Close menu"
+            aria-expanded={isMenuOpen}
+            onClick={closeMenu}
+            onTouchStart={closeMenu}
           >
             <div className="close-button-lines" style={{ pointerEvents: 'none' }}>
               <div className="close-line" style={{ pointerEvents: 'none' }}></div>
               <div className="close-line _02" style={{ pointerEvents: 'none' }}></div>
             </div>
-          </div>
+          </button>
         </nav>
 
-        <div
+        {/* Hamburger menu button */}
+        <button
+          type="button"
           className="hamburger-menu w-nav-button"
           style={{
-            WebkitUserSelect: 'text',
             cursor: 'pointer',
             touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent'
+            WebkitTapHighlightColor: 'transparent',
+            WebkitAppearance: 'none',
+            background: 'transparent',
+            border: 'none'
           }}
-          aria-label="menu"
-          role="button"
-          tabIndex="0"
+          aria-label="Open menu"
+          aria-expanded={isMenuOpen}
           aria-controls="w-nav-overlay-0"
           aria-haspopup="menu"
-          aria-expanded="false"
-          onClick={() => {}} // iOS fix: empty onclick makes element "clickable" for iOS WebKit
-          onTouchEnd={handleTouchEnd} // iOS fix: touchend as backup for iOS
+          onClick={toggleMenu}
+          onTouchStart={toggleMenu}
         >
           <div className="menu-line" style={{ pointerEvents: 'none' }}>
             <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
             <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
             <div className="nav-line last" style={{ pointerEvents: 'none' }}></div>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0"></div>
