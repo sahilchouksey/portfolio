@@ -4600,3 +4600,39 @@ button.nav-button-reset:focus {
 .w-nav-menu.w--nav-menu-open {
   z-index: 100 !important;
 }
+
+/* ==========================================================================
+   Mobile Menu Animation & Centering Fix
+   ========================================================================== */
+
+/* Smooth slide-in animation for mobile nav menu */
+@media screen and (max-width: 991px) {
+  .nav-menu {
+    transform: translateX(-100%);
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+  
+  .nav-menu.w--nav-menu-open {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  /* Center the nav links vertically and horizontally */
+  .navlinks {
+    display: flex !important;
+    height: 100% !important;
+    padding: 0 !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  /* Nav link styling for centered layout */
+  .navlinks .nav-link {
+    text-align: center !important;
+    width: auto !important;
+    padding: 16px 24px !important;
+  }
+}
