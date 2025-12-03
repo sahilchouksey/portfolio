@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run build:resume && vite build",
-    "build:resume": "typst compile src/resume/resume.typ public/resume.pdf",
+    "build:resume": "test -f ./bin/typst && ./bin/typst compile src/resume/resume.typ public/resume.pdf || typst compile src/resume/resume.typ public/resume.pdf",
     "lint": "eslint .",
     "preview": "vite preview"
   },
