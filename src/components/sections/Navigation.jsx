@@ -1,86 +1,9 @@
 // Navigation Component - Reusable site navigation
-// Custom implementation to fix iOS Safari/Chrome touch issues
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-
-// Button reset styles - applied via CSS class for better specificity
-const buttonResetStyle = {
-  cursor: 'pointer',
-  touchAction: 'manipulation',
-  WebkitTapHighlightColor: 'transparent',
-  WebkitUserSelect: 'none',
-  userSelect: 'none',
-};
+import React from 'react';
 
 const Navigation = ({logoText, navLinks}) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navRef = useRef(null);
-
-  // Toggle menu
-  const toggleMenu = useCallback((e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setIsMenuOpen(prev => !prev);
-  }, []);
-
-  // Close menu
-  const closeMenu = useCallback((e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setIsMenuOpen(false);
-  }, []);
-
-  // Handle link clicks - close menu after navigation
-  const handleLinkClick = useCallback(() => {
-    setIsMenuOpen(false);
-  }, []);
-
-  // Sync React state with Webflow CSS classes
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-
-    const menuButton = nav.querySelector('.hamburger-menu');
-    const closeButton = nav.querySelector('.close-button');
-    const navMenu = nav.querySelector('.w-nav-menu');
-    const links = nav.querySelectorAll('.w-nav-link');
-
-    if (isMenuOpen) {
-      // Open state
-      menuButton?.classList.add('w--open');
-      closeButton?.classList.add('w--open');
-      navMenu?.classList.add('w--nav-menu-open');
-      navMenu?.setAttribute('data-nav-menu-open', '');
-      links?.forEach(link => link.classList.add('w--nav-link-open'));
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Closed state
-      menuButton?.classList.remove('w--open');
-      closeButton?.classList.remove('w--open');
-      navMenu?.classList.remove('w--nav-menu-open');
-      navMenu?.removeAttribute('data-nav-menu-open');
-      links?.forEach(link => link.classList.remove('w--nav-link-open'));
-      document.body.style.overflow = '';
-    }
-  }, [isMenuOpen]);
-
-  // Close on escape key
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isMenuOpen]);
-
   return (
     <div
-      ref={navRef}
       data-animation="default"
       data-collapse="medium"
       data-duration="400"
@@ -104,52 +27,52 @@ const Navigation = ({logoText, navLinks}) => {
 
         <nav role="navigation" className="nav-menu w-nav-menu">
           <div className="navlinks">
-            {navLinks.map((link, index) => (
-              <a 
-                key={index}
-                href={link.href} 
-                aria-current="page" 
-                className={`nav-link w-nav-link ${link.current ? "w--current" : ""}`}
-                onClick={handleLinkClick}
-              >
-                {link.text}
-              </a>
-            ))}
+            {
+                navLinks.map((link, index) => {
+
+                    return (
+                        <a key={index} href={link.href} aria-current="page" className={`nav-link w-nav-link ${link.current ? "w--current" : ""}`}>
+                            {link.text}
+                        </a>
+                    )
+                })
+
+            }
           </div>
 
-          {/* Close button (X) - visible when menu is open */}
-          <button
-            type="button"
-            className="close-button w-nav-button nav-button-reset"
-            style={buttonResetStyle}
-            aria-label="Close menu"
-            aria-expanded={isMenuOpen}
-            onClick={closeMenu}
+          <div
+            className="close-button w-nav-button"
+            style={{WebkitUserSelect: 'text'}}
+            aria-label="menu"
+            role="button"
+            tabIndex="0"
+            aria-controls="w-nav-overlay-0"
+            aria-haspopup="menu"
+            aria-expanded="false"
           >
-            <div className="close-button-lines" style={{ pointerEvents: 'none' }}>
-              <div className="close-line" style={{ pointerEvents: 'none' }}></div>
-              <div className="close-line _02" style={{ pointerEvents: 'none' }}></div>
+            <div className="close-button-lines">
+              <div className="close-line"></div>
+              <div className="close-line _02"></div>
             </div>
-          </button>
+          </div>
         </nav>
 
-        {/* Hamburger menu button */}
-        <button
-          type="button"
-          className="hamburger-menu w-nav-button nav-button-reset"
-          style={buttonResetStyle}
-          aria-label="Open menu"
-          aria-expanded={isMenuOpen}
+        <div
+          className="hamburger-menu w-nav-button"
+          style={{WebkitUserSelect: 'text'}}
+          aria-label="menu"
+          role="button"
+          tabIndex="0"
           aria-controls="w-nav-overlay-0"
           aria-haspopup="menu"
-          onClick={toggleMenu}
+          aria-expanded="false"
         >
-          <div className="menu-line" style={{ pointerEvents: 'none' }}>
-            <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
-            <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
-            <div className="nav-line last" style={{ pointerEvents: 'none' }}></div>
+          <div className="menu-line">
+            <div className="nav-line"></div>
+            <div className="nav-line"></div>
+            <div className="nav-line last"></div>
           </div>
-        </button>
+        </div>
       </div>
 
       <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0"></div>
