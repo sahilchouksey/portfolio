@@ -1,4 +1,9 @@
 /* Animation classes for fade-in effects */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 .animate-hidden {
   opacity: 0;
   transform: translate3d(0px, 44px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
@@ -146,6 +151,18 @@
   padding: 0;
   overflow: hidden;
   /* Prevent horizontal scrolling */
+}
+
+@media (max-width: 480px) {
+  .ascii-container pre {
+    font-size: 4px !important;
+    line-height: 4px !important;
+    letter-spacing: -0.5px;
+  }
+
+  .ascii-avatar-container {
+    min-height: 60px;
+  }
 }
 
 .ascii-line {
@@ -348,6 +365,12 @@
 @media screen and (max-width: 991px) {
   .timeline-item-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .timeline-item-grid {
+    gap: 6px !important;
   }
 }
 
