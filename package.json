@@ -1,16 +1,31 @@
 {
-  "name": "osmic-portfolio-clone",
+  "name": "sahilchouksey-portfolio",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "A pixel-perfect clone of the Osmic portfolio website built with React + Vite",
+  "description": "Personal portfolio of Sahil Chouksey - Full Stack Developer & AI Engineer from Jabalpur, India",
+  "author": {
+    "name": "Sahil Chouksey",
+    "email": "hey@sahilchouksey.in",
+    "url": "https://sahilchouksey.in"
+  },
+  "homepage": "https://sahilchouksey.in",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sahilchouksey/portfolio"
+  },
+  "bugs": {
+    "url": "https://github.com/sahilchouksey/portfolio/issues"
+  },
+  "license": "MIT",
   "keywords": [
+    "portfolio",
+    "sahil-chouksey",
+    "full-stack-developer",
+    "ai-engineer",
     "react",
     "vite",
-    "portfolio",
-    "webflow",
-    "clone",
-    "responsive"
+    "personal-website"
   ],
   "scripts": {
     "dev": "vite",
