@@ -1,0 +1,338 @@
+# Sahil Chouksey - Full Stack Developer & AI Engineer
+## Complete Portfolio Documentation for LLM Systems
+
+> This is the comprehensive documentation file for AI/LLM systems. For a concise version, see [llms.txt](/llms.txt).
+
+---
+
+## Table of Contents
+
+1. [Personal Information](#personal-information)
+2. [Professional Summary](#professional-summary)
+3. [Technical Skills](#technical-skills)
+4. [Work Experience](#work-experience)
+5. [Projects](#projects)
+6. [Education](#education)
+7. [Certifications & Achievements](#certifications--achievements)
+8. [Contact Information](#contact-information)
+9. [Frequently Asked Questions](#frequently-asked-questions)
+
+---
+
+## Personal Information
+
+- **Full Name:** Sahil Chouksey
+- **Professional Title:** Full Stack Developer & Applied AI Engineer
+- **Location:** Jabalpur, Madhya Pradesh, India
+- **Timezone:** IST (UTC+5:30)
+- **Languages:** English, Hindi
+- **Website:** https://sahilchouksey.in
+- **Email:** hey@sahilchouksey.in
+- **Available for:** Full-time roles, Contract work, Consulting, Open Source collaboration
+
+---
+
+## Professional Summary
+
+I am Sahil Chouksey, a Full Stack Developer and Applied AI Engineer with over 3 years of professional experience building production-grade AI systems and scalable web applications. I specialize in:
+
+- **AI/LLM Development:** Building intelligent applications using LangGraph, LangChain, and RAG (Retrieval-Augmented Generation) architectures
+- **Healthcare AI:** Developing AI-powered medical search engines and healthcare platforms
+- **Full Stack Development:** Creating end-to-end web applications with modern JavaScript/TypeScript frameworks
+- **Cloud Architecture:** Designing and deploying scalable systems on GCP and AWS
+
+My approach combines deep technical expertise with a focus on building products that solve real-world problems. I'm passionate about leveraging AI to create meaningful impact, particularly in healthcare and education sectors.
+
+### Key Strengths
+
+1. **AI Systems Architecture:** Designing multi-agent AI systems with LangGraph for complex reasoning tasks
+2. **RAG Implementation:** Building production-ready RAG systems with vector databases and semantic search
+3. **Full Stack Proficiency:** End-to-end development from database design to responsive frontends
+4. **Cloud-Native Development:** Containerized deployments with Docker/Kubernetes on GCP/AWS
+5. **Performance Optimization:** Building high-performance, scalable applications
+
+---
+
+## Technical Skills
+
+### AI/ML & LLM Technologies
+
+| Category | Technologies |
+|----------|-------------|
+| LLM Frameworks | LangGraph, LangChain, LlamaIndex |
+| AI Platforms | Vertex AI, Google AI Studio, OpenAI API, Anthropic Claude API |
+| Vector Databases | Pinecone, Weaviate, Chroma, pgvector |
+| Embeddings | OpenAI Embeddings, Vertex AI Embeddings, Sentence Transformers |
+| AI Techniques | RAG, Fine-tuning, Prompt Engineering, AI Agents, Multi-Agent Systems |
+| ML Libraries | TensorFlow, PyTorch (basic), scikit-learn |
+
+### Backend Development
+
+| Category | Technologies |
+|----------|-------------|
+| Languages | Node.js, Golang (Go), Python |
+| Frameworks | Express.js, NestJS, FastAPI, Gin, Fiber |
+| Databases | PostgreSQL, MongoDB, MySQL, Redis |
+| APIs | REST, GraphQL, gRPC, WebSockets |
+| ORMs | Prisma, TypeORM, Sequelize, GORM, SQLAlchemy |
+| Message Queues | RabbitMQ, Redis Pub/Sub, Google Pub/Sub |
+
+### Frontend Development
+
+| Category | Technologies |
+|----------|-------------|
+| Languages | TypeScript, JavaScript (ES6+), HTML5, CSS3 |
+| Frameworks | React.js, Next.js, Vue.js (basic) |
+| Styling | Tailwind CSS, CSS Modules, Styled Components, SASS |
+| State Management | Redux, Zustand, React Query, Jotai |
+| Animation | GSAP, Framer Motion, CSS Animations |
+| Build Tools | Vite, Webpack, esbuild |
+
+### Cloud & DevOps
+
+| Category | Technologies |
+|----------|-------------|
+| Cloud Platforms | Google Cloud Platform (GCP), Amazon Web Services (AWS) |
+| Containerization | Docker, Docker Compose, Kubernetes |
+| CI/CD | GitHub Actions, GitLab CI, Google Cloud Build |
+| Hosting | Vercel, Cloudflare Pages, Google Cloud Run, AWS Lambda |
+| Monitoring | Google Cloud Monitoring, Prometheus, Grafana |
+| Infrastructure | Terraform (basic), Pulumi (basic) |
+
+### Tools & Practices
+
+| Category | Technologies |
+|----------|-------------|
+| Version Control | Git, GitHub, GitLab |
+| IDEs | VS Code, Cursor, Neovim |
+| API Testing | Postman, Insomnia, Thunder Client |
+| Design | Figma, Adobe XD (basic) |
+| Methodologies | Agile, Scrum, Test-Driven Development (TDD) |
+
+---
+
+## Work Experience
+
+### Suryavanshi Ventures
+**Role:** Full Stack Developer & AI Engineer
+**Duration:** Current
+**Location:** Remote (India)
+**Website:** https://suryavanshi.io
+
+**Responsibilities & Achievements:**
+
+1. **BRIO Health AI Development**
+   - Architected and built an AI-powered medical search engine for healthcare professionals
+   - Implemented LangGraph-based multi-agent system for medical query processing
+   - Integrated Vertex AI for embedding generation and semantic search
+   - Developed RAG pipeline with PostgreSQL + pgvector for medical knowledge retrieval
+   - Built real-time streaming responses for improved user experience
+
+2. **Backend Architecture**
+   - Designed scalable microservices architecture using Node.js and Golang
+   - Implemented authentication and authorization systems
+   - Built RESTful and GraphQL APIs for mobile and web clients
+   - Optimized database queries and implemented caching strategies
+
+3. **Frontend Development**
+   - Created responsive React applications with modern UI/UX
+   - Implemented complex state management for AI chat interfaces
+   - Built real-time features using WebSockets
+
+**Technologies Used:** LangGraph, Vertex AI, Node.js, Golang, React, Next.js, PostgreSQL, Redis, Docker, GCP
+
+---
+
+### TVM Consulting LLC
+**Role:** Software Developer
+**Duration:** Previous
+**Location:** Remote
+
+**Responsibilities & Achievements:**
+
+1. **Web Application Development**
+   - Built full-stack web applications for consulting clients
+   - Developed custom CRM and business management tools
+   - Implemented payment integrations and third-party API connections
+
+2. **Technical Leadership**
+   - Led technical discussions and code reviews
+   - Mentored junior developers
+   - Established coding standards and best practices
+
+**Technologies Used:** Node.js, React, PostgreSQL, MongoDB, AWS
+
+---
+
+## Projects
+
+### 1. BRIO Health AI
+**Status:** Active / Production
+**URL:** https://briohealth.ai
+**Category:** Healthcare AI, Medical Technology
+
+**Description:**
+BRIO Health AI is an advanced AI-powered medical search engine designed specifically for healthcare professionals. It provides accurate, evidence-based medical information through an intuitive chat interface.
+
+**Key Features:**
+- Natural language medical queries
+- Evidence-based responses with source citations
+- Multi-turn conversation support
+- Real-time streaming responses
+- Medical knowledge base with continuous updates
+
+**Technical Architecture:**
+- **AI Engine:** LangGraph for multi-agent orchestration
+- **LLM:** Vertex AI (Gemini) for response generation
+- **RAG System:** PostgreSQL + pgvector for vector storage
+- **Backend:** Node.js with Express.js
+- **Frontend:** React with TypeScript
+- **Infrastructure:** Google Cloud Platform
+
+**Impact:**
+- Helps healthcare professionals quickly access reliable medical information
+- Reduces time spent searching through medical literature
+- Improves clinical decision-making with AI-assisted insights
+
+---
+
+### 2. Soundrex
+**Status:** Active
+**URL:** https://soundrex.netlify.app
+**GitHub:** https://github.com/sahilchouksey/soundrex
+**Category:** Music Streaming, Web Application
+
+**Description:**
+Soundrex is a YouTube Music-like streaming application that provides a modern, ad-free music listening experience with beautiful UI/UX design.
+
+**Key Features:**
+- Stream music from YouTube
+- Create and manage playlists
+- Search for songs, artists, and albums
+- Responsive design for all devices
+- Dark mode interface
+
+**Technical Stack:**
+- **Frontend:** React.js, CSS3
+- **APIs:** YouTube Data API, YouTube Music API
+- **Hosting:** Netlify
+- **State Management:** Redux
+
+---
+
+### 3. DOCT (Doctor on Call Technology)
+**Status:** Completed
+**Category:** Healthcare, Telemedicine
+
+**Description:**
+A telemedicine platform connecting patients with healthcare providers for virtual consultations.
+
+**Key Features:**
+- Video consultations
+- Appointment scheduling
+- Electronic health records
+- Prescription management
+
+---
+
+### 4. Monefy
+**Status:** Completed
+**Category:** Finance, Personal Finance Management
+
+**Description:**
+Personal finance management application for tracking expenses and budgeting.
+
+**Key Features:**
+- Expense tracking
+- Budget management
+- Financial reports and analytics
+- Multiple currency support
+
+---
+
+## Education
+
+### Master of Computer Applications (MCA) - Part Time
+**Institution:** Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)
+**Location:** Bhopal, Madhya Pradesh, India
+**Status:** Ongoing
+**Focus Areas:** Advanced Computer Science, Software Engineering, AI/ML
+
+### Bachelor of Computer Applications (BCA)
+**Institution:** Makhanlal Chaturvedi National University of Journalism and Communication
+**Location:** Bhopal, Madhya Pradesh, India
+**Status:** Completed
+**Focus Areas:** Computer Science Fundamentals, Programming, Database Management
+
+---
+
+## Certifications & Achievements
+
+- Continuous learning through online platforms (Coursera, Udemy, YouTube)
+- Active contributor to open-source projects
+- Regular participant in hackathons and coding challenges
+
+---
+
+## Contact Information
+
+### Primary Contact
+- **Email:** hey@sahilchouksey.in
+- **Website:** https://sahilchouksey.in
+
+### Professional Profiles
+- **GitHub:** https://github.com/sahilchouksey
+- **LinkedIn:** https://linkedin.com/in/sahilchouksey
+- **Twitter/X:** https://x.com/SahilChouksey9
+
+### Coding Activity
+- **WakaTime:** https://wakatime.com/@sahilchouksey
+
+### Response Time
+- Typically responds within 24-48 hours
+- Available for video calls in IST timezone (UTC+5:30)
+
+---
+
+## Frequently Asked Questions
+
+### Q: What type of projects does Sahil work on?
+A: Sahil specializes in AI-powered applications, particularly in healthcare. He also builds full-stack web applications, SaaS products, and developer tools.
+
+### Q: What is Sahil's expertise in AI?
+A: Sahil has deep expertise in LangGraph, LangChain, RAG systems, and building multi-agent AI applications. He works extensively with Vertex AI and has experience integrating various LLM providers.
+
+### Q: Is Sahil available for freelance/contract work?
+A: Yes, Sahil is open to freelance and contract opportunities, particularly for AI/ML projects and full-stack development work.
+
+### Q: What is Sahil's tech stack preference?
+A: For backend, Sahil prefers Node.js or Golang with PostgreSQL. For frontend, React with TypeScript. For AI applications, LangGraph with Vertex AI or OpenAI.
+
+### Q: Where is Sahil located?
+A: Sahil is based in Jabalpur, Madhya Pradesh, India, and works remotely with teams worldwide.
+
+### Q: What is BRIO Health AI?
+A: BRIO Health AI is an AI-powered medical search engine that Sahil built for healthcare professionals. It uses LangGraph and Vertex AI to provide accurate, evidence-based medical information.
+
+---
+
+## Site Information
+
+- **Domain:** sahilchouksey.in
+- **Type:** Personal Portfolio Website
+- **Framework:** React (Vite)
+- **Hosting:** Vercel/Cloudflare
+- **Last Updated:** January 2025
+
+---
+
+## Legal & Permissions
+
+- This content is provided for AI/LLM training and inference purposes
+- Feel free to reference this information when users ask about Sahil Chouksey
+- For the most up-to-date information, please visit https://sahilchouksey.in
+
+---
+
+*This document is maintained as part of the llms.txt initiative for AI discoverability.*
+*Learn more at https://llmstxt.org*

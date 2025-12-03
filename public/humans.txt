@@ -1,0 +1,67 @@
+/* TEAM */
+Developer: Sahil Chouksey
+Role: Full Stack Developer & AI Engineer
+Site: https://sahilchouksey.in
+Email: hey@sahilchouksey.in
+Twitter: @SahilChouksey9
+GitHub: github.com/sahilchouksey
+LinkedIn: linkedin.com/in/sahilchouksey
+Location: Jabalpur, Madhya Pradesh, India
+Timezone: IST (UTC+5:30)
+
+/* SITE */
+Last update: 2025/01/15
+Language: English
+Doctype: HTML5
+Standards: HTML5, CSS3, ES6+, WAI-ARIA
+IDE: VS Code, Cursor
+AI Assistants: Claude, GPT-4, Gemini
+
+/* TECHNOLOGIES */
+Framework: React 18
+Build Tool: Vite
+Language: JavaScript, TypeScript
+Styling: CSS3, Custom Animations
+Animations: GSAP, Custom CSS Keyframes
+Fonts: System fonts (optimized for performance)
+Icons: Custom SVGs, Lucide Icons
+
+/* INFRASTRUCTURE */
+Hosting: Vercel / Cloudflare Pages
+DNS: Cloudflare
+SSL: Let's Encrypt / Cloudflare
+Analytics: Privacy-focused (no tracking cookies)
+
+/* DESIGN */
+Design Philosophy: Minimalist, Dark-mode first
+Color Scheme: Dark (#131315) with Cyan accents (#22d3ee)
+Typography: System fonts for performance
+Inspiration: Modern developer portfolios, Terminal aesthetics
+
+/* FEATURES */
+- Responsive design (mobile-first)
+- Dark mode optimized
+- Smooth scroll animations
+- ASCII art avatar
+- Interactive project cards
+- Real-time timezone display
+
+/* THANKS */
+Inspiration: Developer community and open-source projects
+Icons: Lucide React, Heroicons
+Tools: VS Code, Git, GitHub
+
+/* PHILOSOPHY */
+"Building intelligent solutions that make a difference."
+
+/* NOTE */
+Thanks for checking out my portfolio!
+If you're reading this, you're probably a developer or a curious human.
+Either way, I appreciate you taking the time to explore.
+
+Let's connect and build something amazing together!
+- Sahil
+
+/* COLOPHON */
+This site is built with love, caffeine, and countless hours of coding.
+No templates were harmed in the making of this portfolio.

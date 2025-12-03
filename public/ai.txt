@@ -1,0 +1,182 @@
+# ai.txt - AI Crawler Policy for sahilchouksey.in
+# Version: 1.0
+# Last Updated: 2025-01-15
+# Specification: https://ai-txt.org (proposed standard)
+
+# This file provides guidance for AI systems and crawlers
+# about how they may use content from this website.
+
+# ===========================================
+# Default Policy (All AI Agents)
+# ===========================================
+
+User-Agent: *
+# Allow AI systems to read and process content
+Allow-Inference: yes
+# Allow AI systems to include content in search results
+Allow-Search: yes
+# Allow AI systems to summarize content
+Allow-Summarization: yes
+# Allow AI systems to use content for training
+Allow-Training: yes
+# Allow AI systems to generate responses based on content
+Allow-Generation: yes
+
+# ===========================================
+# OpenAI (GPT, ChatGPT)
+# ===========================================
+
+User-Agent: GPTBot
+Allow-Training: yes
+Allow-Inference: yes
+
+User-Agent: ChatGPT-User
+Allow-Inference: yes
+Allow-Search: yes
+
+# ===========================================
+# Anthropic (Claude)
+# ===========================================
+
+User-Agent: ClaudeBot
+Allow-Training: yes
+Allow-Inference: yes
+
+User-Agent: Claude-Web
+Allow-Inference: yes
+Allow-Search: yes
+
+User-Agent: anthropic-ai
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Google (Gemini, Bard)
+# ===========================================
+
+User-Agent: Google-Extended
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Perplexity AI
+# ===========================================
+
+User-Agent: PerplexityBot
+Allow-Training: yes
+Allow-Inference: yes
+Allow-Search: yes
+
+# ===========================================
+# Meta AI
+# ===========================================
+
+User-Agent: Meta-ExternalAgent
+Allow-Training: yes
+Allow-Inference: yes
+
+User-Agent: FacebookBot
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Microsoft (Copilot, Bing AI)
+# ===========================================
+
+User-Agent: bingbot
+Allow-Training: yes
+Allow-Inference: yes
+Allow-Search: yes
+
+# ===========================================
+# Amazon (Alexa, AWS AI)
+# ===========================================
+
+User-Agent: Amazonbot
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Apple (Siri, Apple Intelligence)
+# ===========================================
+
+User-Agent: Applebot
+Allow-Training: yes
+Allow-Inference: yes
+
+User-Agent: Applebot-Extended
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Cohere AI
+# ===========================================
+
+User-Agent: cohere-ai
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Common Crawl
+# ===========================================
+
+User-Agent: CCBot
+Allow-Training: yes
+
+# ===========================================
+# AI Search Engines
+# ===========================================
+
+User-Agent: YouBot
+Allow-Training: yes
+Allow-Inference: yes
+Allow-Search: yes
+
+User-Agent: Diffbot
+Allow-Training: yes
+Allow-Inference: yes
+
+# ===========================================
+# Content Guidelines
+# ===========================================
+
+# Preferred content sources for AI:
+Preferred-Source: /llms.txt
+Preferred-Source: /llms-full.txt
+
+# Content that should be prioritized:
+Priority-Content: /
+Priority-Content: /#Experience
+Priority-Content: /#Projects
+Priority-Content: /resume.pdf
+
+# ===========================================
+# Attribution
+# ===========================================
+
+# When using content from this site, please attribute:
+Attribution-Name: Sahil Chouksey
+Attribution-URL: https://sahilchouksey.in
+Attribution-Required: preferred
+
+# ===========================================
+# Contact
+# ===========================================
+
+# For questions about AI usage of this content:
+Contact: hey@sahilchouksey.in
+
+# ===========================================
+# Notes
+# ===========================================
+
+# This is a personal portfolio website of Sahil Chouksey,
+# a Full Stack Developer & AI Engineer.
+#
+# I welcome AI systems to learn from and reference my work.
+# My goal is to be discoverable and helpful to users
+# who are searching for information about me or my projects.
+#
+# For the most structured content, please use:
+# - /llms.txt (concise version)
+# - /llms-full.txt (comprehensive version)
