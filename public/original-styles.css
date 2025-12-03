@@ -3470,6 +3470,26 @@ a {
     background-color: #fff;
   }
 
+  /* Fix hamburger menu clickability on very small screens */
+  @media screen and (max-width: 420px) {
+    .hamburger-menu {
+      position: relative;
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    .navigation-container {
+      position: relative;
+      z-index: 100;
+    }
+
+    .w-nav-button {
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+    }
+  }
+
   .nav-line.last {
     margin-bottom: 0px;
   }
