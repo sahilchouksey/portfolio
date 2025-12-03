@@ -1,7 +1,14 @@
 // Navigation Component - Reusable site navigation
-import React from 'react';
+import React, { useCallback } from 'react';
 
 const Navigation = ({logoText, navLinks}) => {
+  // iOS Safari/Chrome fix: Empty handler to make div clickable on iOS
+  // iOS WebKit doesn't fire click events on non-interactive elements without this
+  const handleTouchEnd = useCallback((e) => {
+    // This helps iOS recognize the element as interactive
+    // The actual click handling is done by Webflow's JS
+  }, []);
+
   return (
     <div
       data-animation="default"
@@ -42,35 +49,49 @@ const Navigation = ({logoText, navLinks}) => {
 
           <div
             className="close-button w-nav-button"
-            style={{WebkitUserSelect: 'text'}}
+            style={{
+              WebkitUserSelect: 'text',
+              cursor: 'pointer',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
             aria-label="menu"
             role="button"
             tabIndex="0"
             aria-controls="w-nav-overlay-0"
             aria-haspopup="menu"
             aria-expanded="false"
+            onClick={() => {}} // iOS fix: empty onclick makes element "clickable" for iOS WebKit
+            onTouchEnd={handleTouchEnd} // iOS fix: touchend as backup for iOS
           >
-            <div className="close-button-lines">
-              <div className="close-line"></div>
-              <div className="close-line _02"></div>
+            <div className="close-button-lines" style={{ pointerEvents: 'none' }}>
+              <div className="close-line" style={{ pointerEvents: 'none' }}></div>
+              <div className="close-line _02" style={{ pointerEvents: 'none' }}></div>
             </div>
           </div>
         </nav>
 
         <div
           className="hamburger-menu w-nav-button"
-          style={{WebkitUserSelect: 'text'}}
+          style={{
+            WebkitUserSelect: 'text',
+            cursor: 'pointer',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent'
+          }}
           aria-label="menu"
           role="button"
           tabIndex="0"
           aria-controls="w-nav-overlay-0"
           aria-haspopup="menu"
           aria-expanded="false"
+          onClick={() => {}} // iOS fix: empty onclick makes element "clickable" for iOS WebKit
+          onTouchEnd={handleTouchEnd} // iOS fix: touchend as backup for iOS
         >
-          <div className="menu-line">
-            <div className="nav-line"></div>
-            <div className="nav-line"></div>
-            <div className="nav-line last"></div>
+          <div className="menu-line" style={{ pointerEvents: 'none' }}>
+            <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
+            <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
+            <div className="nav-line last" style={{ pointerEvents: 'none' }}></div>
           </div>
         </div>
       </div>
