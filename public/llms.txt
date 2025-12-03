@@ -1,0 +1,85 @@
+# Sahil Chouksey - Full Stack Developer & AI Engineer
+
+> Full Stack Developer and Applied AI Engineer from Jabalpur, Madhya Pradesh, India. Specializing in AI-powered healthcare systems, LangGraph, RAG architectures, and scalable web applications. Currently building intelligent solutions at Suryavanshi Ventures.
+
+## About
+
+- **Name:** Sahil Chouksey
+- **Role:** Full Stack Developer & Applied AI Engineer
+- **Location:** Jabalpur, Madhya Pradesh, India
+- **Currently:** Building AI-powered healthcare platforms at Suryavanshi Ventures
+- **Website:** https://sahilchouksey.in
+- **Email:** hey@sahilchouksey.in
+
+## Professional Summary
+
+I am Sahil Chouksey, a Full Stack Developer with 3+ years of experience building production AI systems and scalable web applications. I specialize in designing and implementing AI-powered solutions using LangGraph, RAG architectures, and Vertex AI. My expertise spans the full development lifecycle from system architecture to deployment on cloud platforms.
+
+## Technical Expertise
+
+### AI/ML & LLM Technologies
+- LangGraph, LangChain, RAG Systems
+- Vertex AI, Google AI Studio
+- Vector Databases (Pinecone, Weaviate)
+- Prompt Engineering, AI Agents
+
+### Backend Development
+- Node.js, Express.js, NestJS
+- Golang (Go)
+- Python, FastAPI
+- PostgreSQL, MongoDB, Redis
+- GraphQL, REST APIs
+
+### Frontend Development
+- React.js, Next.js
+- TypeScript, JavaScript (ES6+)
+- Tailwind CSS, CSS3
+- State Management (Redux, Zustand)
+
+### Cloud & DevOps
+- Google Cloud Platform (GCP)
+- Amazon Web Services (AWS)
+- Docker, Kubernetes
+- CI/CD Pipelines
+- Vercel, Cloudflare
+
+## Current Work
+
+**Suryavanshi Ventures** - Full Stack Developer & AI Engineer
+- Building BRIO Health AI: An AI-powered medical search engine for healthcare professionals
+- Developing RAG-based systems using LangGraph and Vertex AI
+- Creating scalable backend architectures for healthcare applications
+
+## Featured Projects
+
+### BRIO Health AI
+- **URL:** https://briohealth.ai
+- **Description:** AI-powered medical search engine for healthcare professionals using LangGraph and Vertex AI
+- **Tech Stack:** LangGraph, Vertex AI, Node.js, React, PostgreSQL
+- **Category:** Healthcare AI, Medical Technology
+
+### Soundrex
+- **URL:** https://soundrex.netlify.app
+- **Description:** YouTube Music-like streaming application with modern UI/UX
+- **Tech Stack:** React, Node.js, YouTube API
+- **Category:** Music Streaming, Web Application
+
+## Education
+
+- **MCA (Part-Time)** - Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal
+- **BCA** - Makhanlal Chaturvedi National University of Journalism and Communication, Bhopal
+
+## Contact & Social
+
+- **Email:** hey@sahilchouksey.in
+- **GitHub:** https://github.com/sahilchouksey
+- **LinkedIn:** https://linkedin.com/in/sahilchouksey
+- **Twitter/X:** https://x.com/SahilChouksey9
+- **WakaTime:** https://wakatime.com/@sahilchouksey
+
+## Optional
+
+For more detailed information, see:
+- [Full Documentation](/llms-full.txt): Complete portfolio with all projects, work history, and technical details
+- [Resume PDF](https://sahilchouksey.in/resume.pdf): Downloadable resume
+- [Portfolio Website](https://sahilchouksey.in): Interactive portfolio with animations and full project showcase

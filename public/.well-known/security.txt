@@ -1,0 +1,27 @@
+# Security Policy for sahilchouksey.in
+# https://securitytxt.org/
+# RFC 9116 compliant
+
+# Contact information for security researchers
+Contact: mailto:hey@sahilchouksey.in
+Contact: https://sahilchouksey.in/#Footer
+
+# When this file expires (update annually)
+Expires: 2026-12-31T23:59:59.000Z
+
+# Preferred language for communications
+Preferred-Languages: en, hi
+
+# Canonical URL for this file
+Canonical: https://sahilchouksey.in/.well-known/security.txt
+
+# Acknowledgments page (if you have one)
+# Acknowledgments: https://sahilchouksey.in/security/thanks
+
+# Security policy (if you have one)
+# Policy: https://sahilchouksey.in/security/policy
+
+# Note: This is a personal portfolio website.
+# If you discover any security issues, please report them
+# to the contact email above. Thank you for helping keep
+# the web secure!
