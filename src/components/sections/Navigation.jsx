@@ -2,11 +2,20 @@
 // Custom implementation to fix iOS Safari/Chrome touch issues
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 
+// Button reset styles - applied via CSS class for better specificity
+const buttonResetStyle = {
+  cursor: 'pointer',
+  touchAction: 'manipulation',
+  WebkitTapHighlightColor: 'transparent',
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+};
+
 const Navigation = ({logoText, navLinks}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navRef = useRef(null);
 
-  // Toggle menu - handles both touch and click for iOS compatibility
+  // Toggle menu
   const toggleMenu = useCallback((e) => {
     if (e) {
       e.preventDefault();
@@ -113,7 +122,6 @@ const Navigation = ({logoText, navLinks}) => {
                 aria-current="page" 
                 className={`nav-link w-nav-link ${link.current ? "w--current" : ""}`}
                 onClick={handleLinkClick}
-                onTouchEnd={handleLinkClick}
               >
                 {link.text}
               </a>
@@ -123,33 +131,11 @@ const Navigation = ({logoText, navLinks}) => {
           {/* Close button (X) - visible when menu is open */}
           <button
             type="button"
-            className="close-button w-nav-button"
-            style={{
-              cursor: 'pointer',
-              touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent',
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-              appearance: 'none',
-              background: 'transparent',
-              backgroundColor: 'transparent',
-              border: 'none',
-              borderRadius: 0,
-              padding: '12px',
-              margin: 0,
-              outline: 'none',
-              boxShadow: 'none',
-              font: 'inherit',
-              color: 'inherit',
-              lineHeight: 'normal',
-              overflow: 'visible',
-              textAlign: 'inherit',
-              textDecoration: 'none'
-            }}
+            className="close-button w-nav-button nav-button-reset"
+            style={buttonResetStyle}
             aria-label="Close menu"
             aria-expanded={isMenuOpen}
             onClick={closeMenu}
-            onTouchStart={closeMenu}
           >
             <div className="close-button-lines" style={{ pointerEvents: 'none' }}>
               <div className="close-line" style={{ pointerEvents: 'none' }}></div>
@@ -161,35 +147,13 @@ const Navigation = ({logoText, navLinks}) => {
         {/* Hamburger menu button */}
         <button
           type="button"
-          className="hamburger-menu w-nav-button"
-          style={{
-            cursor: 'pointer',
-            touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            appearance: 'none',
-            background: 'transparent',
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: 0,
-            padding: 0,
-            margin: 0,
-            outline: 'none',
-            boxShadow: 'none',
-            font: 'inherit',
-            color: 'inherit',
-            lineHeight: 'normal',
-            overflow: 'visible',
-            textAlign: 'inherit',
-            textDecoration: 'none'
-          }}
+          className="hamburger-menu w-nav-button nav-button-reset"
+          style={buttonResetStyle}
           aria-label="Open menu"
           aria-expanded={isMenuOpen}
           aria-controls="w-nav-overlay-0"
           aria-haspopup="menu"
           onClick={toggleMenu}
-          onTouchStart={toggleMenu}
         >
           <div className="menu-line" style={{ pointerEvents: 'none' }}>
             <div className="nav-line" style={{ pointerEvents: 'none' }}></div>
