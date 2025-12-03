@@ -48,3 +48,6 @@ opencode.json
 .DS_Store
 dev-server.log
 osmic-portfolio-clone/
+
+# Binaries
+bin/
