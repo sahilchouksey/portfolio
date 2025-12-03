@@ -4563,3 +4563,40 @@ button.nav-button-reset:focus {
 .close-button .close-line {
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   Navigation Menu State Control - Hamburger/Close visibility
+   ========================================================================== */
+
+/* Close button: hidden by default, shown when menu is open */
+.close-button {
+  display: none !important;
+}
+
+.close-button.w--open {
+  display: flex !important;
+}
+
+/* Hamburger: shown by default, hidden when menu is open */
+.hamburger-menu.w--open {
+  display: none !important;
+}
+
+/* Overlay proper styling when menu is open */
+.w-nav-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  z-index: 99 !important;
+  display: none;
+}
+
+/* Ensure nav menu is above overlay */
+.w-nav-menu.w--nav-menu-open {
+  z-index: 100 !important;
+}
