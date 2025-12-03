@@ -3470,26 +3470,6 @@ a {
     background-color: #fff;
   }
 
-  /* Fix hamburger menu clickability on very small screens */
-  @media screen and (max-width: 420px) {
-    .hamburger-menu {
-      position: relative;
-      z-index: 9999 !important;
-      pointer-events: auto !important;
-      cursor: pointer !important;
-    }
-
-    .navigation-container {
-      position: relative;
-      z-index: 100;
-    }
-
-    .w-nav-button {
-      z-index: 9999 !important;
-      pointer-events: auto !important;
-    }
-  }
-
   .nav-line.last {
     margin-bottom: 0px;
   }
@@ -4531,4 +4511,37 @@ a {
     padding-right: 16px !important;
   }
 
+}
+
+/* ==========================================================================
+   iOS Safari/Chrome Touch Fix - Hamburger Menu Clickability
+   ========================================================================== */
+
+/* iOS WebKit requires cursor:pointer and touch-action for div elements to be clickable */
+.hamburger-menu.w-nav-button,
+.close-button.w-nav-button,
+.w-nav-button {
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* Ensure child elements dont intercept touch events on iOS */
+.hamburger-menu .menu-line,
+.hamburger-menu .nav-line,
+.close-button .close-button-lines,
+.close-button .close-line {
+  pointer-events: none !important;
+}
+
+/* iOS fix: ensure the clickable area is properly sized */
+@supports (-webkit-touch-callout: none) {
+  /* iOS-specific styles */
+  .hamburger-menu.w-nav-button,
+  .close-button.w-nav-button {
+    -webkit-appearance: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
