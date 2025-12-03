@@ -274,21 +274,16 @@ body {
   min-height: 1.2em;
   /* Prevent layout shift */
   vertical-align: top;
-}
-
-/* Mobile: Fix height for 2-line text to prevent layout shift */
-@media (max-width: 480px) {
-  .rotating-text-container {
-    min-height: 2.4em;
-    /* 2 lines worth of height */
-    display: block;
-    /* Full width on mobile */
-  }
+  max-width: 100%;
 }
 
 .rotating-text {
   display: inline-block;
   position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ===== SOCIAL LINKS HIGHLIGHT ===== */
