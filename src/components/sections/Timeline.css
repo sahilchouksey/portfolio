@@ -803,6 +803,29 @@
     }
 }
 
+/* Tablet/Small devices - match education title styling at 767px */
+@media screen and (max-width: 767px) {
+    /* Project title card - same left padding as .card (16px) to match education */
+    .project-title-card {
+        padding: 12px 16px 24px !important;
+    }
+
+    /* Project title - same size as h3-heading at 767px (32px) */
+    .project-title-card .sg-heading {
+        font-size: 32px !important;
+        line-height: 40px;
+    }
+
+    /* Project titles smaller */
+    .project-title {
+        font-size: 26px;
+    }
+
+    .custom-logo-text {
+        font-size: 26px;
+    }
+}
+
 /* Extra Small Devices - Remove horizontal padding */
 @media (max-width: 460px) {
     .timeline-container {
@@ -819,5 +842,22 @@
         padding-right: 20px !important;
     }
 
+    /* Project title card smaller on mobile */
+    .project-title-card {
+        padding: 10px 16px 20px !important;
+    }
 
+    .project-title-card .sg-heading {
+        font-size: 28px !important;
+        line-height: 36px;
+    }
+
+    /* Project title smaller on mobile */
+    .project-title {
+        font-size: 22px !important;
+    }
+
+    .custom-logo-text {
+        font-size: 22px !important;
+    }
 }
