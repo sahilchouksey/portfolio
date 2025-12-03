@@ -3425,6 +3425,7 @@ a {
     justify-content: center;
     border-radius: 16px;
     background-color: #131315;
+    display: none;
   }
 
   .case-image-large {
@@ -4592,8 +4593,10 @@ button.nav-button-reset:focus {
 
 /* Mobile nav menu - fullscreen slide from left */
 @media screen and (max-width: 991px) {
-  /* Base state - hidden off screen */
-  .nav-menu.w-nav-menu {
+  /* Open state - show the menu */
+  .nav-menu.w-nav-menu.w--nav-menu-open,
+  .nav-menu.w-nav-menu[data-nav-menu-open] {
+    display: flex !important;
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
@@ -4601,23 +4604,21 @@ button.nav-button-reset:focus {
     height: 100vh !important;
     background-color: #131315 !important;
     z-index: 1000 !important;
-    display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    /* Animation properties */
-    transform: translateX(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
+    animation: slideInFromLeft 0.4s ease forwards;
   }
   
-  /* Open state - visible and slides in */
-  .nav-menu.w-nav-menu.w--nav-menu-open,
-  .nav-menu.w-nav-menu[data-nav-menu-open] {
-    transform: translateX(0) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+  @keyframes slideInFromLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
   
   /* Center the nav links vertically and horizontally */
