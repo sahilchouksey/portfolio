@@ -19,7 +19,7 @@
 #exp(
   role: "Full Stack Developer (Promoted)",
   project: "SV (Suryavanshi Ventures)",
-  date: "July 2023 - Nov 2025",
+  date: "July 2024 - Nov 2025",
   location: "Jabalpur, India",
   summary: [Led backend for #link("https://briohealth.ai")[BRIO AI] and enterprise apps],
   details: [
@@ -36,7 +36,7 @@
 #exp(
   role: "Software Developer (Promoted)",
   project: "TVM Consulting Private Limited",
-  date: "Aug 2022 - July 2023",
+  date: "Aug 2023 - July 2024",
   location: "India",
   summary: "Engineered healthcare platforms and analytics systems",
   details: [
