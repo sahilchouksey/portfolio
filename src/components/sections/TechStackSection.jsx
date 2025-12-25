@@ -242,7 +242,7 @@ const TechStackSection = () => {
                                                     alt={exp.company}
                                                     className="timeline-marker-logo"
                                                 />
-                                                <div className="timeline-marker-overlay">
+                                                <div href={exp.link ?? "#"} className="timeline-marker-overlay">
                                                     <svg
                                                         className="timeline-marker-arrow"
                                                         width="20"
