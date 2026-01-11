@@ -236,13 +236,18 @@ const TechStackSection = () => {
                                         {exp.isHireMe ? (
                                             <div className="timeline-marker-question">?</div>
                                         ) : (
-                                            <>
+                                            <a 
+                                                href={exp.link ?? "#"} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="timeline-marker-link"
+                                            >
                                                 <img
                                                     src={exp.logo}
                                                     alt={exp.company}
                                                     className="timeline-marker-logo"
                                                 />
-                                                <div href={exp.link ?? "#"} className="timeline-marker-overlay">
+                                                <div className="timeline-marker-overlay">
                                                     <svg
                                                         className="timeline-marker-arrow"
                                                         width="20"
@@ -259,7 +264,7 @@ const TechStackSection = () => {
                                                         />
                                                     </svg>
                                                 </div>
-                                            </>
+                                            </a>
                                         )}
                                     </div>
 
