@@ -11,6 +11,7 @@ import TechStackSection from './components/sections/TechStackSection';
 
 
 import ProjectSection from './components/sections/ProjectSection';
+import BlogSection from './components/sections/BlogSection';
 import FooterSection from './components/sections/FooterSection';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         navLinks={[
           { text: "home.", href: "#", current: true },
           { text: "experience.", href: "#Experience" },
+          { text: "blog.", href: "#Blog" },
           { text: "contact.", href: "#Footer" }
         ]}
       />
@@ -82,6 +84,9 @@ function App() {
 
       {/* Projects Section */}
       <ProjectSection />
+
+      {/* Blog Section */}
+      <BlogSection />
 
       {/* Footer Section */}
       <FooterSection
