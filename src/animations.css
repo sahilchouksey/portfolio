@@ -542,7 +542,7 @@ body {
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme='dark']) {
     --bg-base: #f3f4f7;
     --bg-subtle: #efeff3;
     --surface: #ffffff;
@@ -599,117 +599,117 @@ body {
 }
 
 @media (prefers-color-scheme: light) {
-  body {
+  :root:not([data-theme='dark']) body {
     background-color: var(--bg-base);
     color: var(--text-primary);
   }
 
-  a {
+  :root:not([data-theme='dark']) a {
     color: var(--text-primary);
   }
 
-  .text-color-black {
+  :root:not([data-theme='dark']) .text-color-black {
     color: var(--text-primary) !important;
   }
 
-  .text-color-white {
+  :root:not([data-theme='dark']) .text-color-white {
     color: var(--text-primary) !important;
   }
 
-  .text-color-gray,
-  .text-color-light {
+  :root:not([data-theme='dark']) .text-color-gray,
+  :root:not([data-theme='dark']) .text-color-light {
     color: var(--text-secondary) !important;
   }
 
-  .card,
-  .contact-card,
-  .footer-card,
-  .navigation-container,
-  .case-container,
-  .work-card,
-  .galery-card,
-  .testimonial-card,
-  .slider,
-  .changelog,
-  .instruction,
-  .sg-card,
-  .utility-page-content {
+  :root:not([data-theme='dark']) .card,
+  :root:not([data-theme='dark']) .contact-card,
+  :root:not([data-theme='dark']) .footer-card,
+  :root:not([data-theme='dark']) .navigation-container,
+  :root:not([data-theme='dark']) .case-container,
+  :root:not([data-theme='dark']) .work-card,
+  :root:not([data-theme='dark']) .galery-card,
+  :root:not([data-theme='dark']) .testimonial-card,
+  :root:not([data-theme='dark']) .slider,
+  :root:not([data-theme='dark']) .changelog,
+  :root:not([data-theme='dark']) .instruction,
+  :root:not([data-theme='dark']) .sg-card,
+  :root:not([data-theme='dark']) .utility-page-content {
     background-color: var(--surface) !important;
     border-color: var(--border-subtle) !important;
   }
 
-  .button,
-  .button-submit,
-  .button-small {
+  :root:not([data-theme='dark']) .button,
+  :root:not([data-theme='dark']) .button-submit,
+  :root:not([data-theme='dark']) .button-small {
     background-color: var(--accent-primary) !important;
     color: var(--text-inverse) !important;
   }
 
-  .nav-link {
+  :root:not([data-theme='dark']) .nav-link {
     color: var(--text-secondary) !important;
   }
 
-  .nav-link:hover,
-  .nav-link.w--current,
-  .logo,
-  .footer-text,
-  .h1-heading,
-  .h2-heading,
-  .h3-heading,
-  .h4-heading,
-  .h5-heading,
-  .h6-heading {
+  :root:not([data-theme='dark']) .nav-link:hover,
+  :root:not([data-theme='dark']) .nav-link.w--current,
+  :root:not([data-theme='dark']) .logo,
+  :root:not([data-theme='dark']) .footer-text,
+  :root:not([data-theme='dark']) .h1-heading,
+  :root:not([data-theme='dark']) .h2-heading,
+  :root:not([data-theme='dark']) .h3-heading,
+  :root:not([data-theme='dark']) .h4-heading,
+  :root:not([data-theme='dark']) .h5-heading,
+  :root:not([data-theme='dark']) .h6-heading {
     color: var(--text-primary);
   }
 
-  .span-gray,
-  .body-large,
-  .work-text,
-  .timeline-content .body-large,
-  .experience-yoe,
-  .timeline-period,
-  .timeline-description,
-  .blog-card-brief,
-  .blog-card-meta {
+  :root:not([data-theme='dark']) .span-gray,
+  :root:not([data-theme='dark']) .body-large,
+  :root:not([data-theme='dark']) .work-text,
+  :root:not([data-theme='dark']) .timeline-content .body-large,
+  :root:not([data-theme='dark']) .experience-yoe,
+  :root:not([data-theme='dark']) .timeline-period,
+  :root:not([data-theme='dark']) .timeline-description,
+  :root:not([data-theme='dark']) .blog-card-brief,
+  :root:not([data-theme='dark']) .blog-card-meta {
     color: var(--text-secondary);
   }
 
-  .detail-button {
+  :root:not([data-theme='dark']) .detail-button {
     background-color: var(--surface-elevated);
     color: var(--text-primary);
   }
 
-  .arrow {
+  :root:not([data-theme='dark']) .arrow {
     color: var(--text-secondary);
   }
 
-  .arrow:hover {
+  :root:not([data-theme='dark']) .arrow:hover {
     background-color: var(--surface-elevated);
     color: var(--text-primary);
   }
 
-  .timeline::before {
+  :root:not([data-theme='dark']) .timeline::before {
     background: var(--border-default);
   }
 
-  .timeline-marker {
+  :root:not([data-theme='dark']) .timeline-marker {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
-  .timeline-item:hover .timeline-marker {
+  :root:not([data-theme='dark']) .timeline-item:hover .timeline-marker {
     box-shadow: 0 0 24px rgba(0, 162, 199, 0.28);
   }
 
-  .highlight-tag,
-  .tech-skill,
-  .project-tech-tag,
-  .blog-card-tag {
+  :root:not([data-theme='dark']) .highlight-tag,
+  :root:not([data-theme='dark']) .tech-skill,
+  :root:not([data-theme='dark']) .project-tech-tag,
+  :root:not([data-theme='dark']) .blog-card-tag {
     background: var(--accent-soft-bg);
     border-color: var(--accent-soft-border);
     color: var(--accent-primary);
   }
 
-  .tech-skill:hover {
+  :root:not([data-theme='dark']) .tech-skill:hover {
     background: color-mix(in srgb, var(--accent-soft-bg) 70%, var(--accent-primary) 30%);
     border-color: var(--accent-primary);
   }
@@ -719,6 +719,21 @@ body {
 :root[data-theme='light'] body {
   background-color: var(--bg-base);
   color: var(--text-primary);
+}
+
+/* Keep manual dark mode visually identical regardless of system theme */
+:root[data-theme='dark'] .navigation-container,
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .contact-card,
+:root[data-theme='dark'] .footer-card,
+:root[data-theme='dark'] .social-link,
+:root[data-theme='dark'] .project-card,
+:root[data-theme='dark'] .blog-card,
+:root[data-theme='dark'] .blog-title-card,
+:root[data-theme='dark'] .blog-see-all-btn,
+:root[data-theme='dark'] .education-card {
+  background-color: #131315 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 :root[data-theme='light'] a {
@@ -829,66 +844,6 @@ body {
 :root[data-theme='light'] .tech-skill:hover {
   background: color-mix(in srgb, var(--accent-soft-bg) 70%, var(--accent-primary) 30%);
   border-color: var(--accent-primary);
-}
-
-/* Dark theme hard override (prevents system-light media rules from hiding cards on mobile) */
-:root[data-theme='dark'] body,
-:root[data-theme='dark'] .background,
-:root[data-theme='dark'] .page-wrapper {
-  background-color: var(--bg-base) !important;
-  color: var(--text-primary) !important;
-}
-
-:root[data-theme='dark'] .card,
-:root[data-theme='dark'] .contact-card,
-:root[data-theme='dark'] .footer-card,
-:root[data-theme='dark'] .navigation-container,
-:root[data-theme='dark'] .case-container,
-:root[data-theme='dark'] .work-card,
-:root[data-theme='dark'] .galery-card,
-:root[data-theme='dark'] .testimonial-card,
-:root[data-theme='dark'] .slider,
-:root[data-theme='dark'] .changelog,
-:root[data-theme='dark'] .instruction,
-:root[data-theme='dark'] .sg-card,
-:root[data-theme='dark'] .utility-page-content,
-:root[data-theme='dark'] .project-card,
-:root[data-theme='dark'] .blog-card,
-:root[data-theme='dark'] .blog-title-card,
-:root[data-theme='dark'] .blog-see-all-btn,
-:root[data-theme='dark'] .education-card {
-  background-color: var(--surface) !important;
-  border-color: var(--border-subtle) !important;
-}
-
-:root[data-theme='dark'] .text-color-black,
-:root[data-theme='dark'] .text-color-white,
-:root[data-theme='dark'] .logo,
-:root[data-theme='dark'] .h1-heading,
-:root[data-theme='dark'] .h2-heading,
-:root[data-theme='dark'] .h3-heading,
-:root[data-theme='dark'] .h4-heading,
-:root[data-theme='dark'] .h5-heading,
-:root[data-theme='dark'] .h6-heading,
-:root[data-theme='dark'] .project-title,
-:root[data-theme='dark'] .blog-card-title {
-  color: var(--text-primary) !important;
-}
-
-:root[data-theme='dark'] .text-color-gray,
-:root[data-theme='dark'] .text-color-light,
-:root[data-theme='dark'] .span-gray,
-:root[data-theme='dark'] .body-large,
-:root[data-theme='dark'] .work-text,
-:root[data-theme='dark'] .timeline-content .body-large,
-:root[data-theme='dark'] .experience-yoe,
-:root[data-theme='dark'] .timeline-period,
-:root[data-theme='dark'] .timeline-description,
-:root[data-theme='dark'] .project-subtitle,
-:root[data-theme='dark'] .blog-card-brief,
-:root[data-theme='dark'] .blog-card-meta,
-:root[data-theme='dark'] .footer-text {
-  color: var(--text-secondary) !important;
 }
 
 /* Ensure social cards also follow manual theme toggle (desktop + responsive grids) */

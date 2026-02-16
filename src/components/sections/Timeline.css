@@ -323,8 +323,8 @@
 }
 
 @media (prefers-color-scheme: light) {
-    :root:not([data-theme]) .education-logo-container,
-    :root:not([data-theme]) .education-bento-card .education-logo-container {
+    :root:not([data-theme='dark']) .education-logo-container,
+    :root:not([data-theme='dark']) .education-bento-card .education-logo-container {
         border: 1px solid rgba(0, 0, 0, 0.14) !important;
         box-sizing: border-box;
         border-radius: 24px 0 0 24px;
@@ -559,7 +559,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-    :root:not([data-theme]) .project-logo--light-black {
+    :root:not([data-theme='dark']) .project-logo--light-black {
         background-color: transparent;
         border-radius: 0;
         padding: 0;
@@ -567,7 +567,7 @@
         filter: brightness(0);
     }
 
-    :root:not([data-theme]) .contact-shape-icon {
+    :root:not([data-theme='dark']) .contact-shape-icon {
         color: #000000;
     }
 }
@@ -799,16 +799,16 @@
 }
 
 @media (prefers-color-scheme: light) {
-    :root:not([data-theme]) .project-card {
+    :root:not([data-theme='dark']) .project-card {
         border-color: transparent;
     }
 
-    :root:not([data-theme]) .project-card--static:hover {
+    :root:not([data-theme='dark']) .project-card--static:hover {
         border-color: transparent;
         filter: none;
     }
 
-    :root:not([data-theme]) .project-card--clickable:hover {
+    :root:not([data-theme='dark']) .project-card--clickable:hover {
         border-color: var(--border-default);
     }
 }
