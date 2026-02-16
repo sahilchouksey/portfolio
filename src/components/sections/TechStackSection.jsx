@@ -1,7 +1,6 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 
 import EducationCard from './EducationCard';
-import AIWorkflowDiagram from './AIWorkflowDiagram';
 import './Timeline.css';
 import { useState, useEffect } from 'react';
 

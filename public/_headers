@@ -1,0 +1,173 @@
+# Netlify Headers Configuration
+# https://docs.netlify.com/routing/headers/
+
+# =============================================================================
+# SECURITY HEADERS (Applied to all routes)
+# =============================================================================
+/*
+  # Content Security Policy (Report-Only Mode)
+  # Conservative policy to avoid breaking inline scripts/styles
+  # Monitor violations before enforcing
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+  
+  # Enable XSS protection (legacy browsers)
+  X-XSS-Protection: 1; mode=block
+  
+  # Prevent clickjacking
+  X-Frame-Options: DENY
+  
+  # Control referrer information
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # Permissions Policy (formerly Feature Policy)
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  
+  # HSTS - Force HTTPS (1 year)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  
+  # Cache control for HTML (no cache, always revalidate)
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# =============================================================================
+# HASHED ASSETS - Long-term caching (1 year)
+# Vite generates hashed filenames like: index-Daz9AV0w.js
+# =============================================================================
+/assets/*
+  # Immutable assets with content hashing
+  Cache-Control: public, max-age=31536000, immutable
+  
+  # Security headers still apply
+  X-Content-Type-Options: nosniff
+
+# =============================================================================
+# STATIC IMAGES - Medium-term caching (30 days)
+# =============================================================================
+/images/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+  X-Content-Type-Options: nosniff
+
+# Favicon and app icons (30 days)
+/*.png
+  Cache-Control: public, max-age=2592000
+  X-Content-Type-Options: nosniff
+
+/*.ico
+  Cache-Control: public, max-age=2592000
+  X-Content-Type-Options: nosniff
+
+# =============================================================================
+# DOCUMENTS & STATIC FILES
+# =============================================================================
+
+# Resume PDF (7 days - may update occasionally)
+/resume.pdf
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: application/pdf
+
+/RESUME.pdf
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: application/pdf
+
+# Manifest and metadata files (7 days)
+/manifest.json
+  Cache-Control: public, max-age=604800
+  X-Content-Type-Options: nosniff
+  Content-Type: application/json
+
+/site.webmanifest
+  Cache-Control: public, max-age=604800
+  X-Content-Type-Options: nosniff
+  Content-Type: application/manifest+json
+
+# Robots and sitemap (1 day)
+/robots.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: application/xml
+
+# AI and LLM context files (1 day)
+/ai.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+/llms.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+/llms-full.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+/humans.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+# Security.txt (1 day)
+/.well-known/security.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+/security.txt
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Content-Type: text/plain
+
+# =============================================================================
+# CSS FILES (if not hashed)
+# =============================================================================
+/*.css
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  X-Content-Type-Options: nosniff
+
+# =============================================================================
+# FONTS - Long-term caching (1 year)
+# =============================================================================
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/*.otf
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# =============================================================================
+# HTML FILES - No caching (always fresh)
+# =============================================================================
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+  X-Content-Type-Options: nosniff
+
+# =============================================================================
+# API ROUTES (if any)
+# =============================================================================
+/api/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Content-Type-Options: nosniff
+  Content-Type: application/json

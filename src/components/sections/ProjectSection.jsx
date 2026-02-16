@@ -166,6 +166,8 @@ const ProjectSection = () => {
                             alt={project.title}
                             className={`project-logo ${project.isRounded ? 'rounded' : ''} ${project.logoClass || ''}`.trim()}
                             style={project.logoScale ? { transform: `scale(${project.logoScale})`, transformOrigin: 'left center' } : {}}
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                     <div className="project-title-group">
@@ -197,6 +199,8 @@ const ProjectSection = () => {
                         alt={project.title}
                         className={`project-logo ${project.isRounded ? 'rounded' : ''} ${project.logoClass || ''}`.trim()}
                         style={project.logoScale ? { transform: `scale(${project.logoScale})`, transformOrigin: 'left center' } : {}}
+                        loading="lazy"
+                        decoding="async"
                     />
                 </div>
                 <div className="project-title-group">

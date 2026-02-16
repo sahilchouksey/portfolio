@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 
 const HASHNODE_API = 'https://gql.hashnode.com';
@@ -8,10 +8,42 @@ const BlogSection = () => {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [shouldFetch, setShouldFetch] = useState(false);
+    const sectionRef = useRef(null);
     
     const animation = useScrollAnimation('fadeInUp', { delay: 0, threshold: 0.1 });
 
+    // IntersectionObserver to trigger fetch when section approaches viewport
     useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !shouldFetch) {
+                        setShouldFetch(true);
+                    }
+                });
+            },
+            {
+                rootMargin: '200px', // Start fetching 200px before section enters viewport
+                threshold: 0
+            }
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => {
+            if (sectionRef.current) {
+                observer.unobserve(sectionRef.current);
+            }
+        };
+    }, [shouldFetch]);
+
+    // Fetch blogs only when shouldFetch is true
+    useEffect(() => {
+        if (!shouldFetch) return;
+
         const fetchBlogs = async () => {
             const query = `
                 query Publication {
@@ -64,7 +96,7 @@ const BlogSection = () => {
         };
 
         fetchBlogs();
-    }, []);
+    }, [shouldFetch]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -87,7 +119,10 @@ const BlogSection = () => {
     }
 
     return (
-        <section id="Blog" className="section" ref={animation.ref}>
+        <section id="Blog" className="section" ref={(node) => {
+            sectionRef.current = node;
+            animation.ref.current = node;
+        }}>
             <div className="container">
                 <div className="blog-section-container">
                     {/* Header Row */}

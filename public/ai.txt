@@ -1,6 +1,6 @@
 # ai.txt - AI Crawler Policy for sahilchouksey.in
-# Version: 1.0
-# Last Updated: 2025-01-15
+# Version: 1.1
+# Last Updated: 2026-02-17
 # Specification: https://ai-txt.org (proposed standard)
 
 # This file provides guidance for AI systems and crawlers
@@ -9,16 +9,17 @@
 # ===========================================
 # Default Policy (All AI Agents)
 # ===========================================
+# OPEN ACCESS POLICY: This site welcomes all AI agents and training.
 
 User-Agent: *
-# Allow AI systems to read and process content
+# Allow AI systems to use content for training models
+Allow-Training: yes
+# Allow AI systems to read and process content for inference
 Allow-Inference: yes
 # Allow AI systems to include content in search results
 Allow-Search: yes
 # Allow AI systems to summarize content
 Allow-Summarization: yes
-# Allow AI systems to use content for training
-Allow-Training: yes
 # Allow AI systems to generate responses based on content
 Allow-Generation: yes
 

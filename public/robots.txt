@@ -1,184 +1,26 @@
-# Robots.txt for sahilchouksey.in
+# robots.txt for sahilchouksey.in
 # Full Stack Developer & AI Engineer Portfolio
-# Last updated: 2025-01-15
+# Last updated: 2026-02-17
+# OPEN ACCESS POLICY: All AI crawlers and bots are welcome.
 
 User-agent: *
 Allow: /
 
-# Main sitemap
-Sitemap: https://sahilchouksey.in/sitemap.xml
+# Keep build/dev artifacts out of index
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /*.map$
+Disallow: /*.log$
 
-# LLMs.txt for AI discoverability
-# See: https://llmstxt.org/
-# llms.txt: https://sahilchouksey.in/llms.txt
-# llms-full.txt: https://sahilchouksey.in/llms-full.txt
-
-# Allow search engines to crawl all content
-Crawl-delay: 1
-
-# Allow important files
+# Explicitly allow key public assets
 Allow: /resume.pdf
+Allow: /RESUME.pdf
 Allow: /manifest.json
 Allow: /images/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /humans.txt
-Allow: /security.txt
 Allow: /.well-known/
 
-# Block unnecessary files
-Disallow: /*.map
-Disallow: /*.log
-Disallow: /src/
-Disallow: /node_modules/
-
-# ===========================================
-# Search Engine Crawlers
-# ===========================================
-
-# Google specific
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-# Bing specific
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Yahoo/Slurp
-User-agent: Slurp
-Allow: /
-
-# DuckDuckGo
-User-agent: DuckDuckBot
-Allow: /
-
-# Yandex
-User-agent: YandexBot
-Allow: /
-
-# Baidu
-User-agent: Baiduspider
-Allow: /
-
-# ===========================================
-# Social Media Crawlers
-# ===========================================
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: LinkedInBot
-Allow: /
-
-User-agent: Pinterest
-Allow: /
-
-User-agent: Slackbot
-Allow: /
-
-User-agent: Discordbot
-Allow: /
-
-User-agent: WhatsApp
-Allow: /
-
-User-agent: TelegramBot
-Allow: /
-
-# ===========================================
-# AI/LLM Crawlers - Allowing for discoverability
-# ===========================================
-
-# OpenAI
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-# Anthropic
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-# Google AI (Gemini/Bard)
-User-agent: Google-Extended
-Allow: /
-
-# Perplexity AI
-User-agent: PerplexityBot
-Allow: /
-
-# Amazon/AWS AI
-User-agent: Amazonbot
-Allow: /
-
-# Meta AI
-User-agent: Meta-ExternalAgent
-Allow: /
-
-User-agent: meta-externalagent
-Allow: /
-
-User-agent: FacebookBot
-Allow: /
-
-# Cohere AI
-User-agent: cohere-ai
-Allow: /
-
-# Microsoft/Bing AI (Copilot)
-User-agent: bingbot
-Allow: /
-
-# Apple AI (Applebot for Siri/Spotlight)
-User-agent: Applebot
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-# ByteDance/TikTok AI
-User-agent: Bytespider
-Allow: /
-
-# Common Crawl (used by many AI companies)
-User-agent: CCBot
-Allow: /
-
-# AI Search Engines
-User-agent: YouBot
-Allow: /
-
-User-agent: AI2Bot
-Allow: /
-
-User-agent: Diffbot
-Allow: /
-
-User-agent: OmigiliBot
-Allow: /
-
-# AI Code Assistants
-User-agent: Seekr
-Allow: /
-
-# ===========================================
-# Archive & Research Bots
-# ===========================================
-
-User-agent: ia_archiver
-Allow: /
-
-User-agent: archive.org_bot
-Allow: /
+# XML sitemap
+Sitemap: https://sahilchouksey.in/sitemap.xml

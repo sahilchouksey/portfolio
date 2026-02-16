@@ -42,7 +42,13 @@ const ProjectItem = ({
 
             <div className="project-image-wrapper">
                 {imageSrc && (
-                    <img src={imageSrc} alt={title} className="project-image" />
+                    <img 
+                        src={imageSrc} 
+                        alt={title} 
+                        className="project-image"
+                        loading="lazy"
+                        decoding="async"
+                    />
                 )}
             </div>
         </div>

@@ -13,7 +13,13 @@ const EducationCard = ({
         <>
             <div className="education-logo-container">
                 {logoSrc ? (
-                    <img src={logoSrc} alt={university} className="education-logo" />
+                    <img 
+                        src={logoSrc} 
+                        alt={university} 
+                        className="education-logo"
+                        loading="lazy"
+                        decoding="async"
+                    />
                 ) : (
                     <div className="education-logo-placeholder"></div>
                 )}
