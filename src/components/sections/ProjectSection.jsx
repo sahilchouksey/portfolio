@@ -56,6 +56,7 @@ const ProjectSection = () => {
             link: "https://soundrex.netlify.app",
             tags: ["Material UI", "MongoDB", "Streaming"],
             imageSrc: "/images/soundrex-logo.svg",
+            logoClass: "project-logo--light-black",
             logoScale: 4, // 4x bigger (reduced from 8x)
             year: "2021-22"
         }
@@ -65,14 +66,55 @@ const ProjectSection = () => {
 
     const VisualCard = ({ project, isReverse }) => {
         const yearPositionClass = isReverse ? 'year-left' : 'year-right';
+        const isClickable = project.link && project.link !== '#';
 
         if (project.isCustom) {
+            const cardClassName = `project-card project-visual-card custom-card${isClickable ? ' project-card--clickable' : ' project-card--static'}`;
+
+            if (!isClickable) {
+                return (
+                    <div
+                        className={cardClassName}
+                        style={{ position: 'relative', overflow: 'hidden' }}
+                    >
+                        {/* Background Image with Zoom Effect */}
+                        <div
+                            className="custom-card-bg"
+                            style={{
+                                backgroundImage: `url(${project.imageSrc})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }}
+                        ></div>
+
+                        {/* Dark Overlay */}
+                        <div className="custom-card-overlay"></div>
+
+                        <div className="project-logo-container custom-logo-container">
+                            <h3 className="custom-logo-text">Study in Woods 🪵</h3>
+                        </div>
+
+                        <div className="project-title-group" style={{ zIndex: 2 }}>
+                            <div className="project-subtitle custom-subtitle">{project.subtitle}</div>
+                            <div className="project-tech-stack">
+                                {project.tags.map((tag, i) => (
+                                    <span key={i} className="project-tech-tag">{tag}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Year Indicator */}
+                        <div className={`project-year ${yearPositionClass}`}>{project.year}</div>
+                    </div>
+                );
+            }
+
             return (
                 <a
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="project-card project-visual-card custom-card"
+                    className={cardClassName}
                     style={{ position: 'relative', overflow: 'hidden' }}
                 >
                     {/* Background Image with Zoom Effect */}
@@ -113,8 +155,37 @@ const ProjectSection = () => {
             );
         }
 
+        const cardClassName = `project-card project-visual-card${isClickable ? ' project-card--clickable' : ' project-card--static'}`;
+
+        if (!isClickable) {
+            return (
+                <div className={cardClassName}>
+                    <div className="project-logo-container">
+                        <img
+                            src={project.imageSrc}
+                            alt={project.title}
+                            className={`project-logo ${project.isRounded ? 'rounded' : ''} ${project.logoClass || ''}`.trim()}
+                            style={project.logoScale ? { transform: `scale(${project.logoScale})`, transformOrigin: 'left center' } : {}}
+                        />
+                    </div>
+                    <div className="project-title-group">
+                        <h3 className="project-title">{project.title}</h3>
+                        <div className="project-subtitle">{project.subtitle}</div>
+                        <div className="project-tech-stack">
+                            {project.tags.map((tag, i) => (
+                                <span key={i} className="project-tech-tag">{tag}</span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Year Indicator */}
+                    <div className={`project-year ${yearPositionClass}`}>{project.year}</div>
+                </div>
+            );
+        }
+
         return (
-            <a href={project.link} target="_blank" rel="noopener noreferrer" className="project-card project-visual-card">
+            <a href={project.link} target="_blank" rel="noopener noreferrer" className={cardClassName}>
                 <div className="project-link-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -124,7 +195,7 @@ const ProjectSection = () => {
                     <img
                         src={project.imageSrc}
                         alt={project.title}
-                        className={`project-logo ${project.isRounded ? 'rounded' : ''}`}
+                        className={`project-logo ${project.isRounded ? 'rounded' : ''} ${project.logoClass || ''}`.trim()}
                         style={project.logoScale ? { transform: `scale(${project.logoScale})`, transformOrigin: 'left center' } : {}}
                     />
                 </div>

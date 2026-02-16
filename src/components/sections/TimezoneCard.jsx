@@ -25,14 +25,14 @@ const TimezoneCard = ({
     >
       <div className="card-shape">
         <div className="shape w-embed">
-          <svg width="112" height="112" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              d="M104 56c0 14.912-21.49 27-48 27m48-27c0-14.912-21.49-27-48-27m48 27H8m48 27C29.49 83 8 70.912 8 56m48 27V29m0 54c12.876 0 21.306-12.088 21.306-27S68.876 29 56 29m0 54c-12.876 0-21.306-12.088-21.306-27S43.124 29 56 29m0 54c12.876 0 37.002-12.088 37.002-27S68.876 29 56 29m0 54c-12.876 0-36.216-12.088-36.216-27S43.124 29 56 29m0 54c4.816 0 8.72-12.088 8.72-27S60.816 29 56 29m0 54c-4.816 0-8.72-12.088-8.72-27S51.184 29 56 29M8 56c0-14.912 21.49-27 48-27" 
-              stroke="currentColor" 
-              strokeWidth="4" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
+          <svg width="112" height="112" viewBox="0 0 112 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M104 56C104 70.912 82.51 83 56 83C29.49 83 8 70.912 8 56C8 41.088 29.49 29 56 29C82.51 29 104 41.088 104 56Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M8 56H104" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M56 29V83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M56 29C66 29 74 41 74 56C74 71 66 83 56 83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M56 29C46 29 38 41 38 56C38 71 46 83 56 83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M56 29C82 29 92 41 92 56C92 71 82 83 56 83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M56 29C30 29 20 41 20 56C20 71 30 83 56 83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       </div>
