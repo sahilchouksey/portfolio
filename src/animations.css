@@ -85,6 +85,71 @@ body {
   min-height: 70px;
 }
 
+.hero-theme-toggle-wrap {
+  display: none;
+}
+
+.contact-theme-toggle-wrap {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 30;
+}
+
+.theme-toggle-button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.theme-toggle-button:hover {
+  opacity: 1;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.theme-toggle-button:active {
+  transform: scale(0.96);
+}
+
+.theme-toggle-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.theme-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+@media screen and (max-width: 991px) {
+  .contact-theme-toggle-wrap {
+    display: none;
+  }
+
+  .hero-theme-toggle-wrap {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 20;
+    display: block;
+  }
+}
+
 .animation-controls {
   position: absolute;
   top: 4px;
@@ -306,9 +371,52 @@ body {
   gap: 8px;
 }
 
+@media screen and (max-width: 991px) {
+  .nav-menu .navlinks {
+    width: 100%;
+    padding-left: 0 !important;
+    align-items: center !important;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-menu .nav-link {
+    text-align: center !important;
+  }
+
+  /* Ensure full-screen overlay stays above navbar/header chrome */
+  .navigation .w-nav-overlay {
+    z-index: 9998 !important;
+  }
+
+  .navigation .nav-menu {
+    z-index: 9999 !important;
+  }
+
+  /* Hide hamburger icon while menu is open so close button is visible */
+  .navigation .hamburger-menu.w--open {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .navigation .close-button {
+    z-index: 10000 !important;
+  }
+}
+
 .nav-link {
   width: auto !important;
   padding: 0 20px !important;
+}
+
+#Experience {
+  scroll-margin-top: 112px;
+}
+
+@media screen and (max-width: 991px) {
+  #Experience {
+    scroll-margin-top: 88px;
+  }
 }
 
 /* =====/* Tech & Experience Grid - Full Width Sections */
@@ -437,6 +545,43 @@ body {
   }
 }
 
+/* Manual theme override (localStorage preference) */
+:root[data-theme='dark'] {
+  --bg-base: #131315;
+  --bg-subtle: #1a1a1c;
+  --surface: #131315;
+  --surface-elevated: #1f2023;
+  --text-primary: #ffffff;
+  --text-secondary: #8a8a93;
+  --text-muted: #666666;
+  --text-inverse: #131315;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --accent-primary: #22d3ee;
+  --accent-hover: #06b6d4;
+  --accent-soft-bg: rgba(34, 211, 238, 0.1);
+  --accent-soft-border: rgba(34, 211, 238, 0.25);
+}
+
+:root[data-theme='light'] {
+  --bg-base: #f3f4f7;
+  --bg-subtle: #efeff3;
+  --surface: #ffffff;
+  --surface-elevated: #f0f0f3;
+  --text-primary: #1c2024;
+  --text-secondary: #60646c;
+  --text-muted: #8b8d98;
+  --text-inverse: #ffffff;
+  --border-subtle: #e0e1e6;
+  --border-default: #d9d9e0;
+  --border-strong: #b9bbc6;
+  --accent-primary: #00a2c7;
+  --accent-hover: #0797b9;
+  --accent-soft-bg: #def7f9;
+  --accent-soft-border: rgba(0, 162, 199, 0.22);
+}
+
 @media (prefers-color-scheme: light) {
   body {
     background-color: var(--bg-base);
@@ -552,6 +697,197 @@ body {
     background: color-mix(in srgb, var(--accent-soft-bg) 70%, var(--accent-primary) 30%);
     border-color: var(--accent-primary);
   }
+}
+
+/* Light theme overrides when manually toggled */
+:root[data-theme='light'] body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] a {
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] .text-color-black {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme='light'] .text-color-white {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme='light'] .text-color-gray,
+:root[data-theme='light'] .text-color-light {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme='light'] .card,
+:root[data-theme='light'] .contact-card,
+:root[data-theme='light'] .footer-card,
+:root[data-theme='light'] .navigation-container,
+:root[data-theme='light'] .case-container,
+:root[data-theme='light'] .work-card,
+:root[data-theme='light'] .galery-card,
+:root[data-theme='light'] .testimonial-card,
+:root[data-theme='light'] .slider,
+:root[data-theme='light'] .changelog,
+:root[data-theme='light'] .instruction,
+:root[data-theme='light'] .sg-card,
+:root[data-theme='light'] .utility-page-content {
+  background-color: var(--surface) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+:root[data-theme='light'] .button,
+:root[data-theme='light'] .button-submit,
+:root[data-theme='light'] .button-small {
+  background-color: var(--accent-primary) !important;
+  color: var(--text-inverse) !important;
+}
+
+:root[data-theme='light'] .nav-link {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme='light'] .nav-link:hover,
+:root[data-theme='light'] .nav-link.w--current,
+:root[data-theme='light'] .logo,
+:root[data-theme='light'] .footer-text,
+:root[data-theme='light'] .h1-heading,
+:root[data-theme='light'] .h2-heading,
+:root[data-theme='light'] .h3-heading,
+:root[data-theme='light'] .h4-heading,
+:root[data-theme='light'] .h5-heading,
+:root[data-theme='light'] .h6-heading {
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] .span-gray,
+:root[data-theme='light'] .body-large,
+:root[data-theme='light'] .work-text,
+:root[data-theme='light'] .timeline-content .body-large,
+:root[data-theme='light'] .experience-yoe,
+:root[data-theme='light'] .timeline-period,
+:root[data-theme='light'] .timeline-description,
+:root[data-theme='light'] .blog-card-brief,
+:root[data-theme='light'] .blog-card-meta {
+  color: var(--text-secondary);
+}
+
+:root[data-theme='light'] .detail-button {
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] .arrow {
+  color: var(--text-secondary);
+}
+
+:root[data-theme='light'] .arrow:hover {
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+:root[data-theme='light'] .timeline::before {
+  background: var(--border-default);
+}
+
+:root[data-theme='light'] .timeline-marker {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme='light'] .timeline-item:hover .timeline-marker {
+  box-shadow: 0 0 24px rgba(0, 162, 199, 0.28);
+}
+
+:root[data-theme='light'] .highlight-tag,
+:root[data-theme='light'] .tech-skill,
+:root[data-theme='light'] .project-tech-tag,
+:root[data-theme='light'] .blog-card-tag {
+  background: var(--accent-soft-bg);
+  border-color: var(--accent-soft-border);
+  color: var(--accent-primary);
+}
+
+:root[data-theme='light'] .tech-skill:hover {
+  background: color-mix(in srgb, var(--accent-soft-bg) 70%, var(--accent-primary) 30%);
+  border-color: var(--accent-primary);
+}
+
+/* Ensure social cards also follow manual theme toggle (desktop + responsive grids) */
+:root[data-theme='light'] .social-link {
+  background-image: linear-gradient(180deg, var(--surface), var(--surface)) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+:root[data-theme='light'] .social-link:hover {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) !important;
+}
+
+:root[data-theme='dark'] .social-link {
+  background-image: linear-gradient(180deg, #131315, #131315) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:root[data-theme='dark'] .social-link:hover {
+  background-color: transparent !important;
+  background-image: linear-gradient(180deg, hsla(0, 0%, 100%, 0.03), hsla(0, 0%, 100%, 0.03)), linear-gradient(180deg, #131315, #131315) !important;
+}
+
+/* Keep resume CTA styling across all breakpoints/themes */
+.social-link.social-link-highlight,
+:root[data-theme='light'] .social-link.social-link-highlight,
+:root[data-theme='dark'] .social-link.social-link-highlight {
+  background: var(--accent-primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  font-weight: 600;
+}
+
+.social-link.social-link-highlight:hover,
+:root[data-theme='light'] .social-link.social-link-highlight:hover,
+:root[data-theme='dark'] .social-link.social-link-highlight:hover {
+  background: color-mix(in srgb, var(--accent-primary) 86%, #ffffff 14%) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+/* Mobile nav / burger overlay should follow manual theme toggle */
+:root[data-theme='light'] .nav-menu,
+:root[data-theme='light'] .hamburger-menu.w--open,
+:root[data-theme='light'] .close-button.w--open {
+  background-color: var(--surface) !important;
+}
+
+:root[data-theme='light'] .nav-line,
+:root[data-theme='light'] .close-line {
+  background-color: var(--text-primary) !important;
+}
+
+:root[data-theme='light'] .close-button {
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme='dark'] .nav-menu,
+:root[data-theme='dark'] .hamburger-menu.w--open,
+:root[data-theme='dark'] .close-button.w--open {
+  background-color: #131315 !important;
+}
+
+:root[data-theme='dark'] .nav-line {
+  background-color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .close-line {
+  background-color: #8a8a93 !important;
+}
+
+:root[data-theme='dark'] .close-button {
+  border-color: #8a8a93 !important;
 }
 
 /* React Flow Custom Styles */

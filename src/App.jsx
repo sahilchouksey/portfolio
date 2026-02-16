@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Import all modular components
 import Navigation from './components/sections/Navigation';
@@ -8,13 +8,39 @@ import TimezoneCard from './components/sections/TimezoneCard';
 import DescriptionCard from './components/sections/DescriptionCard';
 import SocialLinks from './components/sections/SocialLinks';
 import TechStackSection from './components/sections/TechStackSection';
+import ThemeToggleButton from './components/sections/ThemeToggleButton';
+import { useTheme } from './hooks/useTheme';
 
 
 import ProjectSection from './components/sections/ProjectSection';
-import BlogSection from './components/sections/BlogSection';
 import FooterSection from './components/sections/FooterSection';
 
 function App() {
+  const { themePreference, resolvedTheme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const scrollToCurrentHash = () => {
+      const hash = window.location.hash;
+      if (!hash) return;
+
+      const targetId = hash.slice(1);
+      if (!targetId) return;
+
+      const targetElement = document.getElementById(targetId);
+      if (!targetElement) return;
+
+      targetElement.scrollIntoView({ block: 'start' });
+    };
+
+    // Re-run after initial render so hash targets inside React content are reachable.
+    requestAnimationFrame(scrollToCurrentHash);
+    window.addEventListener('hashchange', scrollToCurrentHash);
+
+    return () => {
+      window.removeEventListener('hashchange', scrollToCurrentHash);
+    };
+  }, []);
+
   return (
     <div className="page-wrapper">
       {/* Navigation */}
@@ -23,7 +49,6 @@ function App() {
         navLinks={[
           { text: "home.", href: "#", current: true },
           { text: "experience.", href: "#Experience" },
-          { text: "blog.", href: "#Blog" },
           { text: "contact.", href: "#Footer" }
         ]}
       />
@@ -40,11 +65,27 @@ function App() {
                 name="Sahil Chouksey"
                 title="Full Stack Developer"
                 subtitle="Democratizing technology, one open solution at a time"
+                themeToggle={(
+                  <ThemeToggleButton
+                    resolvedTheme={resolvedTheme}
+                    themePreference={themePreference}
+                    onToggle={toggleTheme}
+                    className="hero-theme-toggle"
+                  />
+                )}
               />
               <ContactCard
                 title="Have a project in mind?"
                 email="hey@sahilchouksey.in"
                 showButton={true}
+                themeToggle={(
+                  <ThemeToggleButton
+                    resolvedTheme={resolvedTheme}
+                    themePreference={themePreference}
+                    onToggle={toggleTheme}
+                    className="contact-theme-toggle"
+                  />
+                )}
                 iconComponent={
                   <svg width="112" height="112" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: '#fff' }}>
                     <path d="M56 12 L 70 56 L 56 100 L 42 56 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
@@ -89,8 +130,7 @@ function App() {
         {/* Projects Section */}
         <ProjectSection />
 
-        {/* Blog Section */}
-        <BlogSection />
+        {/* Blog Section (temporarily disabled) */}
       </main>
 
       {/* Footer Section */}

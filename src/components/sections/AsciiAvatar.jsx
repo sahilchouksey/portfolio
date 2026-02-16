@@ -1,9 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15 }) => {
   const containerRef = useRef(null);
   const animationFrameRef = useRef(null);
   const speedMultiplier = 4; // Fixed speed at 4x
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(max-width: 991px)').matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 991px)');
+    const handleChange = (event) => setIsMobile(event.matches);
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const asciiArtContent = `
 . =+=@@@@@@%#@@@@@@@@@*@@@@*.=@@@@@@@@@@@@@@@%@@@+:%=..*.           
@@ -46,6 +58,7 @@ const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15
 `;
 
   useEffect(() => {
+    if (isMobile) return undefined;
     if (!containerRef.current) return;
 
     const NOISE_CHARS = [".", "`", "'", " ", "~", ","];
@@ -626,7 +639,11 @@ const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <div className="ascii-avatar-container">

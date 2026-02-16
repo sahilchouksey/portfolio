@@ -10,7 +10,8 @@ const ContactCard = ({
   title = "Have a project in mind?",
   email = "hey@jenny.com",
   className = "contact-card",
-  showButton = true
+  showButton = true,
+  themeToggle
 }) => {
   const animation = useScrollAnimation(animationType, {
     delay,
@@ -26,6 +27,7 @@ const ContactCard = ({
       ref={animation.ref}
       style={{ position: 'relative', padding: 0, overflow: 'hidden' }}
     >
+      {themeToggle ? <div className="contact-theme-toggle-wrap">{themeToggle}</div> : null}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }}>
         <AsciiAvatar />
       </div>

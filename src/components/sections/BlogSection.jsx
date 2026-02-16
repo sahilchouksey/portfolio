@@ -113,11 +113,6 @@ const BlogSection = () => {
         return 'blog-grid blog-grid-3';
     };
 
-    // Don't render section if no blogs and not loading
-    if (!loading && blogs.length === 0) {
-        return null;
-    }
-
     return (
         <section id="Blog" className="section" ref={(node) => {
             sectionRef.current = node;

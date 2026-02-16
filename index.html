@@ -242,6 +242,21 @@
     </script>
     
     <!-- Stylesheets -->
+    <script>
+      (function() {
+        try {
+          var pref = localStorage.getItem('theme-preference') || 'system';
+          var resolved = pref === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : pref;
+
+          if (pref !== 'system') {
+            document.documentElement.setAttribute('data-theme', pref);
+          }
+          document.documentElement.style.colorScheme = resolved;
+        } catch (e) {}
+      })();
+    </script>
     <link href="/original-styles.css" rel="stylesheet" type="text/css">
     
     <!-- Webflow Script -->

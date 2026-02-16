@@ -323,12 +323,19 @@
 }
 
 @media (prefers-color-scheme: light) {
-    .education-logo-container,
-    .education-bento-card .education-logo-container {
+    :root:not([data-theme]) .education-logo-container,
+    :root:not([data-theme]) .education-bento-card .education-logo-container {
         border: 1px solid rgba(0, 0, 0, 0.14) !important;
         box-sizing: border-box;
         border-radius: 24px 0 0 24px;
     }
+}
+
+:root[data-theme='light'] .education-logo-container,
+:root[data-theme='light'] .education-bento-card .education-logo-container {
+    border: 1px solid rgba(0, 0, 0, 0.14) !important;
+    box-sizing: border-box;
+    border-radius: 24px 0 0 24px;
 }
 
 .education-content {
@@ -552,7 +559,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-    .project-logo--light-black {
+    :root:not([data-theme]) .project-logo--light-black {
         background-color: transparent;
         border-radius: 0;
         padding: 0;
@@ -560,9 +567,21 @@
         filter: brightness(0);
     }
 
-    .contact-shape-icon {
+    :root:not([data-theme]) .contact-shape-icon {
         color: #000000;
     }
+}
+
+:root[data-theme='light'] .project-logo--light-black {
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-sizing: border-box;
+    filter: brightness(0);
+}
+
+:root[data-theme='light'] .contact-shape-icon {
+    color: #000000;
 }
 
 .project-title-group {
@@ -780,18 +799,31 @@
 }
 
 @media (prefers-color-scheme: light) {
-    .project-card {
+    :root:not([data-theme]) .project-card {
         border-color: transparent;
     }
 
-    .project-card--static:hover {
+    :root:not([data-theme]) .project-card--static:hover {
         border-color: transparent;
         filter: none;
     }
 
-    .project-card--clickable:hover {
+    :root:not([data-theme]) .project-card--clickable:hover {
         border-color: var(--border-default);
     }
+}
+
+:root[data-theme='light'] .project-card {
+    border-color: transparent;
+}
+
+:root[data-theme='light'] .project-card--static:hover {
+    border-color: transparent;
+    filter: none;
+}
+
+:root[data-theme='light'] .project-card--clickable:hover {
+    border-color: var(--border-default);
 }
 
 /* Mobile Adjustments */

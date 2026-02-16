@@ -154,7 +154,7 @@ const TechStackSection = () => {
     ];
 
     return (
-        <section id="Experience" className="section" ref={animation.ref}>
+        <section id="TechStack" className="section" ref={animation.ref}>
             <div className="container">
                 {/* Bento Grid Layout */}
                 <div className="w-layout-grid tech-experience-grid">
@@ -218,7 +218,7 @@ const TechStackSection = () => {
                     </div>
 
                     {/* Experience Card */}
-                    <div className="card experience-card">
+                    <div id="Experience" className="card experience-card">
                         <div className="experience-header">
                             <h3 className="h3-heading">experience.</h3>
                             {yoe && (
