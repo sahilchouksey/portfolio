@@ -404,6 +404,22 @@ body {
   }
 }
 
+@media screen and (max-width: 479px) {
+  .footer-card {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .footer-card .logo {
+    justify-content: center;
+  }
+
+  .footer-card .footer-text,
+  .footer-card .text-color-gray {
+    text-align: center !important;
+  }
+}
+
 .nav-link {
   width: auto !important;
   padding: 0 20px !important;
