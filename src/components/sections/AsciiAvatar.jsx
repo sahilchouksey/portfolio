@@ -657,7 +657,7 @@ const AsciiAvatar = ({
   return (
     <div className="ascii-avatar-container">
       <div className="ascii-container">
-        <pre ref={containerRef}></pre>
+        <pre ref={containerRef}>{asciiArtContent.trim()}</pre>
       </div>
     </div>
   );
