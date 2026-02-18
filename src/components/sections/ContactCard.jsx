@@ -35,13 +35,16 @@ const ContactCard = ({
         <div className="contact-theme-toggle-wrap">{themeToggle}</div>
       )}
       
-      {/* Avatar layer */}
+      {/* Avatar layer - relative positioned to give card its size */}
       <div style={{ 
-        position: 'absolute', 
-        top: 0, left: 0, right: 0, bottom: 0,
+        position: 'relative',
         width: '100%', 
         height: '100%',
-        zIndex: 5
+        zIndex: 5,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '300px'
       }}>
         <AsciiAvatar />
       </div>
