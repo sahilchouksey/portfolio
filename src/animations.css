@@ -1291,3 +1291,66 @@ body {
   color: #22d3ee;
   margin-top: 8px;
 }
+
+/* ===== ASCII FRAME STYLES (Golden Sky Border) ===== */
+.ascii-frame-container {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ascii-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+  user-select: none;
+  color: #FFD700;
+  text-rendering: optimizeSpeed;
+  will-change: transform;
+}
+
+.ascii-frame--glow {
+  text-shadow: 
+    0 0 1px rgba(255, 215, 0, 0.9),
+    0 0 2px rgba(255, 215, 0, 0.6),
+    0 0 4px rgba(255, 215, 0, 0.3);
+}
+
+/* Theme variations for dark mode - brighter gold */
+:root[data-theme='dark'] .ascii-frame {
+  color: #FFE55C;
+}
+
+:root[data-theme='dark'] .ascii-frame--glow {
+  text-shadow: 
+    0 0 3px rgba(255, 229, 92, 0.6),
+    0 0 6px rgba(255, 229, 92, 0.4),
+    0 0 12px rgba(255, 229, 92, 0.2);
+}
+
+/* Theme variations for light mode - darker gold */
+:root[data-theme='light'] .ascii-frame {
+  color: #B8860B;
+}
+
+:root[data-theme='light'] .ascii-frame--glow {
+  text-shadow: 
+    0 0 2px rgba(184, 134, 11, 0.4);
+}
+
+/* Responsive - hide frame on mobile/tablet due to detail density */
+@media screen and (max-width: 991px) {
+  .ascii-frame-container {
+    display: none;
+  }
+}
