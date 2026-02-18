@@ -62,12 +62,12 @@ const AsciiAvatar = ({
 @@%%@%%%#@@#%%#@#@@%         .-+=:=:=@@@@@@@@@@@@%@%@@@###=         
 `;
 
-  // Static render when animation is disabled
+  // Static render when animation is disabled OR on mobile
   useEffect(() => {
-    if (!enableAnimation && containerRef.current) {
+    if ((!enableAnimation || isMobile) && containerRef.current) {
       containerRef.current.textContent = asciiArtContent.trim();
     }
-  }, [enableAnimation]);
+  }, [enableAnimation, isMobile]);
 
   useEffect(() => {
     if (isMobile) return undefined;
@@ -653,10 +653,6 @@ const AsciiAvatar = ({
       }
     };
   }, [isMobile, enableAnimation]);
-
-  if (isMobile) {
-    return null;
-  }
 
   return (
     <div className="ascii-avatar-container">
