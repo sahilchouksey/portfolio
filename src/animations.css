@@ -1326,6 +1326,59 @@ body {
     0 0 4px rgba(255, 215, 0, 0.3);
 }
 
+/* ===== SHINE SWEEP EFFECT (plays once on load & hover) ===== */
+.shine-sweep-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shine-sweep-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 248, 220, 0.03) 35%,
+    rgba(255, 255, 255, 0.08) 42%,
+    rgba(252, 246, 186, 0.15) 48%,
+    rgba(255, 255, 255, 0.25) 52%,
+    rgba(252, 246, 186, 0.15) 58%,
+    rgba(255, 255, 255, 0.08) 63%,
+    rgba(255, 248, 220, 0.03) 70%,
+    transparent 85%
+  );
+  transform: skewX(-20deg);
+}
+
+/* Only animate when active class is present */
+.shine-sweep-overlay.shine-sweep-active::before {
+  animation: shine-sweep-once 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes shine-sweep-once {
+  0% {
+    left: -150%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  60% {
+    left: 150%;
+    opacity: 1;
+  }
+  100% {
+    left: 150%;
+    opacity: 0;
+  }
+}
+
 /* Theme variations for dark mode - brighter gold */
 :root[data-theme='dark'] .ascii-frame {
   color: #FFE55C;

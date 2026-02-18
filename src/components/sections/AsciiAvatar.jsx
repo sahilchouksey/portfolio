@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15 }) => {
+const AsciiAvatar = ({ 
+  animationType = 'fadeInUp', 
+  delay = 200, 
+  threshold = 0.15,
+  enableAnimation = false // Master switch - OFF by default
+}) => {
   const containerRef = useRef(null);
   const animationFrameRef = useRef(null);
   const speedMultiplier = 4; // Fixed speed at 4x
@@ -57,9 +62,17 @@ const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15
 @@%%@%%%#@@#%%#@#@@%         .-+=:=:=@@@@@@@@@@@@%@%@@@###=         
 `;
 
+  // Static render when animation is disabled
+  useEffect(() => {
+    if (!enableAnimation && containerRef.current) {
+      containerRef.current.textContent = asciiArtContent.trim();
+    }
+  }, [enableAnimation]);
+
   useEffect(() => {
     if (isMobile) return undefined;
     if (!containerRef.current) return;
+    if (!enableAnimation) return; // Skip animation setup if disabled
 
     const NOISE_CHARS = [".", "`", "'", " ", "~", ","];
     const TENDRIL_CHARS = ["*", "+", "o", "·", "❖", "◊", "◈", "⧫"];
@@ -639,7 +652,7 @@ const AsciiAvatar = ({ animationType = 'fadeInUp', delay = 200, threshold = 0.15
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isMobile]);
+  }, [isMobile, enableAnimation]);
 
   if (isMobile) {
     return null;
