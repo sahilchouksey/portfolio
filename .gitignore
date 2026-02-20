@@ -51,3 +51,7 @@ osmic-portfolio-clone/
 
 # Binaries
 bin/
+ascii-art*.txt
+*.png
+dragons/
+temp/

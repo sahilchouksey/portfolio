@@ -28,7 +28,12 @@ const ContactCard = ({
     <div
       className={className}
       ref={animation.ref}
-      style={{ position: 'relative', padding: 0, overflow: 'hidden' }}
+      style={{ 
+        position: 'relative', 
+        padding: 0, 
+        overflow: 'hidden'
+        // All sizing handled by CSS .grid-header > .contact-card
+      }}
     >
       {/* Theme toggle - highest z-index */}
       {themeToggle && (
