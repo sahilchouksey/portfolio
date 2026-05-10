@@ -53,5 +53,6 @@ osmic-portfolio-clone/
 bin/
 ascii-art*.txt
 *.png
+!public/images/*.png
 dragons/
 temp/
