@@ -4,49 +4,7 @@ body {
   width: 100%;
 }
 
-.animate-hidden {
-  opacity: 0;
-  transform: translate3d(0px, 44px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
-  transform-style: preserve-3d;
-  transition: all 0.7s ease-out;
-}
 
-.animate-visible {
-  opacity: 1;
-  transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
-  transform-style: preserve-3d;
-  transition: all 0.7s ease-out;
-}
-
-/* Staggered animation delays for multiple elements */
-.animate-visible.delay-1 {
-  transition-delay: 0.1s;
-}
-
-.animate-visible.delay-2 {
-  transition-delay: 0.2s;
-}
-
-.animate-visible.delay-3 {
-  transition-delay: 0.3s;
-}
-
-.animate-visible.delay-4 {
-  transition-delay: 0.4s;
-}
-
-/* Special cases for testimonial content opacity */
-.testimonial-content.animate-hidden {
-  opacity: 0;
-  transform: none;
-  transition: opacity 0.7s ease-out;
-}
-
-.testimonial-content.animate-visible {
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.7s ease-out;
-}
 
 /* Fix for slider arrow positioning - constrain arrows within slider container */
 .w-slider {
@@ -589,8 +547,21 @@ body {
   transition: color 0.3s ease;
 }
 
-.timeline-content-link:hover .timeline-description {
+.timeline-content-link:hover .timeline-description,
+.timeline-item:hover .timeline-description {
   color: var(--text-primary);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .timeline-content-link:hover .timeline-description,
+  :root:not([data-theme='dark']) .timeline-item:hover .timeline-description {
+    color: #000000;
+  }
+}
+
+:root[data-theme='light'] .timeline-content-link:hover .timeline-description,
+:root[data-theme='light'] .timeline-item:hover .timeline-description {
+  color: #000000;
 }
 
 /* ============================================
@@ -802,13 +773,18 @@ body {
 :root[data-theme='dark'] .contact-card,
 :root[data-theme='dark'] .footer-card,
 :root[data-theme='dark'] .social-link,
-:root[data-theme='dark'] .project-card,
 :root[data-theme='dark'] .blog-card,
 :root[data-theme='dark'] .blog-title-card,
 :root[data-theme='dark'] .blog-see-all-btn,
 :root[data-theme='dark'] .education-card {
   background-color: #131315 !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+:root[data-theme='dark'] .project-card,
+:root:not([data-theme='light']) .project-card {
+  background-color: #131315 !important;
+  border-color: transparent !important;
 }
 
 :root[data-theme='light'] a {

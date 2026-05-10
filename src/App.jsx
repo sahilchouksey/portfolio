@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Import all modular components
 import Navigation from './components/sections/Navigation';

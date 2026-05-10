@@ -17,14 +17,29 @@
 = Experience
 
 #exp(
-  role: "Full Stack Developer (Promoted)",
-  project: "SV (Suryavanshi Ventures)",
+  role: "Full Stack Engineer",
+  project: [#link("https://saval.ai")[Saval AI]],
+  date: "Nov 2025 - Present",
+  location: "Remote, India",
+  summary: [#text(size: 0.82em)[Shipping core learning workflows and performance-focused features in a microservices architecture]],
+  details: [
+    - Built and scaled *Blogging*, *Test Exam*, and *Mock Test* pipelines end-to-end across backend services and frontend application layers to support structured and practice-first assessment workflows
+    - Implemented *Agent Aggregation Features* that unify multi-agent outputs into cohesive product experiences
+    - Partnered with full-stack engineers on feature planning, API contracts, and cross-service integrations
+    - Re-optimized *React Native* and web application performance with targeted rendering and delivery improvements
+  ]
+)
+
+#exp(
+  role: "Full Stack Developer & AI Engineer",
+  project: "Suryavanshi Ventures",
   date: "July 2024 - Nov 2025",
-  location: "Jabalpur, India",
+  location: "Remote, India",
   summary: [Led backend for #link("https://briohealth.ai")[BRIO AI] and enterprise apps],
   details: [
     - *BRIO Health AI*: Built agentic search engine using *LangGraph*, *Vertex AI RAG*, *Gemini-2.5-Flash*
     - Reduced PDF processing time by *60-65%* with custom OCR and intelligent chunk processing
+    - Designed microservice communication using message queues and *Protobuf* contracts for reliable data flow
     - Built backend systems for Research Studio, Paper Vault, AI Notebook, AI Transcribe with RAG capabilities
     - Implemented *Mem0.ai* memory system, achieving *2X better response quality* through state management
     - *Serma Event Management*: Led Finance system with *Stripe webhooks*, automated invoice generation
@@ -34,7 +49,7 @@
 )
 
 #exp(
-  role: "Software Developer (Promoted)",
+  role: "Software Developer",
   project: "TVM Consulting Private Limited",
   date: "Aug 2023 - July 2024",
   location: "India",
@@ -57,6 +72,8 @@
     [Go],
     [Next.js],
     [React.js],
+    [React Native],
+    [React Native Skia],
     [Node.js],
     [LangChain/LangGraph],
   )),
@@ -78,7 +95,9 @@
   )),
   ("Technical Skills", (
     [Full-Stack Development],
+    [Microservices Architecture],
     [API Design (RESTful)],
+    [Performance Optimization],
     [Payment Integration],
     [Healthcare Compliance],
   )),
@@ -108,8 +127,3 @@
 = Certifications
 - #link("https://www.udemy.com/certificate/UC-6721939e-bf79-40c2-8802-b1d45886a35d/")[*React Native - The Practical Guide*] - Udemy
 - #link("https://www.udemy.com/certificate/UC-c3978598-a38c-4ede-ba2d-b52bedf4d5ca/")[*NodeJS - The Complete Guide (MVC, REST APIs, GraphQL, Deno)*] - Udemy
-
-
-
-
-

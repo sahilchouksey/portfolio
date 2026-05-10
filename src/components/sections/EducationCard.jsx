@@ -1,4 +1,3 @@
-import React from 'react';
 import './Timeline.css';
 
 const EducationCard = ({
@@ -13,9 +12,9 @@ const EducationCard = ({
         <>
             <div className="education-logo-container">
                 {logoSrc ? (
-                    <img 
-                        src={logoSrc} 
-                        alt={university} 
+                    <img
+                        src={logoSrc}
+                        alt={university}
                         className="education-logo"
                         loading="lazy"
                         decoding="async"

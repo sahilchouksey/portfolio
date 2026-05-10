@@ -45,6 +45,7 @@ const TechStackSection = () => {
         'Gemini APIs': 'googlegemini',
         'Google Cloud': 'googlecloud',
         'DigitalOcean GenAI': 'digitalocean',
+        'Harness Engineering': 'frigate',
 
         // Databases & DevOps
         'PostgreSQL': 'postgresql',
@@ -78,7 +79,8 @@ const TechStackSection = () => {
             'LLM Integration',
             'Gemini APIs',
             'Google Cloud',
-            'DigitalOcean GenAI'
+            'DigitalOcean GenAI',
+            'Harness Engineering'
         ],
         'Databases & DevOps': [
             'PostgreSQL',
@@ -123,14 +125,16 @@ const TechStackSection = () => {
         }
     ];
     const experience = [
-        // {
-        //   period: 'Looking for opportunities',
-        //   role: 'Available for hire',
-        //   company: 'Your Company?',
-        //   location: 'Remote',
-        //   highlights: [],
-        //   isHireMe: true
-        // },
+        {
+            period: 'Nov 2025 - Present',
+            role: 'Full Stack Engineer',
+            company: 'Saval AI',
+            location: 'Remote, India',
+            highlights: ['Agent Aggregation', 'Content Pipelines', 'Assessment Engine', 'React Native'],
+            description: 'Building core learning workflows across a service-based architecture — shipped blogging, test exam, and mock test pipelines, implemented multi-agent aggregation features, and drove React Native and web performance optimization.',
+            logo: '/images/savalai-logo.png',
+            link: 'https://saval.ai'
+        },
         {
             period: 'July 2024 - Nov 2025',
             role: 'Full Stack Developer',
@@ -138,7 +142,7 @@ const TechStackSection = () => {
             location: 'Remote, India',
             highlights: ['BRIO Health AI', 'Serma Events', 'Zuno Training', 'Whisp'],
             description: 'From agentic AI systems with LangGraph to payment automation with Stripe - shipped 4 products including BRIO Health AI, Serma Events, and Zuno Training. Promoted within 5 months.',
-            logo: '/images/suryavanshi-logo.svg',
+            logo: '/images/suryavanshi-logo.png',
             link: 'https://suryavanshi.io'
         },
         {
@@ -148,7 +152,7 @@ const TechStackSection = () => {
             location: 'Jabalpur, India',
             highlights: ['Doct App', 'Salesman Analytics', 'Pose Detection'],
             description: 'Built a healthcare platform with 4X faster APIs using Golang, automated stock management eliminating paper-based orders, and developed pose detection ML models with custom datasets.',
-            logo: '/images/tvm-llc-logo.svg',
+            logo: '/images/tvm-logo.png',
             link: 'https://tvm-llc.com'
         }
     ];
@@ -235,9 +239,9 @@ const TechStackSection = () => {
                                         {exp.isHireMe ? (
                                             <div className="timeline-marker-question">?</div>
                                         ) : (
-                                            <a 
-                                                href={exp.link ?? "#"} 
-                                                target="_blank" 
+                                            <a
+                                                href={exp.link ?? "#"}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="timeline-marker-link"
                                             >

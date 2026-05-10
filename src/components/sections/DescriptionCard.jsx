@@ -2,11 +2,19 @@
 import React from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 
+const getAge = () => {
+  const dob = new Date(2003, 4, 18); // May 18, 2003
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  if (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate())) age--;
+  return age;
+};
+
 const DescriptionCard = ({
-  animationType = 'slideInRight',
+  animationType = 'fadeInRight',
   delay = 800,
   threshold = 0.15,
-  content = "I'm a 22-year-old full-stack developer building software that democratizes technology - from AI agents to tools you actually own.<br /><span class=\"span-gray\">I like open-source, Linux, and bike rides without a destination.</span>"
+  content = `I'm a ${getAge()}-year-old full-stack developer building software that democratizes technology - from AI agents to tools you actually own.<br /><span class="span-gray">I like open-source, Linux, and bike rides without a destination.</span>`
 }) => {
   const animation = useScrollAnimation(animationType, {
     delay,
