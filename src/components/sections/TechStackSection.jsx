@@ -178,10 +178,12 @@ const TechStackSection = () => {
                                                         {skill}
                                                         {iconName && (
                                                             <span className="tech-icon-tooltip">
-                                                                <img
+                                                                 <img
                                                                     src={`https://cdn.simpleicons.org/${iconName}/fff`}
                                                                     alt={skill}
                                                                     className="tech-icon"
+                                                                    loading="lazy"
+                                                                    decoding="async"
                                                                 />
                                                             </span>
                                                         )}
@@ -204,10 +206,12 @@ const TechStackSection = () => {
                                                         {item}
                                                         {iconName && (
                                                             <span className="tech-icon-tooltip">
-                                                                <img
+                                                                 <img
                                                                     src={`https://cdn.simpleicons.org/${iconName}/fff`}
                                                                     alt={item}
                                                                     className="tech-icon"
+                                                                    loading="lazy"
+                                                                    decoding="async"
                                                                 />
                                                             </span>
                                                         )}
@@ -249,6 +253,8 @@ const TechStackSection = () => {
                                                     src={exp.logo}
                                                     alt={exp.company}
                                                     className="timeline-marker-logo"
+                                                    loading="lazy"
+                                                    decoding="async"
                                                 />
                                                 <div className="timeline-marker-overlay">
                                                     <svg
