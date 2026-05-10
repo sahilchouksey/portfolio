@@ -111,7 +111,7 @@ const TechStackSection = () => {
             university: "RGPV, Bhopal",
             date: "July 2024 - Aug 2026 (Part-Time)",
             gpa: "GPA: 7.8/10",
-            logoSrc: "/images/rgpv-logo.png",
+            logoSrc: "/images/rgpv-logo.webp",
             link: "https://www.rgpv.ac.in"
         },
         {
@@ -120,7 +120,7 @@ const TechStackSection = () => {
             university: "Makhanlal Chaturvedi University",
             date: "July 2020 - Aug 2023",
             gpa: "GPA: 7.9/10",
-            logoSrc: "/images/makhanlal-logo.png",
+            logoSrc: "/images/makhanlal-logo.webp",
             link: "https://www.mcu.ac.in"
         }
     ];

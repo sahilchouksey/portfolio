@@ -22,7 +22,7 @@ const ProjectSection = () => {
             description: "What if your notes could talk back? An AI study companion I built to solve my own frustration with scattered resources - upload any document and have intelligent conversations with your study material.",
             link: "https://github.com/sahilchouksey/study-in-woods",
             tags: ["Go", "PostgreSQL", "Redis"],
-            imageSrc: "/images/woods-bg.jpg",
+            imageSrc: "/images/woods-bg.webp",
             isCustom: true,
             year: "2025"
         },

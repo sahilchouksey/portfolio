@@ -4,6 +4,43 @@ body {
   width: 100%;
 }
 
+/* Override Webflow CDN OTF fonts — map 'Inter Display' to Google Fonts Inter (woff2, fast) */
+@font-face {
+  font-family: 'Inter Display';
+  src: local('Inter'), local('Inter-Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Display';
+  src: local('Inter Medium'), local('Inter-Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Display';
+  src: local('Inter SemiBold'), local('Inter-SemiBold');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Display';
+  src: local('Inter Bold'), local('Inter-Bold');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Display';
+  src: local('Inter Light'), local('Inter-Light');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 
 /* Fix for slider arrow positioning - constrain arrows within slider container */

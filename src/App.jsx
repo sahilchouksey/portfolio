@@ -61,7 +61,7 @@ function App() {
             {/* Top Grid - Hero and Contact */}
             <div className="w-layout-grid grid-header">
               <HeroCard
-                avatarSrc="/images/avatar.png"
+                avatarSrc="/images/avatar.webp"
                 name="Sahil Chouksey"
                 title="Full Stack Developer"
                 subtitle="Democratizing technology, one open solution at a time"
