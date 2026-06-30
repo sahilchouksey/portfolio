@@ -118,7 +118,7 @@ const cardStyle = (hidden) => ({
   transition: "opacity 0.2s",
 });
 
-const HeaderStrip = ({ title, count, onAdd, hidden, onToggleHidden }) => (
+const HeaderStrip = ({ title, count, onAdd, expanded = true, onToggleExpanded }) => (
   <div
     style={{
       display: "flex",
@@ -133,16 +133,30 @@ const HeaderStrip = ({ title, count, onAdd, hidden, onToggleHidden }) => (
       zIndex: 5,
     }}
   >
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <button
+      type="button"
+      onClick={onToggleExpanded}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: 0,
+        border: "none",
+        background: "transparent",
+        color: "inherit",
+        cursor: onToggleExpanded ? "pointer" : "default",
+        fontFamily: "inherit",
+      }}
+    >
       <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#eee" }}>
         {title}
       </h3>
+      {onToggleExpanded && (
+        <span style={{ width: 12, fontSize: 10, color: "#888" }}>{expanded ? "▼" : "▶"}</span>
+      )}
       <span style={{ fontSize: 11, color: "#666" }}>{count}</span>
-    </div>
+    </button>
     <div style={{ display: "flex", gap: 6 }}>
-      <button onClick={onToggleHidden} style={btn()} title="Toggle visibility">
-        {hidden ? "Show all" : "Hide all"}
-      </button>
       {onAdd && (
         <button onClick={onAdd} style={btn("primary")} title="Add new">
           + Add
@@ -192,13 +206,17 @@ const Field = ({ label, children }) => (
   </div>
 );
 
-const ContactEditor = ({ contacts, onChange }) => (
+const ContactEditor = ({ contacts, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Contacts"
       count={`${contacts.filter((c) => !c.hidden).length}/${contacts.length}`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() => onChange([...contacts, { id: uid("c"), label: "", url: "", hidden: false }])}
     />
+    {expanded && (
+    <>
     {contacts.map((c, i) => (
       <div key={c.id} style={cardStyle(c.hidden)}>
         <ItemHeader
@@ -247,14 +265,18 @@ const ContactEditor = ({ contacts, onChange }) => (
         </div>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const ExperienceEditor = ({ items, onChange }) => (
+const ExperienceEditor = ({ items, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Experience"
       count={`${items.filter((x) => !x.hidden).length}/${items.length}`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() =>
         onChange([
           ...items,
@@ -272,6 +294,8 @@ const ExperienceEditor = ({ items, onChange }) => (
         ])
       }
     />
+    {expanded && (
+    <>
     {items.map((exp, i) => (
       <div key={exp.id} style={cardStyle(exp.hidden)}>
         <ItemHeader
@@ -375,14 +399,18 @@ const ExperienceEditor = ({ items, onChange }) => (
         </Field>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const SkillsEditor = ({ items, onChange }) => (
+const SkillsEditor = ({ items, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Skills"
       count={`${items.filter((x) => !x.hidden).length}/${items.length} categories`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() =>
         onChange([
           ...items,
@@ -390,6 +418,8 @@ const SkillsEditor = ({ items, onChange }) => (
         ])
       }
     />
+    {expanded && (
+    <>
     {items.map((area, i) => (
       <div key={area.id} style={cardStyle(area.hidden)}>
         <ItemHeader
@@ -435,14 +465,18 @@ const SkillsEditor = ({ items, onChange }) => (
         </Field>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const EducationEditor = ({ items, onChange }) => (
+const EducationEditor = ({ items, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Education"
       count={`${items.filter((x) => !x.hidden).length}/${items.length}`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() =>
         onChange([
           ...items,
@@ -459,6 +493,8 @@ const EducationEditor = ({ items, onChange }) => (
         ])
       }
     />
+    {expanded && (
+    <>
     {items.map((edu, i) => (
       <div key={edu.id} style={cardStyle(edu.hidden)}>
         <ItemHeader
@@ -551,18 +587,24 @@ const EducationEditor = ({ items, onChange }) => (
         </Field>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const CertsEditor = ({ items, onChange }) => (
+const CertsEditor = ({ items, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Certifications"
       count={`${items.filter((x) => !x.hidden).length}/${items.length}`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() =>
         onChange([...items, { id: uid("ce"), hidden: false, title: "", issuer: "", url: "" }])
       }
     />
+    {expanded && (
+    <>
     {items.map((c, i) => (
       <div key={c.id} style={cardStyle(c.hidden)}>
         <ItemHeader
@@ -620,14 +662,18 @@ const CertsEditor = ({ items, onChange }) => (
         </Field>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const ExtrasEditor = ({ items, onChange }) => (
+const ExtrasEditor = ({ items, onChange, expanded, onToggleExpanded }) => (
   <div>
     <HeaderStrip
       title="Extra Sections"
       count={`${items.filter((x) => !x.hidden).length}/${items.length}`}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
       onAdd={() =>
         onChange([
           ...items,
@@ -635,6 +681,8 @@ const ExtrasEditor = ({ items, onChange }) => (
         ])
       }
     />
+    {expanded && (
+    <>
     {items.map((s, i) => (
       <div key={s.id} style={cardStyle(s.hidden)}>
         <ItemHeader
@@ -679,12 +727,15 @@ const ExtrasEditor = ({ items, onChange }) => (
         </Field>
       </div>
     ))}
+    </>
+    )}
   </div>
 );
 
-const MetaEditor = ({ meta, onChange }) => (
+const MetaEditor = ({ meta, onChange, expanded, onToggleExpanded }) => (
   <div>
-    <HeaderStrip title="Header" count="1" />
+    <HeaderStrip title="Header" count="1" expanded={expanded} onToggleExpanded={onToggleExpanded} />
+    {expanded && (
     <div style={cardStyle(false)}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         <Field label="Author">
@@ -710,6 +761,7 @@ const MetaEditor = ({ meta, onChange }) => (
         </Field>
       </div>
     </div>
+    )}
   </div>
 );
 
@@ -717,7 +769,12 @@ export default function ResumeEditor() {
   const [data, setData] = useState(null);
   const [buildState, setBuildState] = useState({ status: "idle", url: null, error: null, log: "" });
   const [showTyp, setShowTyp] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
   const typRef = useRef("");
+
+  const toggleSection = (section) => {
+    setExpandedSections((current) => ({ ...current, [section]: !current[section] }));
+  };
 
   useEffect(() => {
     seedFromCurrent().then(setData);
@@ -809,13 +866,48 @@ export default function ResumeEditor() {
           </div>
         </div>
 
-        <MetaEditor meta={data.meta} onChange={(meta) => setData({ ...data, meta })} />
-        <ContactEditor contacts={data.contacts} onChange={(contacts) => setData({ ...data, contacts })} />
-        <ExperienceEditor items={data.experience} onChange={(experience) => setData({ ...data, experience })} />
-        <SkillsEditor items={data.skills} onChange={(skills) => setData({ ...data, skills })} />
-        <EducationEditor items={data.education} onChange={(education) => setData({ ...data, education })} />
-        <CertsEditor items={data.certifications} onChange={(certifications) => setData({ ...data, certifications })} />
-        <ExtrasEditor items={data.extras} onChange={(extras) => setData({ ...data, extras })} />
+        <MetaEditor
+          meta={data.meta}
+          onChange={(meta) => setData({ ...data, meta })}
+          expanded={!!expandedSections.meta}
+          onToggleExpanded={() => toggleSection("meta")}
+        />
+        <ContactEditor
+          contacts={data.contacts}
+          onChange={(contacts) => setData({ ...data, contacts })}
+          expanded={!!expandedSections.contacts}
+          onToggleExpanded={() => toggleSection("contacts")}
+        />
+        <ExperienceEditor
+          items={data.experience}
+          onChange={(experience) => setData({ ...data, experience })}
+          expanded={!!expandedSections.experience}
+          onToggleExpanded={() => toggleSection("experience")}
+        />
+        <SkillsEditor
+          items={data.skills}
+          onChange={(skills) => setData({ ...data, skills })}
+          expanded={!!expandedSections.skills}
+          onToggleExpanded={() => toggleSection("skills")}
+        />
+        <EducationEditor
+          items={data.education}
+          onChange={(education) => setData({ ...data, education })}
+          expanded={!!expandedSections.education}
+          onToggleExpanded={() => toggleSection("education")}
+        />
+        <CertsEditor
+          items={data.certifications}
+          onChange={(certifications) => setData({ ...data, certifications })}
+          expanded={!!expandedSections.certs}
+          onToggleExpanded={() => toggleSection("certs")}
+        />
+        <ExtrasEditor
+          items={data.extras}
+          onChange={(extras) => setData({ ...data, extras })}
+          expanded={!!expandedSections.extras}
+          onToggleExpanded={() => toggleSection("extras")}
+        />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", background: "#050505" }}>
