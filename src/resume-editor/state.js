@@ -19,11 +19,16 @@ const esc = (s) =>
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"');
 
+const escLabel = (s) =>
+  String(s ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/@/g, "\\@");
+
 const link = (url, label) => {
   if (!url) return label;
   const isMail = /^mailto:/i.test(url);
   const safeUrl = isMail ? url : url;
-  return `[#link("${esc(safeUrl)}")[${esc(label || url)}]]`;
+  return `[#link("${esc(safeUrl)}")[${escLabel(label || url)}]]`;
 };
 
 const block = (content) => {
@@ -37,10 +42,23 @@ const joinContacts = (contacts) =>
   contacts
     .filter((c) => !c.hidden && (c.label || c.url))
     .map((c) => {
-      if (!c.url) return `[${esc(c.label)}]`;
+      if (!c.url) return `[${escLabel(c.label)}]`;
       return link(c.url, c.label);
     })
     .join(",\n    ");
+
+const buildBullets = (text) => {
+  if (!text) return "";
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const normalized = line.startsWith("- ") ? line : `- ${line}`;
+      return `    ${escLabel(normalized)}`;
+    })
+    .join("\n");
+};
 
 const buildExp = (e) => `
 #exp(
@@ -50,12 +68,22 @@ const buildExp = (e) => `
   location: ${block(e.location)},
   summary: ${block(e.summary)},
   details: [
-${(e.bullets || [])
-  .filter((b) => !b.hidden && b.text)
-  .map((b) => `    - ${b.text}`)
-  .join("\n")}
+${buildBullets(e.bulletsText)}
   ]
 )`.trim();
+
+const buildDegrees = (text) => {
+  if (!text) return "";
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [title, field] = line.split("|").map((s) => (s || "").trim());
+      return `    (${block(title)}, ${block(field || "")}),`;
+    })
+    .join("\n");
+};
 
 const buildEdu = (e) => `
 #edu(
@@ -64,12 +92,19 @@ const buildEdu = (e) => `
   location: ${block(e.location)},
   gpa: ${block(e.gpa)},
   degrees: (
-${(e.degrees || [])
-  .filter((d) => !d.hidden && (d.title || d.field))
-  .map((d) => `    (${block(d.title)}, ${block(d.field)}),`)
-  .join("\n")}
+${buildDegrees(e.degreesText)}
   )
 )`.trim();
+
+const buildSkillItems = (text) => {
+  if (!text) return "";
+  return text
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => `      [${escLabel(s.replace(/\*/g, ""))}],`)
+    .join("\n");
+};
 
 const buildSkills = (areas) =>
   areas
@@ -78,10 +113,7 @@ const buildSkills = (areas) =>
       (a) => `  (
     ${block(a.category)},
     (
-${(a.items || [])
-  .filter((i) => !i.hidden && i.label)
-  .map((i) => `      [${i.label.replace(/\*/g, "")}],`)
-  .join("\n")}
+${buildSkillItems(a.itemsText)}
     ),
   ),`,
     )
@@ -96,19 +128,14 @@ export const serialize = (r) => {
     .filter((c) => !c.hidden && (c.title || c.url))
     .map((c) =>
       c.url
-        ? `- #link("${esc(c.url)}")[*${(c.title || "").replace(/\*/g, "")}*] - ${esc(c.issuer || "")}`
-        : `- *${(c.title || "").replace(/\*/g, "")}* - ${esc(c.issuer || "")}`,
+        ? `- #link("${esc(c.url)}")[*${escLabel(c.title || "").replace(/\*/g, "")}*] - ${escLabel(c.issuer || "")}`
+        : `- *${escLabel(c.title || "").replace(/\*/g, "")}* - ${escLabel(c.issuer || "")}`,
     )
     .join("\n");
 
   const extras = (r.extras || [])
     .filter((s) => !s.hidden && s.title)
-    .map(
-      (s) => `\n= ${s.title}\n${(s.lines || [])
-        .filter((l) => !l.hidden && l.text)
-        .map((l) => `- ${l.text}`)
-        .join("\n")}`,
-    )
+    .map((s) => `\n= ${escLabel(s.title)}\n${buildBullets(s.linesText)}`)
     .join("\n");
 
   return `#import "templates/resume.template.typ": *

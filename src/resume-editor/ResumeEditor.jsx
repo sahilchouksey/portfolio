@@ -267,7 +267,7 @@ const ExperienceEditor = ({ items, onChange }) => (
             date: "",
             location: "",
             summary: "",
-            bullets: [],
+            bulletsText: "",
           },
         ])
       }
@@ -361,75 +361,17 @@ const ExperienceEditor = ({ items, onChange }) => (
             />
           </Field>
         </div>
-        <Field label="Bullets (use *word* for bold)">
-          {exp.bullets.map((b, bi) => (
-            <div key={b.id} style={{ ...cardStyle(b.hidden), padding: 6, marginBottom: 4 }}>
-              <ItemHeader
-                title={b.text?.slice(0, 60) || "(empty)"}
-                hidden={b.hidden}
-                onToggleHide={() => {
-                  const copy = items.slice();
-                  const bullets = copy[i].bullets.slice();
-                  bullets[bi] = { ...b, hidden: !b.hidden };
-                  copy[i] = { ...exp, bullets };
-                  onChange(copy);
-                }}
-                onRemove={() => {
-                  const copy = items.slice();
-                  copy[i] = { ...exp, bullets: exp.bullets.filter((_, idx) => idx !== bi) };
-                  onChange(copy);
-                }}
-                reorder={
-                  <Reorder
-                    onUp={() => {
-                      if (bi === 0) return;
-                      const copy = items.slice();
-                      const bullets = copy[i].bullets.slice();
-                      const [it] = bullets.splice(bi, 1);
-                      bullets.splice(bi - 1, 0, it);
-                      copy[i] = { ...exp, bullets };
-                      onChange(copy);
-                    }}
-                    onDown={() => {
-                      if (bi === exp.bullets.length - 1) return;
-                      const copy = items.slice();
-                      const bullets = copy[i].bullets.slice();
-                      const [it] = bullets.splice(bi, 1);
-                      bullets.splice(bi + 1, 0, it);
-                      copy[i] = { ...exp, bullets };
-                      onChange(copy);
-                    }}
-                    upDisabled={bi === 0}
-                    downDisabled={bi === exp.bullets.length - 1}
-                  />
-                }
-              />
-              <textarea
-                style={textareaStyle}
-                value={b.text}
-                onChange={(e) => {
-                  const copy = items.slice();
-                  const bullets = copy[i].bullets.slice();
-                  bullets[bi] = { ...b, text: e.target.value };
-                  copy[i] = { ...exp, bullets };
-                  onChange(copy);
-                }}
-              />
-            </div>
-          ))}
-          <button
-            style={btn()}
-            onClick={() => {
+        <Field label="Bullets (one per line; use *word* for bold)">
+          <textarea
+            style={{ ...textareaStyle, minHeight: 140 }}
+            placeholder={"- First bullet\n- Second bullet\n- *Bold* third bullet"}
+            value={exp.bulletsText || (exp.bullets || []).map((b) => b.text).join("\n")}
+            onChange={(e) => {
               const copy = items.slice();
-              copy[i] = {
-                ...exp,
-                bullets: [...exp.bullets, { id: uid("b"), hidden: false, text: "" }],
-              };
+              copy[i] = { ...exp, bulletsText: e.target.value };
               onChange(copy);
             }}
-          >
-            + Add bullet
-          </button>
+          />
         </Field>
       </div>
     ))}
@@ -444,7 +386,7 @@ const SkillsEditor = ({ items, onChange }) => (
       onAdd={() =>
         onChange([
           ...items,
-          { id: uid("sk"), hidden: false, category: "", items: [] },
+          { id: uid("sk"), hidden: false, category: "", itemsText: "" },
         ])
       }
     />
@@ -479,75 +421,17 @@ const SkillsEditor = ({ items, onChange }) => (
             }}
           />
         </Field>
-        <Field label="Items (one per entry)">
-          {area.items.map((it, ii) => (
-            <div key={it.id} style={{ ...cardStyle(it.hidden), padding: 6, marginBottom: 4 }}>
-              <ItemHeader
-                title={it.label}
-                hidden={it.hidden}
-                onToggleHide={() => {
-                  const copy = items.slice();
-                  const its = copy[i].items.slice();
-                  its[ii] = { ...it, hidden: !it.hidden };
-                  copy[i] = { ...area, items: its };
-                  onChange(copy);
-                }}
-                onRemove={() => {
-                  const copy = items.slice();
-                  copy[i] = { ...area, items: area.items.filter((_, idx) => idx !== ii) };
-                  onChange(copy);
-                }}
-                reorder={
-                  <Reorder
-                    onUp={() => {
-                      if (ii === 0) return;
-                      const copy = items.slice();
-                      const its = copy[i].items.slice();
-                      const [x] = its.splice(ii, 1);
-                      its.splice(ii - 1, 0, x);
-                      copy[i] = { ...area, items: its };
-                      onChange(copy);
-                    }}
-                    onDown={() => {
-                      if (ii === area.items.length - 1) return;
-                      const copy = items.slice();
-                      const its = copy[i].items.slice();
-                      const [x] = its.splice(ii, 1);
-                      its.splice(ii + 1, 0, x);
-                      copy[i] = { ...area, items: its };
-                      onChange(copy);
-                    }}
-                    upDisabled={ii === 0}
-                    downDisabled={ii === area.items.length - 1}
-                  />
-                }
-              />
-              <input
-                style={inputStyle}
-                value={it.label}
-                onChange={(e) => {
-                  const copy = items.slice();
-                  const its = copy[i].items.slice();
-                  its[ii] = { ...it, label: e.target.value };
-                  copy[i] = { ...area, items: its };
-                  onChange(copy);
-                }}
-              />
-            </div>
-          ))}
-          <button
-            style={btn()}
-            onClick={() => {
+        <Field label="Items (comma-separated)">
+          <textarea
+            style={{ ...textareaStyle, minHeight: 70 }}
+            placeholder="JavaScript/TypeScript, Python, Go, React.js, …"
+            value={area.itemsText || (area.items || []).map((x) => x.label).join(", ")}
+            onChange={(e) => {
               const copy = items.slice();
-              copy[i] = {
-                ...area,
-                items: [...area.items, { id: uid("si"), hidden: false, label: "" }],
-              };
+              copy[i] = { ...area, itemsText: e.target.value };
               onChange(copy);
             }}
-          >
-            + Add item
-          </button>
+          />
         </Field>
       </div>
     ))}
@@ -570,7 +454,7 @@ const EducationEditor = ({ items, onChange }) => (
             date: "",
             location: "",
             gpa: "",
-            degrees: [],
+            degreesText: "",
           },
         ])
       }
@@ -653,90 +537,17 @@ const EducationEditor = ({ items, onChange }) => (
             />
           </Field>
         </div>
-        <Field label="Degrees">
-          {edu.degrees.map((d, di) => (
-            <div key={d.id} style={{ ...cardStyle(d.hidden), padding: 6, marginBottom: 4 }}>
-              <ItemHeader
-                title={`${d.title || "(title)"} — ${d.field || "(field)"}`}
-                hidden={d.hidden}
-                onToggleHide={() => {
-                  const copy = items.slice();
-                  const ds = copy[i].degrees.slice();
-                  ds[di] = { ...d, hidden: !d.hidden };
-                  copy[i] = { ...edu, degrees: ds };
-                  onChange(copy);
-                }}
-                onRemove={() => {
-                  const copy = items.slice();
-                  copy[i] = { ...edu, degrees: edu.degrees.filter((_, idx) => idx !== di) };
-                  onChange(copy);
-                }}
-                reorder={
-                  <Reorder
-                    onUp={() => {
-                      if (di === 0) return;
-                      const copy = items.slice();
-                      const ds = copy[i].degrees.slice();
-                      const [x] = ds.splice(di, 1);
-                      ds.splice(di - 1, 0, x);
-                      copy[i] = { ...edu, degrees: ds };
-                      onChange(copy);
-                    }}
-                    onDown={() => {
-                      if (di === edu.degrees.length - 1) return;
-                      const copy = items.slice();
-                      const ds = copy[i].degrees.slice();
-                      const [x] = ds.splice(di, 1);
-                      ds.splice(di + 1, 0, x);
-                      copy[i] = { ...edu, degrees: ds };
-                      onChange(copy);
-                    }}
-                    upDisabled={di === 0}
-                    downDisabled={di === edu.degrees.length - 1}
-                  />
-                }
-              />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                <input
-                  style={inputStyle}
-                  placeholder="Title (e.g. Bachelor of …)"
-                  value={d.title}
-                  onChange={(e) => {
-                    const copy = items.slice();
-                    const ds = copy[i].degrees.slice();
-                    ds[di] = { ...d, title: e.target.value };
-                    copy[i] = { ...edu, degrees: ds };
-                    onChange(copy);
-                  }}
-                />
-                <input
-                  style={inputStyle}
-                  placeholder="Field"
-                  value={d.field}
-                  onChange={(e) => {
-                    const copy = items.slice();
-                    const ds = copy[i].degrees.slice();
-                    ds[di] = { ...d, field: e.target.value };
-                    copy[i] = { ...edu, degrees: ds };
-                    onChange(copy);
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-          <button
-            style={btn()}
-            onClick={() => {
+        <Field label="Degrees (one per line: Title | Field)">
+          <textarea
+            style={{ ...textareaStyle, minHeight: 80 }}
+            placeholder={"Master of Computer Applications | Computer Science and Engineering\nBachelor of Computer Applications | Computer Applications"}
+            value={edu.degreesText || (edu.degrees || []).map((d) => `${d.title} | ${d.field}`).join("\n")}
+            onChange={(e) => {
               const copy = items.slice();
-              copy[i] = {
-                ...edu,
-                degrees: [...edu.degrees, { id: uid("dg"), hidden: false, title: "", field: "" }],
-              };
+              copy[i] = { ...edu, degreesText: e.target.value };
               onChange(copy);
             }}
-          >
-            + Add degree
-          </button>
+          />
         </Field>
       </div>
     ))}
@@ -820,7 +631,7 @@ const ExtrasEditor = ({ items, onChange }) => (
       onAdd={() =>
         onChange([
           ...items,
-          { id: uid("ex"), hidden: false, title: "", lines: [] },
+          { id: uid("ex"), hidden: false, title: "", linesText: "" },
         ])
       }
     />
@@ -855,75 +666,16 @@ const ExtrasEditor = ({ items, onChange }) => (
             }}
           />
         </Field>
-        <Field label="Lines">
-          {s.lines.map((l, li) => (
-            <div key={l.id} style={{ ...cardStyle(l.hidden), padding: 6, marginBottom: 4 }}>
-              <ItemHeader
-                title={l.text?.slice(0, 60) || "(empty)"}
-                hidden={l.hidden}
-                onToggleHide={() => {
-                  const copy = items.slice();
-                  const ls = copy[i].lines.slice();
-                  ls[li] = { ...l, hidden: !l.hidden };
-                  copy[i] = { ...s, lines: ls };
-                  onChange(copy);
-                }}
-                onRemove={() => {
-                  const copy = items.slice();
-                  copy[i] = { ...s, lines: s.lines.filter((_, idx) => idx !== li) };
-                  onChange(copy);
-                }}
-                reorder={
-                  <Reorder
-                    onUp={() => {
-                      if (li === 0) return;
-                      const copy = items.slice();
-                      const ls = copy[i].lines.slice();
-                      const [x] = ls.splice(li, 1);
-                      ls.splice(li - 1, 0, x);
-                      copy[i] = { ...s, lines: ls };
-                      onChange(copy);
-                    }}
-                    onDown={() => {
-                      if (li === s.lines.length - 1) return;
-                      const copy = items.slice();
-                      const ls = copy[i].lines.slice();
-                      const [x] = ls.splice(li, 1);
-                      ls.splice(li + 1, 0, x);
-                      copy[i] = { ...s, lines: ls };
-                      onChange(copy);
-                    }}
-                    upDisabled={li === 0}
-                    downDisabled={li === s.lines.length - 1}
-                  />
-                }
-              />
-              <textarea
-                style={textareaStyle}
-                value={l.text}
-                onChange={(e) => {
-                  const copy = items.slice();
-                  const ls = copy[i].lines.slice();
-                  ls[li] = { ...l, text: e.target.value };
-                  copy[i] = { ...s, lines: ls };
-                  onChange(copy);
-                }}
-              />
-            </div>
-          ))}
-          <button
-            style={btn()}
-            onClick={() => {
+        <Field label="Lines (one per line)">
+          <textarea
+            style={{ ...textareaStyle, minHeight: 100 }}
+            value={s.linesText || (s.lines || []).map((l) => l.text).join("\n")}
+            onChange={(e) => {
               const copy = items.slice();
-              copy[i] = {
-                ...s,
-                lines: [...s.lines, { id: uid("ln"), hidden: false, text: "" }],
-              };
+              copy[i] = { ...s, linesText: e.target.value };
               onChange(copy);
             }}
-          >
-            + Add line
-          </button>
+          />
         </Field>
       </div>
     ))}

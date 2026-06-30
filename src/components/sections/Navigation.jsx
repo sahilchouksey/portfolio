@@ -62,7 +62,10 @@ const Navigation = ({ logoText, navLinks }) => {
           className={`hamburger-menu w-nav-button${menuOpen ? ' w--open' : ''}`}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((o) => !o)}
+          onClick={() => {
+            if (window.innerWidth > 991) return;
+            setMenuOpen((o) => !o);
+          }}
         >
           <div className="menu-line">
             <div className="nav-line"></div>

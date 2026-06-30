@@ -659,6 +659,22 @@ html[data-w-dynpage] [data-w-cloak] {
 }
 
 @media screen and (max-width:767px) {
+  .navigation-container > .nav-menu {
+    display: none !important;
+  }
+
+  .w-nav-overlay .nav-menu {
+    display: flex !important;
+  }
+
+  .w-nav-overlay .close-button {
+    display: flex !important;
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+  }
+
   .w-hidden-main {
     display: inherit !important
   }
@@ -1010,7 +1026,7 @@ html[data-w-dynpage] [data-w-cloak] {
   display: none !important
 }
 
-   ========================================================================== */
+/* ========================================================================== */
 .w-layout-grid {
   display: -ms-grid;
   display: grid;
@@ -1627,6 +1643,11 @@ a {
   grid-row-gap: 32px;
 }
 
+.hamburger-menu,
+.w-nav-overlay {
+  display: none;
+}
+
 .case-container {
   width: 100%;
   max-width: 1240px;
@@ -2095,6 +2116,14 @@ a {
     justify-content: center;
     border-radius: 16px;
     background-color: #131315;
+  }
+
+  .navigation-container > .nav-menu {
+    display: none !important;
+  }
+
+  .w-nav-overlay .nav-menu {
+    display: flex !important;
   }
 
   .case-image-large {

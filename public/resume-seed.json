@@ -21,15 +21,7 @@
       "date": "Nov 2025 - Present",
       "location": "Remote, India",
       "summary": "Full-stack + DevOps on a microservices learning platform",
-      "bullets": [
-        { "id": "e1b1", "hidden": false, "text": "Onboarding and extending a *Lua-based legacy codebase* (scripting layer over a larger engine/backend), reading undocumented modules, tracing data flow across host–script boundaries, and shipping production fixes within the existing architecture" },
-        { "id": "e1b2", "hidden": false, "text": "Implemented new *Lua* features end-to-end: added gameplay/business logic handlers, refactored state-heavy scripts into modular patterns, and wired them into the engine's event/callback API" },
-        { "id": "e1b3", "hidden": false, "text": "Debugged and stabilized production issues by tracing *Lua stack traces* through the host application, identifying root causes across scripting and native layers, and delivering fixes without regressions" },
-        { "id": "e1b4", "hidden": false, "text": "Built and maintained *config-driven Lua tables* for content/rules (quests, workflows, assessment logic), enabling non-engineers to update behavior without code deploys" },
-        { "id": "e1b5", "hidden": false, "text": "Implemented *Agent Aggregation Features* that unify multi-agent outputs into cohesive product experiences" },
-        { "id": "e1b6", "hidden": false, "text": "Owned *CI/CD pipelines* and *Dockerized* service deployments; managed environment configs and rollouts across staging/production" },
-        { "id": "e1b7", "hidden": false, "text": "Re-optimized *React Native* and web application performance with targeted rendering and delivery improvements" }
-      ]
+      "bulletsText": "- Onboarding and extending a *Lua-based legacy codebase* (scripting layer over a larger engine/backend), reading undocumented modules, tracing data flow across host–script boundaries, and shipping production fixes within the existing architecture\n- Implemented new *Lua* features end-to-end: added gameplay/business logic handlers, refactored state-heavy scripts into modular patterns, and wired them into the engine's event/callback API\n- Debugged and stabilized production issues by tracing *Lua stack traces* through the host application, identifying root causes across scripting and native layers, and delivering fixes without regressions\n- Built and maintained *config-driven Lua tables* for content/rules (quests, workflows, assessment logic), enabling non-engineers to update behavior without code deploys\n- Implemented *Agent Aggregation Features* that unify multi-agent outputs into cohesive product experiences\n- Owned *CI/CD pipelines* and *Dockerized* service deployments; managed environment configs and rollouts across staging/production\n- Re-optimized *React Native* and web application performance with targeted rendering and delivery improvements"
     },
     {
       "id": "e2",
@@ -40,17 +32,7 @@
       "date": "July 2024 - Nov 2025",
       "location": "Remote, India",
       "summary": "Led AI engineering for BRIO AI and full-stack delivery across enterprise apps",
-      "bullets": [
-        { "id": "e2b1", "hidden": false, "text": "*BRIO Health AI*: Built agentic search engine using *LangGraph*, *Vertex AI RAG*, *Gemini-2.5-Flash*, and *Python* async services" },
-        { "id": "e2b2", "hidden": false, "text": "Reduced PDF processing time by *60-65%* with custom OCR (Tesseract/PyMuPDF pipelines) and intelligent chunk processing" },
-        { "id": "e2b3", "hidden": false, "text": "Designed microservice communication using message queues and *Protobuf* contracts for reliable data flow" },
-        { "id": "e2b4", "hidden": false, "text": "Built backend systems for Research Studio, Paper Vault, AI Notebook, AI Transcribe with RAG capabilities using *Pinecone* + *Postgres pgvector*" },
-        { "id": "e2b5", "hidden": false, "text": "Implemented a custom *conversational memory layer* for agent state, achieving *2X better response quality* through persistent context management across sessions" },
-        { "id": "e2b6", "hidden": false, "text": "*Serma Event Management*: Led Finance system with *Stripe webhooks*, automated invoice generation, and role-based access controls" },
-        { "id": "e2b7", "hidden": false, "text": "*Zuno Training*: Built canvas-based course creation with *D3.js*, unified multimedia interface, and *React Native* companion app" },
-        { "id": "e2b8", "hidden": false, "text": "*Whisp Landing Page*: Optimized UI with *Tailwind CSS*, improved load time by *50%* (4s to 2s) via code-splitting and image optimization" },
-        { "id": "e2b9", "hidden": false, "text": "Containerized services with *Docker* and maintained *GitLab CI/CD* pipelines for automated builds, tests, and zero-downtime deployments across staging and production" }
-      ]
+      "bulletsText": "- *BRIO Health AI*: Built agentic search engine using *LangGraph*, *Vertex AI RAG*, *Gemini-2.5-Flash*, and *Python* async services\n- Reduced PDF processing time by *60-65%* with custom OCR (Tesseract/PyMuPDF pipelines) and intelligent chunk processing\n- Designed microservice communication using message queues and *Protobuf* contracts for reliable data flow\n- Built backend systems for Research Studio, Paper Vault, AI Notebook, AI Transcribe with RAG capabilities using *Pinecone* + *Postgres pgvector*\n- Implemented a custom *conversational memory layer* for agent state, achieving *2X better response quality* through persistent context management across sessions\n- *Serma Event Management*: Led Finance system with *Stripe webhooks*, automated invoice generation, and role-based access controls\n- *Zuno Training*: Built canvas-based course creation with *D3.js*, unified multimedia interface, and *React Native* companion app\n- *Whisp Landing Page*: Optimized UI with *Tailwind CSS*, improved load time by *50%* (4s to 2s) via code-splitting and image optimization\n- Containerized services with *Docker* and maintained *GitLab CI/CD* pipelines for automated builds, tests, and zero-downtime deployments across staging and production"
     },
     {
       "id": "e3",
@@ -61,79 +43,33 @@
       "date": "Aug 2023 - July 2024",
       "location": "India",
       "summary": "Engineered healthcare platforms, analytics systems, and a computer-vision pipeline",
-      "bullets": [
-        { "id": "e3b1", "hidden": false, "text": "*Doct App*: Built healthcare platform with *Golang/GIN*, *Next.js 13*, *PostgreSQL*, achieving *4X faster APIs*" },
-        { "id": "e3b2", "hidden": false, "text": "Implemented role-based access control, encrypted database entries for healthcare compliance (*HIPAA-aligned patterns*)" },
-        { "id": "e3b3", "hidden": false, "text": "Developed patient document management with S3 integration, enabling progress monitoring across web and *React Native* clients" },
-        { "id": "e3b4", "hidden": false, "text": "*Salesman Analytics*: Created admin dashboard with *Vite + React.js*, automated MARG ERP extraction" },
-        { "id": "e3b5", "hidden": false, "text": "Improved salesman experience by *50%* eliminating paper-based orders, real-time price transparency" },
-        { "id": "e3b6", "hidden": false, "text": "*Pose Detection*: Developed *Python* + *TensorFlow* CNN and MediaPipe solution for posture analysis with custom datasets and real-time inference" }
-      ]
+      "bulletsText": "- *Doct App*: Built healthcare platform with *Golang/GIN*, *Next.js 13*, *PostgreSQL*, achieving *4X faster APIs*\n- Implemented role-based access control, encrypted database entries for healthcare compliance (*HIPAA-aligned patterns*)\n- Developed patient document management with S3 integration, enabling progress monitoring across web and *React Native* clients\n- *Salesman Analytics*: Created admin dashboard with *Vite + React.js*, automated MARG ERP extraction\n- Improved salesman experience by *50%* eliminating paper-based orders, real-time price transparency\n- *Pose Detection*: Developed *Python* + *TensorFlow* CNN and MediaPipe solution for posture analysis with custom datasets and real-time inference"
     }
   ],
-  "projects": [],
   "skills": [
     {
       "id": "s1",
       "hidden": false,
       "category": "Languages & Frameworks",
-      "items": [
-        { "id": "s1i1", "hidden": false, "label": "JavaScript/TypeScript" },
-        { "id": "s1i2", "hidden": false, "label": "Python" },
-        { "id": "s1i3", "hidden": false, "label": "Go" },
-        { "id": "s1i4", "hidden": false, "label": "Next.js" },
-        { "id": "s1i5", "hidden": false, "label": "React.js" },
-        { "id": "s1i6", "hidden": false, "label": "React Native" },
-        { "id": "s1i7", "hidden": false, "label": "React Native Skia" },
-        { "id": "s1i8", "hidden": false, "label": "Node.js" },
-        { "id": "s1i9", "hidden": false, "label": "LangChain/LangGraph" },
-        { "id": "s1i10", "hidden": false, "label": "CoLang" },
-        { "id": "s1i11", "hidden": false, "label": "Lua" }
-      ]
+      "itemsText": "JavaScript/TypeScript, Python, Go, Next.js, React.js, React Native, React Native Skia, Node.js, LangChain/LangGraph, CoLang, Lua"
     },
     {
       "id": "s2",
       "hidden": false,
       "category": "AI/ML & Cloud",
-      "items": [
-        { "id": "s2i1", "hidden": false, "label": "Vertex AI" },
-        { "id": "s2i2", "hidden": false, "label": "RAG Architecture" },
-        { "id": "s2i3", "hidden": false, "label": "LLM Integration" },
-        { "id": "s2i4", "hidden": false, "label": "Agentic Workflows" },
-        { "id": "s2i5", "hidden": false, "label": "LangGraph" },
-        { "id": "s2i6", "hidden": false, "label": "Gemini APIs" },
-        { "id": "s2i7", "hidden": false, "label": "Google Cloud" },
-        { "id": "s2i8", "hidden": false, "label": "S3/GCS" },
-        { "id": "s2i9", "hidden": false, "label": "TensorFlow / MediaPipe" }
-      ]
+      "itemsText": "Vertex AI, RAG Architecture, LLM Integration, Agentic Workflows, LangGraph, Gemini APIs, Google Cloud, S3/GCS, TensorFlow / MediaPipe"
     },
     {
       "id": "s3",
       "hidden": false,
       "category": "Databases & DevOps",
-      "items": [
-        { "id": "s3i1", "hidden": false, "label": "PostgreSQL" },
-        { "id": "s3i2", "hidden": false, "label": "MongoDB" },
-        { "id": "s3i3", "hidden": false, "label": "Redis" },
-        { "id": "s3i4", "hidden": false, "label": "Pinecone / pgvector" },
-        { "id": "s3i5", "hidden": false, "label": "Docker" },
-        { "id": "s3i6", "hidden": false, "label": "Git/GitLab CI/CD" },
-        { "id": "s3i7", "hidden": false, "label": "Linux" }
-      ]
+      "itemsText": "PostgreSQL, MongoDB, Redis, Pinecone / pgvector, Docker, Git/GitLab CI/CD, Linux"
     },
     {
       "id": "s4",
       "hidden": false,
       "category": "Technical Skills",
-      "items": [
-        { "id": "s4i1", "hidden": false, "label": "Full-Stack Development" },
-        { "id": "s4i2", "hidden": false, "label": "Microservices Architecture" },
-        { "id": "s4i3", "hidden": false, "label": "API Design (RESTful + Protobuf)" },
-        { "id": "s4i4", "hidden": false, "label": "Performance Optimization" },
-        { "id": "s4i5", "hidden": false, "label": "Payment Integration" },
-        { "id": "s4i6", "hidden": false, "label": "Healthcare Compliance" },
-        { "id": "s4i7", "hidden": false, "label": "Legacy Codebase Migration & Extension" }
-      ]
+      "itemsText": "Full-Stack Development, Microservices Architecture, API Design (RESTful + Protobuf), Performance Optimization, Payment Integration, Healthcare Compliance, Legacy Codebase Migration & Extension"
     }
   ],
   "education": [
@@ -145,9 +81,7 @@
       "date": "July 2024 - June 2026",
       "location": "Bhopal, India",
       "gpa": "7.8/10",
-      "degrees": [
-        { "id": "ed1d1", "hidden": false, "title": "Master of Computer Applications", "field": "Computer Science and Engineering" }
-      ]
+      "degreesText": "Master of Computer Applications | Computer Science and Engineering"
     },
     {
       "id": "ed2",
@@ -157,9 +91,7 @@
       "date": "July 2020 - Aug 2023",
       "location": "Bhopal, India",
       "gpa": "7.9/10",
-      "degrees": [
-        { "id": "ed2d1", "hidden": false, "title": "Bachelor of Computer Applications", "field": "Computer Applications" }
-      ]
+      "degreesText": "Bachelor of Computer Applications | Computer Applications"
     }
   ],
   "certifications": [
