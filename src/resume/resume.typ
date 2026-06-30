@@ -106,7 +106,7 @@
 = Education
 #edu(
   institution: link("https://rgpv.ac.in")[Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)],
-  date: "July 2024 - Aug 2026",
+  date: "July 2024 - June 2026",
   location: "Bhopal, India",
   gpa: "7.8/10",
   degrees: (

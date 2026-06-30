@@ -109,7 +109,7 @@ const TechStackSection = () => {
             id: 1,
             degree: "Master of Computer Applications",
             university: "RGPV, Bhopal",
-            date: "July 2024 - Aug 2026 (Part-Time)",
+            date: "July 2024 - June 2026 (Part-Time)",
             gpa: "GPA: 7.8/10",
             logoSrc: "/images/rgpv-logo.webp",
             link: "https://www.rgpv.ac.in"
