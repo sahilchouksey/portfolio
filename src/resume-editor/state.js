@@ -113,7 +113,7 @@ export const serialize = (r) => {
 
   return `#import "templates/resume.template.typ": *
 
-#set text(size: ${block(r.meta?.textSize || "9pt")})
+#set text(size: ${esc(r.meta?.textSize || "9pt")})
 
 #show: resume.with(
   author: ${block(r.meta?.author)},
