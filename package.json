@@ -35,6 +35,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "motion": "^12.23.22",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

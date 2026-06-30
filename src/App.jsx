@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 
 // Import all modular components
 import Navigation from './components/sections/Navigation';
@@ -15,13 +15,32 @@ import { useTheme } from './hooks/useTheme';
 import ProjectSection from './components/sections/ProjectSection';
 import FooterSection from './components/sections/FooterSection';
 
+const ResumeEditor = lazy(() => import('./resume-editor/ResumeEditor.jsx'));
+
 function App() {
   const { themePreference, resolvedTheme, toggleTheme } = useTheme();
+
+  const [route, setRoute] = useState(
+    typeof window !== 'undefined' && window.location.hash.startsWith('#/resume-editor')
+      ? 'editor'
+      : 'home'
+  );
+
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash;
+      if (h.startsWith('#/resume-editor')) setRoute('editor');
+      else setRoute('home');
+    };
+    window.addEventListener('hashchange', onHash);
+    onHash();
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   useEffect(() => {
     const scrollToCurrentHash = () => {
       const hash = window.location.hash;
-      if (!hash) return;
+      if (!hash || hash.startsWith('#/')) return;
 
       const targetId = hash.slice(1);
       if (!targetId) return;
@@ -40,6 +59,14 @@ function App() {
       window.removeEventListener('hashchange', scrollToCurrentHash);
     };
   }, []);
+
+  if (route === 'editor') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, color: '#888' }}>Loading editor…</div>}>
+        <ResumeEditor />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="page-wrapper">
