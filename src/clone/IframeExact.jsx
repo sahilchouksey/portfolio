@@ -177,16 +177,10 @@ export default function IframeExact(){
             if(s.undo.length>64) s.undo.shift();
             s.redo.length=0;
           };
+          // silent — user asked not to show trigger on filename/status anywhere
           const flash = (msg, color='var(--yellow)')=>{
-            try{
-              const bar = doc.querySelector('div[style*="background: var(--bg2)"] span:nth-child(3)');
-              if(bar){
-                const old=bar.textContent;
-                bar.textContent=msg;
-                bar.style.color=color;
-                setTimeout(()=>{ bar.textContent=old; bar.style.color=''; }, 1200);
-              }
-            }catch{}
+            // intentionally no UI; keep vim silent. Uncomment to debug: console.debug('[vim]', msg);
+            try{ /* no status bar overwrite */ }catch{}
           };
           const doScroll = (dir, amount)=>{
             const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]') || doc.querySelector('div[style*="flex:1"][style*="overflow"]');
