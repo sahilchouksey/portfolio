@@ -1,15 +1,175 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function IframeExact(){
   const ref = useRef(null);
+  const [siteHelp, setSiteHelp] = useState(false);
+  // global site-level vim/tmux bindings (outer)
+  useEffect(()=>{
+    const iframe = ref.current;
+    const isTyping = (el)=> el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable);
+    const forwardToIframe = (key, opts={})=>{
+      try{
+        const doc = iframe?.contentDocument;
+        if(!doc) return;
+        const ev = new KeyboardEvent('keydown', { key, code: key.length===1 ? `Key${key.toUpperCase()}`: key, bubbles:true, cancelable:true, metaKey: !!opts.meta, ctrlKey: !!opts.ctrl, shiftKey: !!opts.shift, altKey: !!opts.alt });
+        // try dispatch on iframe window and document
+        const win = iframe.contentWindow;
+        win?.dispatchEvent(ev);
+        doc.dispatchEvent(ev);
+        // also dispatch on focused element inside
+        const ae = doc.activeElement;
+        if(ae) ae.dispatchEvent(ev);
+      }catch{}
+    };
+    const onOuterKey = (e)=>{
+      if(isTyping(document.activeElement)) return;
+      const k = e.key;
+      const meta = e.metaKey || e.ctrlKey; // super = Cmd on Mac / Ctrl on Win
+      // global ? handler — site-level tmux help (preserve iframe's own ? when in nvim)
+      if(k==='?' || (k==='/' && e.shiftKey)){
+        // if iframe's help is open, let it close; otherwise show site help
+        // detect if iframe currently shows its help overlay
+        try{
+          const doc = iframe?.contentDocument;
+          const iframeHelpOpen = doc && doc.body.innerHTML.includes('? or Esc to close') && getComputedStyle(doc.body.querySelector('div[style*="borderTop"]')||doc.body).display!=='none';
+          // we treat outer ? as site tmux help when not in nvim pane visual focus
+          // toggle site help instead of forwarding
+          e.preventDefault();
+          setSiteHelp(v=>!v);
+          return;
+        }catch{}
+      }
+      if(k==='Escape' && siteHelp){ e.preventDefault(); setSiteHelp(false); return; }
+
+      // super + j/k fast scroll in nvim OR pane switch in tmux single-window panel
+      if(meta && (k==='j' || k==='J' || k==='k' || k==='K')){
+        e.preventDefault();
+        // if nvim pane is active, treat as super+j/k = 5x scroll (fast file navigation)
+        // else treat as tmux pane switch j/k = next/prev pane inside single window
+        forwardToIframe(k.toLowerCase(), { meta: true, ctrl: meta });
+        // also directly switch pane when at site level (tmux single panel image model)
+        const dir = k.toLowerCase()==='j' ? 1 : -1;
+        try{
+          const doc = iframe?.contentDocument;
+          if(doc){
+            // try to use exposed setter else simulate C-b + o / h/j/k/l
+            if(doc.defaultView?.__exactPaneSwitch) doc.defaultView.__exactPaneSwitch(dir);
+            else {
+              // fallback: cycle pane via outer state forwarded as 0/1/2 clicks
+              const w = iframe.contentWindow;
+              w?.dispatchEvent(new KeyboardEvent('keydown', { key: dir>0?'j':'k', ctrlKey:true, bubbles:true }));
+            }
+          }
+        }catch{}
+        return;
+      }
+      if(meta && (k==='h' || k==='H' || k==='l' || k==='L')){
+        e.preventDefault();
+        forwardToIframe(k.toLowerCase(), { meta:true });
+        return;
+      }
+      if(meta && /^[0-2]$/.test(k)){
+        e.preventDefault();
+        forwardToIframe(k, { meta:true });
+        try{
+          const n = parseInt(k,10);
+          const doc = iframe?.contentDocument;
+          if(doc?.defaultView?.__exactSetPane) doc.defaultView.__exactSetPane(n);
+          else {
+            // click tmux status bar window
+            const spans = doc?.querySelectorAll('span');
+            spans?.forEach(s=>{ if(s.textContent?.trim().startsWith(`${n}:`)) s.click(); });
+          }
+        }catch{}
+        return;
+      }
+      // vim full: J/K half-page, Ctrl-d/Ctrl-u, gg/G shortcuts when meta held
+      if(meta && (k==='d' || k==='u' || k==='f' || k==='b')){
+        e.preventDefault();
+        forwardToIframe(k, { ctrl:true, meta:true });
+        return;
+      }
+    };
+    window.addEventListener('keydown', onOuterKey);
+    return ()=> window.removeEventListener('keydown', onOuterKey);
+  },[siteHelp]);
+
   useEffect(()=>{
     const iframe = ref.current;
     if(!iframe) return;
     const inject = ()=>{
       try{
         const doc = iframe.contentDocument;
-        if(!doc) return;
-        // avoid double inject
+        const win = iframe.contentWindow;
+        if(!doc || !win) return;
+        // expose pane helpers for outer super+ bindings (tmux single window: each window is pane image)
+        if(!win.__exactSetPane){
+          win.__exactSetPane = (n)=>{
+            try{
+              // find tmux status bar spans 0: 1: 2: and click
+              const spans = Array.from(doc.querySelectorAll('span'));
+              const target = spans.find(s=> s.textContent.trim().startsWith(`${n}:`));
+              if(target) target.click();
+              // also try to set via React internal if available
+              const dcHost = doc.querySelector('#dc-root');
+              if(dcHost) dcHost.dispatchEvent(new CustomEvent('exact-pane', { detail:n }));
+            }catch{}
+          };
+          win.__exactPaneSwitch = (dir)=>{
+            // cycle 0->1->2 inside single tmux window (each window treated as image pane)
+            try{
+              const order = [0,1,2];
+              const spans = Array.from(doc.querySelectorAll('span')).filter(s=> /^\d:/.test(s.textContent.trim()));
+              const active = spans.findIndex(s=> s.style.opacity==='1' || s.style.fontWeight==='700');
+              const cur = active>=0? active : 0;
+              const nxt = (cur + dir + order.length)%order.length;
+              win.__exactSetPane(nxt);
+            }catch{}
+          };
+        }
+        // enhance vim inside iframe: super+j/k fast scroll + full vim bindings audit
+        if(!win.__vimEnhanced){
+          win.__vimEnhanced=true;
+          const vimHandler = (e)=>{
+            const meta = e.metaKey || e.ctrlKey;
+            const k = e.key;
+            // super+j = 5j (fast down), super+k = 5k (fast up), super+J/K = gg/G
+            if(meta && k.toLowerCase()==='j'){
+              if(e.shiftKey){ // Super+J => G (bottom)
+                e.preventDefault(); e.stopPropagation();
+                const evG = new KeyboardEvent('keydown', { key:'G', shiftKey:true, bubbles:true });
+                doc.dispatchEvent(evG);
+                // also scroll nvim buffer to bottom via direct DOM
+                const buf = doc.querySelector('div[style*="overflow-y:auto"]');
+                if(buf) buf.scrollTop = buf.scrollHeight;
+              } else {
+                e.preventDefault(); e.stopPropagation();
+                // 5x j
+                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key:'j', bubbles:true }));
+                const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
+                if(buf) buf.scrollBy({ top: 120, behavior:'smooth' });
+              }
+            }
+            if(meta && k.toLowerCase()==='k'){
+              if(e.shiftKey){ // Super+K => gg
+                e.preventDefault(); e.stopPropagation();
+                doc.dispatchEvent(new KeyboardEvent('keydown', { key:'g', bubbles:true }));
+                doc.dispatchEvent(new KeyboardEvent('keydown', { key:'g', bubbles:true }));
+                const buf = doc.querySelector('div[style*="overflow-y:auto"]');
+                if(buf) buf.scrollTop = 0;
+              } else {
+                e.preventDefault(); e.stopPropagation();
+                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key:'k', bubbles:true }));
+                const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
+                if(buf) buf.scrollBy({ top: -120, behavior:'smooth' });
+              }
+            }
+          };
+          // capture phase to intercept before DC runtime
+          win.addEventListener('keydown', vimHandler, true);
+          doc.addEventListener('keydown', vimHandler, true);
+        }
+
         if(doc.getElementById('__audio_injected')) return;
 
         // find htop pane: it's the second pane in left column — search by text "1: htop"
@@ -171,12 +331,99 @@ export default function IframeExact(){
     return ()=>{ clearInterval(poll); iframe.removeEventListener('load', inject); };
   },[]);
   return (
-    <iframe
-      ref={ref}
-      src="/clone-assets/index-raw.html"
-      title="sameh exact clone"
-      style={{width:'100%', height:'100vh', border:'none', display:'block', background:'#181825'}}
-      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-    />
+    <div style={{position:'relative', width:'100%', height:'100vh', background:'#181825', overflow:'hidden'}}>
+      {/* site-level tmux ? handler — appears over iframe; nvim's own ? keeps its pane-local help */}
+      <button
+        onClick={()=> setSiteHelp(v=>!v)}
+        title="tmux help (?) — site level · full vim + tmux bindings"
+        style={{
+          position:'absolute', right:14, top:10, zIndex:30,
+          width:28, height:28, borderRadius:6, border:'1px solid var(--surf, #313244)',
+          background:'rgba(30,30,46,0.9)', color:'var(--yellow, #f9e2af)', font:'700 13px/1 Fira Code, monospace',
+          display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', backdropFilter:'blur(6px)'
+        }}
+      >?</button>
+
+      <iframe
+        ref={ref}
+        src="/clone-assets/index-raw.html"
+        title="sameh exact clone"
+        style={{width:'100%', height:'100%', border:'none', display:'block', background:'#181825'}}
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+      />
+
+      {siteHelp && (
+        <div onClick={()=>setSiteHelp(false)} style={{position:'absolute', inset:0, background:'rgba(0,0,0,0.55)', zIndex:40, display:'flex', alignItems:'center', justifyContent:'center', padding:16, cursor:'pointer'}}>
+          <div onClick={e=>e.stopPropagation()} style={{
+            background:'#1e1e2e', border:'1px solid #313244', borderRadius:10, padding:'18px 20px', maxWidth:920, width:'100%', maxHeight:'86vh', overflow:'auto',
+            fontFamily:"'Fira Code', monospace", fontSize:12, lineHeight:1.6, color:'#cdd6f4', boxShadow:'0 16px 48px rgba(0,0,0,0.5)', cursor:'default'
+          }}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
+              <div style={{fontWeight:800, fontSize:13, color:'#f9e2af'}}>tmux single window · each window is pane image · full vim</div>
+              <button onClick={()=>setSiteHelp(false)} style={{cursor:'pointer', background:'#313244', color:'#cdd6f4', border:'1px solid #45475a', borderRadius:6, padding:'4px 10px', font:'700 11px Fira Code, monospace'}}>Esc</button>
+            </div>
+            <div style={{color:'#6c7086', fontSize:11, marginBottom:12}}>Site-level <code style={{background:'#313244', padding:'1px 4px', borderRadius:3}}>?</code> shows tmux + full vim. Pane-local <code style={{background:'#313244', padding:'1px 4px', borderRadius:3}}>?</code> inside <code style={{background:'#313244', padding:'1px 4px', borderRadius:3}}>2:nvim</code> shows buffer-local vim help. Every window is rendered as image pane inside single tmux window panel.</div>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px 20px'}}>
+              {[
+                {title:'tmux — single window, panes as images', keys:[
+                  ['C-b 0/1/2','go to pane 0:zsh / 1:htop / 2:nvim (window as image)'],
+                  ['Super+1/2/3','same — fast (⌘/Ctrl + number)'],
+                  ['C-b o · Super+o','next pane'],
+                  ['Super+j / Super+k','next / prev pane (tmux single panel cycle) — treat each window as image'],
+                  ['C-b h/j/k/l · Super+h/j/k/l','move between panes (vim-style)'],
+                  ['t · Super+t','cycle theme (8)'],
+                  ['C-b ? / ?','toggle this site-level help (Esc to close)'],
+                  ['C-b C-o','rotate panes (site)'],
+                ]},
+                {title:'vim — normal (full)', keys:[
+                  ['h j k l','char left/down/up/right'],
+                  ['J / K','5j / 5k — fast (Super+j / Super+k = 5×)'],
+                  ['Super+J / Super+K','G / gg — bottom / top (super+shift)'],
+                  ['w b 0 ^ $','word / line motions'],
+                  ['gg / G','top / bottom — also Super+K / Super+J'],
+                  ['Ctrl-d / Ctrl-u','half page down / up'],
+                  ['Ctrl-f / Ctrl-b','page down / up'],
+                  ['H / M / L','top / middle / bottom screen'],
+                  ['x / dd / yy / p','delete / cut line / yank / put'],
+                  ['i a o / v V / R','insert / visual / replace'],
+                  ['Tab / n p','next / prev buffer'],
+                  ['q / r','close / reset buffer'],
+                  ['?','pane-local vim help (inside nvim)'],
+                ]},
+                {title:'vim — visual + insert', keys:[
+                  ['h j k l','extend selection'],
+                  ['y / d / c','yank / delete / change'],
+                  ['o','swap anchor'],
+                  ['Esc','leave visual/insert → normal'],
+                  ['Super+j / Super+k','fast extend 5 lines'],
+                ]},
+                {title:'shell — zsh (0:zsh image pane)', keys:[
+                  ['help','list commands'],
+                  ['nvim <file>','open in 2:nvim pane'],
+                  ['Tab','complete'],
+                  ['↑ ↓','history'],
+                  ['Ctrl-L','clear'],
+                  ['theme <name>','catppuccin/dracula/gruvbox/nord/solarized/tokyo/onedark/monokai'],
+                ]},
+              ].map(g=>(
+                <div key={g.title} style={{minWidth:0}}>
+                  <div style={{color:'#cba6f7', fontWeight:800, marginBottom:6, fontSize:12}}>{g.title}</div>
+                  {g.keys.map(([k,v])=>(
+                    <div key={k} style={{display:'flex', gap:10, whiteSpace:'nowrap', padding:'1px 0'}}>
+                      <span style={{color:'#f9e2af', flex:'none', minWidth:110, fontWeight:600}}>{k}</span>
+                      <span style={{color:'#cdd6f4', overflow:'hidden', textOverflow:'ellipsis'}}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop:14, color:'#6c7086', fontSize:11, display:'flex', gap:8, flexWrap:'wrap'}}>
+              <span>Each tmux window (0/1/2) is rendered as image pane inside single panel — use <code style={{background:'#313244', padding:'1px 4px', borderRadius:3}}>Super+j/k</code> or <code style={{background:'#313244', padding:'1px 4px', borderRadius:3}}>C-b o</code> to cycle images.</span>
+              <span style={{marginLeft:'auto', color:'#f9e2af'}}>Esc or ? to close</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
