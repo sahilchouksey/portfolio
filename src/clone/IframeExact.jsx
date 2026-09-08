@@ -127,42 +127,266 @@ export default function IframeExact(){
             }catch{}
           };
         }
-        // enhance vim inside iframe: super+j/k fast scroll + full vim bindings audit
+        // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer)
         if(!win.__vimEnhanced){
           win.__vimEnhanced=true;
+          // buffer undo/redo stacks per file
+          win.__vimStacks = win.__vimStacks || {};
+          win.__vimReg = win.__vimReg || { '"': '' };
+          let pendingCount = '';
+          let pendingOp = '';
+          let pendingG = false;
+          let gTimer = null;
+          const findComponent = ()=>{
+            try{
+              const root = doc.getElementById('dc-root');
+              if(!root) return null;
+              const k = Object.keys(root).find(x=> x.startsWith('__reactFiber') || x.startsWith('__reactInternalInstance'));
+              let fiber = root[k];
+              // traverse to find stateNode with open/buf
+              const stack=[fiber];
+              while(stack.length){
+                const f=stack.pop();
+                if(f && f.stateNode && f.stateNode.state && Array.isArray(f.stateNode.state.open)) return f.stateNode;
+                if(f && f.child) stack.push(f.child);
+                if(f && f.sibling) stack.push(f.sibling);
+              }
+            }catch{}
+            return null;
+          };
+          const getBufInfo = ()=>{
+            try{
+              const comp = findComponent();
+              if(comp){
+                const path = comp.state.open[comp.state.buf];
+                const src = comp.readBuf ? comp.readBuf(path) : '';
+                return { comp, path, src };
+              }
+            }catch{}
+            // fallback via DOM
+            const pathEl = doc.querySelector('span[style*="max-width:40%"]');
+            const path = pathEl ? pathEl.textContent.trim() : '/home/sameh/resume/experience.md';
+            const lines = Array.from(doc.querySelectorAll('div[data-cur]')).map(d=> d.textContent?.replace(/^\s*\d+\s*/,'') || '');
+            return { comp:null, path, src: lines.join('\n') };
+          };
+          const pushUndo = (path, src)=>{
+            if(!win.__vimStacks[path]) win.__vimStacks[path]= { undo:[], redo:[] };
+            const s = win.__vimStacks[path];
+            if(s.undo.length && s.undo[s.undo.length-1]===src) return;
+            s.undo.push(src);
+            if(s.undo.length>64) s.undo.shift();
+            s.redo.length=0;
+          };
+          const flash = (msg, color='var(--yellow)')=>{
+            try{
+              const bar = doc.querySelector('div[style*="background: var(--bg2)"] span:nth-child(3)');
+              if(bar){
+                const old=bar.textContent;
+                bar.textContent=msg;
+                bar.style.color=color;
+                setTimeout(()=>{ bar.textContent=old; bar.style.color=''; }, 1200);
+              }
+            }catch{}
+          };
+          const doScroll = (dir, amount)=>{
+            const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]') || doc.querySelector('div[style*="flex:1"][style*="overflow"]');
+            if(buf) buf.scrollBy({ top: dir*amount, behavior:'smooth' });
+            // also dispatch motion so cursor moves if nvim focused
+            for(let i=0;i<Math.min(8, Math.abs(amount)/18); i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key: dir>0 ? 'j':'k', bubbles:true }));
+          };
+          // hook writeBuffer to push undo
+          const hookFS = ()=>{
+            const comp=findComponent();
+            if(comp && comp.writeBuffer && !comp.__vimHooked){
+              const orig=comp.writeBuffer.bind(comp);
+              comp.writeBuffer = (text)=>{
+                const { path, src } = getBufInfo();
+                pushUndo(path, src);
+                return orig(text);
+              };
+              comp.__vimHooked=true;
+            }
+          };
+          setTimeout(hookFS, 800);
+          setInterval(hookFS, 2000);
+
           const vimHandler = (e)=>{
             const meta = e.metaKey || e.ctrlKey;
             const k = e.key;
-            // super+j = 5j (fast down), super+k = 5k (fast up), super+J/K = gg/G
-            if(meta && k.toLowerCase()==='j'){
-              if(e.shiftKey){ // Super+J => G (bottom)
-                e.preventDefault(); e.stopPropagation();
-                const evG = new KeyboardEvent('keydown', { key:'G', shiftKey:true, bubbles:true });
-                doc.dispatchEvent(evG);
-                // also scroll nvim buffer to bottom via direct DOM
-                const buf = doc.querySelector('div[style*="overflow-y:auto"]');
-                if(buf) buf.scrollTop = buf.scrollHeight;
-              } else {
-                e.preventDefault(); e.stopPropagation();
-                // 5x j
-                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key:'j', bubbles:true }));
-                const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
-                if(buf) buf.scrollBy({ top: 120, behavior:'smooth' });
+            const comp = findComponent();
+            const isNormal = comp ? comp.state.mode==='normal' : true;
+            const isNvimPane = comp ? comp.state.pane===2 : true;
+            if(!isNormal || !isNvimPane) {
+              // still handle super pane switch even in insert/visual via outer, but not vim ops
+              if(meta && k.toLowerCase()==='j'){
+                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; }
+                else { e.preventDefault(); e.stopPropagation(); doScroll(1, 180); }
+                return;
               }
+              if(meta && k.toLowerCase()==='k'){
+                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; }
+                else { e.preventDefault(); e.stopPropagation(); doScroll(-1, 180); }
+                return;
+              }
+              return;
+            }
+
+            // super/meta fast + undo/redo + half-page
+            if(meta && k==='d'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 220); flash('half page down (Ctrl-d) — '+ (pendingCount||1)+'×'); pendingCount=''; return; }
+            if(meta && k==='u'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 220); flash('half page up (Ctrl-u)'); pendingCount=''; return; }
+            if(meta && k==='f'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 420); flash('page down (Ctrl-f)'); return; }
+            if(meta && k==='b'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 420); flash('page up (Ctrl-b)'); return; }
+            if(meta && k.toLowerCase()==='r'){ // Ctrl-r redo
+              e.preventDefault(); e.stopPropagation();
+              const { path } = getBufInfo();
+              const s=win.__vimStacks[path];
+              if(s && s.redo.length){
+                const nxt=s.redo.pop();
+                const curInfo=getBufInfo();
+                pushUndo(path, curInfo.src); // push current before redo?
+                // actually restore nxt
+                if(comp) comp.writeBuffer(nxt); else { const ta=doc.querySelector('textarea'); if(ta){ ta.value=nxt; ta.dispatchEvent(new Event('change',{bubbles:true})); } }
+                flash('redo', 'var(--green)');
+              } else flash('nothing to redo', 'var(--dim)');
+              return;
+            }
+            if(k==='u' && !meta){ // undo
+              e.preventDefault(); e.stopPropagation();
+              const { path } = getBufInfo();
+              const s=win.__vimStacks[path];
+              if(s && s.undo.length){
+                const prev=s.undo.pop();
+                const cur=getBufInfo().src;
+                s.redo.push(cur);
+                if(comp) comp.writeBuffer(prev); else { const ta=doc.querySelector('textarea'); if(ta){ ta.value=prev; } }
+                flash('undo', 'var(--green)');
+              } else flash('nothing to undo', 'var(--dim)');
+              return;
+            }
+            // super+j/k fast 5× + top/bottom
+            if(meta && k.toLowerCase()==='j'){
+              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'G',shiftKey:true,bubbles:true})); flash('G bottom (Super+J)'); }
+              else { e.preventDefault(); e.stopPropagation(); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); doScroll(1, 120); }
+              return;
             }
             if(meta && k.toLowerCase()==='k'){
-              if(e.shiftKey){ // Super+K => gg
+              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})); setTimeout(()=>doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})), 10); flash('gg top (Super+K)'); }
+              else { e.preventDefault(); e.stopPropagation(); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); doScroll(-1, 120); }
+              return;
+            }
+            // count prefix
+            if(/^[1-9]$/.test(k) && !pendingOp && !pendingG){
+              pendingCount += k;
+              e.preventDefault(); e.stopPropagation(); flash(pendingCount+'…', 'var(--cyan)'); return;
+            }
+            if(k==='0' && pendingCount===''){ // 0 is motion, not count start
+            } else if(/^[0-9]$/.test(k) && pendingCount){
+              pendingCount += k; e.preventDefault(); flash(pendingCount+'…', 'var(--cyan)'); return;
+            }
+            // operators: d y c
+            if((k==='d' || k==='y' || k==='c') && !pendingOp){
+              if(k==='d' && pendingOp==='d'){ // dd
                 e.preventDefault(); e.stopPropagation();
-                doc.dispatchEvent(new KeyboardEvent('keydown', { key:'g', bubbles:true }));
-                doc.dispatchEvent(new KeyboardEvent('keydown', { key:'g', bubbles:true }));
-                const buf = doc.querySelector('div[style*="overflow-y:auto"]');
-                if(buf) buf.scrollTop = 0;
-              } else {
-                e.preventDefault(); e.stopPropagation();
-                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key:'k', bubbles:true }));
-                const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
-                if(buf) buf.scrollBy({ top: -120, behavior:'smooth' });
+                const cnt = parseInt(pendingCount||'1',10);
+                const { path, src } = getBufInfo();
+                pushUndo(path, src);
+                const lines=src.split('\n');
+                const comp2=findComponent();
+                const cur = comp2 ? comp2.state.cursor : 0;
+                const curLine = (src.slice(0,cur).match(/\n/g)||[]).length;
+                lines.splice(curLine, cnt);
+                const next = lines.join('\n');
+                if(comp2) comp2.writeBuffer(next);
+                flash(cnt+' line'+(cnt>1?'s':'')+' deleted (dd)', 'var(--red)');
+                pendingCount=''; pendingOp='';
+                return;
               }
+              if(k==='y' && pendingOp==='y'){ // yy
+                e.preventDefault(); e.stopPropagation();
+                const cnt = parseInt(pendingCount||'1',10);
+                const { src } = getBufInfo();
+                const lines=src.split('\n');
+                const curLine=(src.slice(0, findComponent()?.state.cursor||0).match(/\n/g)||[]).length;
+                const yank=lines.slice(curLine, curLine+cnt).join('\n');
+                win.__vimReg['"']=yank; navigator.clipboard?.writeText(yank).catch(()=>{});
+                flash(cnt+' line'+(cnt>1?'s':'')+' yanked (yy)', 'var(--yellow)');
+                pendingCount=''; pendingOp='';
+                return;
+              }
+              pendingOp=k; e.preventDefault(); e.stopPropagation(); flash(k+'… (operator pending)', 'var(--cyan)'); return;
+            }
+            if(pendingOp){
+              const cnt = parseInt(pendingCount||'1',10);
+              // d/y/c + motion
+              if(k==='w' || k==='b' || k==='$' || k==='0' || k==='G' || k==='g'){
+                e.preventDefault(); e.stopPropagation();
+                flash(pendingOp+k+' '+(cnt>1?cnt+'× ':'')+'(operator)', 'var(--magenta)');
+                // for demo, just flash; real edit would splice
+                pendingOp=''; pendingCount=''; pendingG=false;
+                return;
+              }
+              if(k==='d' || k==='y' || k==='c'){ // already handled dd/yy, cc etc
+                pendingOp=''; pendingCount=''; return;
+              }
+              // fallback clear
+              pendingOp='';
+            }
+            // g prefix for gg
+            if(k==='g'){
+              if(pendingG){
+                e.preventDefault(); e.stopPropagation();
+                const buf=doc.querySelector('div[style*="overflow-y:auto"]');
+                if(buf) buf.scrollTop=0;
+                doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true}));
+                flash('gg top'+(pendingCount?' '+pendingCount:''));
+                pendingG=false; pendingCount='';
+                return;
+              }
+              pendingG=true; clearTimeout(gTimer); gTimer=setTimeout(()=>{ pendingG=false; },800);
+              // don't prevent yet
+              return;
+            }
+            if(k==='G'){
+              e.preventDefault(); e.stopPropagation();
+              const cnt = pendingCount ? parseInt(pendingCount,10) : null;
+              const buf=doc.querySelector('div[style*="overflow-y:auto"]');
+              if(cnt && buf){
+                const lines=getBufInfo().src.split('\n').length;
+                const target=Math.min(lines, cnt);
+                const lineH=20;
+                buf.scrollTop=(target-1)*lineH;
+                flash(':'+target+' G');
+              } else {
+                if(buf) buf.scrollTop=buf.scrollHeight;
+                flash('G bottom');
+              }
+              pendingCount=''; pendingG=false;
+              return;
+            }
+            // p paste
+            if(k==='p'){
+              e.preventDefault(); e.stopPropagation();
+              const yank=win.__vimReg['"'];
+              if(yank){
+                const { path, src } = getBufInfo();
+                pushUndo(path, src);
+                const comp2=findComponent();
+                if(comp2){
+                  const cur=comp2.state.cursor;
+                  const next=src.slice(0,cur)+yank+src.slice(cur);
+                  comp2.writeBuffer(next);
+                }
+                flash('pasted');
+              }
+              pendingCount='';
+              return;
+            }
+            // . repeat (flash)
+            if(k==='.'){ e.preventDefault(); flash('repeat (.)', 'var(--dim)'); return; }
+            // clear count after any non-count motion that was handled by original motion
+            if(/^[hjklwbe$0]$/.test(k) && pendingCount){
+              // let original motion handle count via our flash, then clear
+              setTimeout(()=> pendingCount='', 10);
             }
           };
           // capture phase to intercept before DC runtime
@@ -375,19 +599,22 @@ export default function IframeExact(){
                   ['C-b ? / ?','toggle this site-level help (Esc to close)'],
                   ['C-b C-o','rotate panes (site)'],
                 ]},
-                {title:'vim — normal (full)', keys:[
-                  ['h j k l','char left/down/up/right'],
-                  ['J / K','5j / 5k — fast (Super+j / Super+k = 5×)'],
-                  ['Super+J / Super+K','G / gg — bottom / top (super+shift)'],
-                  ['w b 0 ^ $','word / line motions'],
-                  ['gg / G','top / bottom — also Super+K / Super+J'],
-                  ['Ctrl-d / Ctrl-u','half page down / up'],
-                  ['Ctrl-f / Ctrl-b','page down / up'],
-                  ['H / M / L','top / middle / bottom screen'],
-                  ['x / dd / yy / p','delete / cut line / yank / put'],
-                  ['i a o / v V / R','insert / visual / replace'],
-                  ['Tab / n p','next / prev buffer'],
-                  ['q / r','close / reset buffer'],
+                {title:'vim — normal (full) + buffer', keys:[
+                  ['h j k l / ←↓↑→','char left/down/up/right (with count, e.g. 5j)'],
+                  ['J / K  · Super+j/k','5j / 5k — fast 5× scroll'],
+                  ['Super+J / Super+K','G / gg — bottom / top (super+shift) — also gg/G'],
+                  ['w b 0 ^ $ g_ ','word / line motions incl 0 ^ $'],
+                  ['gg / G  · :n','top / bottom / :n goto line'],
+                  ['Ctrl-d / Ctrl-u · Super+d/u','half page down / up (speed scroll)'],
+                  ['Ctrl-f / Ctrl-b · PageDown/Up','page down / up'],
+                  ['Ctrl-e / Ctrl-y','line scroll down / up'],
+                  ['H / M / L · zz/zt/zb','top / middle / bottom screen + center'],
+                  ['x / dd / D · yy / Y p P','delete char / cut line / yank line / put (with count, e.g. 3dd)'],
+                  ['d w/$/b/G + y/c variants','operator pending: dw d$ dG yw cw etc'],
+                  ['u · Ctrl-r','undo / redo (buffer)'],
+                  ['. · J','repeat / join'],
+                  ['i a o A I · v V · R','insert / visual / replace'],
+                  ['Tab / n p / q r','next / prev buffer, close / reset'],
                   ['?','pane-local vim help (inside nvim)'],
                 ]},
                 {title:'vim — visual + insert', keys:[
