@@ -31,6 +31,8 @@ export default function IframeExact(){
     const onOuterKey = (e)=>{
       if(e.repeat) return; // prevent spamming kkkk on hold
       const iframe = getIframe();
+      // if nvim textarea inside iframe is focused, let inner tmux handle C-b to avoid double prefix
+      // removed isTyping/innerAE early return for C-b — ensure tmux prefix works even when textarea focused (was blocking)
       if(siteCmd.open){
         if(e.key==='Escape'){ e.preventDefault(); setSiteCmd({open:false,val:''}); return; }
         if(e.key==='Enter'){
@@ -45,7 +47,7 @@ export default function IframeExact(){
         }
         return;
       }
-      if(isTyping(document.activeElement)) return;
+      // isTyping check moved after tmux prefix handling to allow C-b even when typing
       const k = e.key;
       const meta = e.metaKey || e.ctrlKey;
 
@@ -71,6 +73,7 @@ export default function IframeExact(){
         }
         return;
       }
+      if(isTyping(document.activeElement)) return;
 
       // site-level ":" and "/" — entire app keyboard navigation (no mouse)
       if(k===':' && !meta){ e.preventDefault(); setSiteCmd({open:true,val:''}); return; }
@@ -192,6 +195,31 @@ export default function IframeExact(){
             }catch{}
           };
         }
+        // patch inner tmux prefix directional l/h to use image logic (was pane+1 cycle) — fix C-b l not moving right when focus inside iframe
+        const patchTmuxDir = ()=>{
+          try{
+            const compPatch = (()=>{ try{ const r=doc.getElementById('dc-root'); const k=Object.keys(r).find(x=>x.startsWith('__reactFiber')||x.startsWith('__reactContainer')); let f=r[k]; if(!f) return null; const seen=new Set(); const st=[f]; while(st.length){ const cur=st.pop(); if(!cur || seen.has(cur)) continue; seen.add(cur); if(cur.stateNode && cur.stateNode.handleKey) return cur.stateNode; if(cur.child) st.push(cur.child); if(cur.sibling) st.push(cur.sibling); } }catch{} return null; })();
+            if(compPatch && !compPatch.__patchedDir){
+              const origHK = compPatch.handleKey.bind(compPatch);
+              compPatch.handleKey = function(e){
+                const k=e.key;
+                if(this.state.prefix==='C-b'){
+                  if(k==='l'){ e.preventDefault(); this.setState({pane: this.state.pane===0||this.state.pane===1 ? 2 : 2}); this.setPrefix(null); return; }
+                  if(k==='h'){ e.preventDefault(); this.setState({pane: this.state.pane===2 ? 0 : 0}); this.setPrefix(null); return; }
+                  if(k==='j'){ e.preventDefault(); this.setState({pane: this.state.pane===0 ? 1 : this.state.pane===2 ? 1 : this.state.pane}); this.setPrefix(null); return; }
+                  if(k==='k'){ e.preventDefault(); this.setState({pane: this.state.pane===1 ? 0 : this.state.pane===2 ? 0 : this.state.pane}); this.setPrefix(null); return; }
+                }
+                return origHK(e);
+              };
+              compPatch.__patchedDir=true;
+              console.log('[inner] tmux directional patched');
+              return true;
+            }
+          }catch{}
+          return false;
+        };
+        patchTmuxDir();
+        if(!win.__tmuxPatchInterval) win.__tmuxPatchInterval = setInterval(()=>{ if(patchTmuxDir()){ clearInterval(win.__tmuxPatchInterval); win.__tmuxPatchInterval=null; } }, 800);
         // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer)
         if(!win.__vimEnhanced){
           win.__vimEnhanced=true;
