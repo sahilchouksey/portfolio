@@ -208,10 +208,66 @@ export default function IframeExact(){
             const meta = e.metaKey || e.ctrlKey;
             const k = e.key;
             const comp = findComponent();
-            const isNormal = comp ? comp.state.mode==='normal' : true;
+            const mode = comp ? comp.state.mode : 'normal';
+            const isNormal = mode==='normal';
+            const isVisual = mode==='visual';
+            const isInsert = mode==='insert' || mode==='replace';
             const isNvimPane = comp ? comp.state.pane===2 : true;
+            if(isInsert){
+              // insert: only handle super pane switch via meta+j/k, else let DC handle Esc
+              if(meta && k.toLowerCase()==='j'){
+                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; }
+                else { e.preventDefault(); e.stopPropagation(); doScroll(1, 180); }
+                return;
+              }
+              if(meta && k.toLowerCase()==='k'){
+                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; }
+                else { e.preventDefault(); e.stopPropagation(); doScroll(-1, 180); }
+                return;
+              }
+              return;
+            }
+            if(isVisual){
+              // visual mode full multi-key (reference: codemirror-vim visual: charwise/linewise/blockwise, operators y/d/c/>/</~)
+              // allow Ctrl/Super speed scroll even in visual
+              if(meta && (k==='d' || k==='u' || k==='f' || k==='b')){
+                e.preventDefault(); e.stopPropagation(); doScroll(k==='d'||k==='f'?1:-1, k==='f'||k==='b'?420:220); return;
+              }
+              if(meta && k.toLowerCase()==='j'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 90); // also extend selection 5 lines
+                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); return; }
+              if(meta && k.toLowerCase()==='k'){ e.preventDefault(); e.stopPropagation(); doScroll(-1,90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); return; }
+              // count prefix in visual
+              if(/^[1-9]$/.test(k) && !pendingOp){ pendingCount+=k; e.preventDefault(); e.stopPropagation(); return; }
+              if(/^[0-9]$/.test(k) && pendingCount){ pendingCount+=k; e.preventDefault(); return; }
+              // visual operators multi-key: y/d/c/x, >/<, ~, u/U, o, v/V, Esc
+              if(k==='o'){ e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:'o',bubbles:true})); pendingCount=''; return; }
+              if(k==='u'){ e.preventDefault(); e.stopPropagation(); // visual lower
+                const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); ta.value=t.slice(0,s)+sel.toLowerCase()+t.slice(eb); ta.setSelectionRange(s, eb); ta.dispatchEvent(new Event('change',{bubbles:true})); } return; }
+              if(k==='U'){ e.preventDefault(); e.stopPropagation(); const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); ta.value=t.slice(0,s)+sel.toUpperCase()+t.slice(eb); ta.setSelectionRange(s, eb);} return; }
+              if(k==='>'||k==='<'||k==='~'){ e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true})); return; }
+              if(k==='y' || k==='d' || k==='c' || k==='x'){
+                e.preventDefault(); e.stopPropagation();
+                // leverage DC runtime's visual y/d/c by forwarding single key
+                doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+                pendingCount=''; pendingOp='';
+                return;
+              }
+              // visual motions with count
+              if(/^[hjklwbe$0]$/.test(k)){
+                const cnt = parseInt(pendingCount||'1',10);
+                e.preventDefault(); e.stopPropagation();
+                for(let i=0;i<cnt;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+                pendingCount='';
+                return;
+              }
+              if(k==='G' || k==='g'){
+                e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:k, shiftKey: k==='G', bubbles:true}));
+                if(k==='g'){ setTimeout(()=> doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})), 10); }
+                return;
+              }
+              return;
+            }
             if(!isNormal || !isNvimPane) {
-              // still handle super pane switch even in insert/visual via outer, but not vim ops
               if(meta && k.toLowerCase()==='j'){
                 if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; }
                 else { e.preventDefault(); e.stopPropagation(); doScroll(1, 180); }
