@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 export default function IframeExact(){
   const ref = useRef(null);
   const [siteHelp, setSiteHelp] = useState(false);
+  const [siteCmd, setSiteCmd] = useState({ open:false, val:'' });
+  const [tmuxPrefix, setTmuxPrefix] = useState(false);
   // global site-level vim/tmux bindings (outer)
   useEffect(()=>{
     const iframe = ref.current;
@@ -22,9 +24,45 @@ export default function IframeExact(){
       }catch{}
     };
     const onOuterKey = (e)=>{
+      if(siteCmd.open){
+        if(e.key==='Escape'){ e.preventDefault(); setSiteCmd({open:false,val:''}); return; }
+        if(e.key==='Enter'){
+          e.preventDefault();
+          const v=siteCmd.val.trim();
+          // site-level commands: pane 0/1/2, theme <name>, help, site
+          if(/^pane\s+[0-2]$/.test(v)){ const n=parseInt(v.split(/\s+/)[1],10); try{ iframe?.contentWindow?.__exactSetPane(n); }catch{} }
+          else if(v==='site' || v==='/ site'){ try{ iframe?.contentDocument?.querySelector('a[href="https://samehkhamis.com"]')?.click(); }catch{} }
+          else if(v.startsWith('theme ')){ const th=v.split(' ')[1]; try{ iframe?.contentWindow?.dispatchEvent(new KeyboardEvent('keydown',{key:'t',bubbles:true})); }catch{} }
+          else if(v==='help' || v==='?'){ setSiteHelp(true); }
+          setSiteCmd({open:false,val:''});
+          return;
+        }
+        return; // let input handle typing
+      }
       if(isTyping(document.activeElement)) return;
       const k = e.key;
       const meta = e.metaKey || e.ctrlKey; // super = Cmd on Mac / Ctrl on Win
+
+      // tmux prefix C-b — entire app navigated via keybinding only (no mouse needed)
+      if(e.ctrlKey && k==='b'){ e.preventDefault(); setTmuxPrefix(true); setTimeout(()=> setTmuxPrefix(false), 2500); return; }
+      if(tmuxPrefix){
+        e.preventDefault(); setTmuxPrefix(false);
+        const map = { '0':0,'1':1,'2':2,'o':'next','h':'left','j':'down','k':'up','l':'right','t':'theme','?':'help',' ':'next','n':'next','p':'prev',';':'last','z':'zoom','x':'kill','c':'new' };
+        const act = map[k];
+        if(act!==undefined){
+          if(typeof act==='number'){ try{ iframe?.contentWindow?.__exactSetPane(act); }catch{} }
+          else if(act==='next'){ try{ iframe?.contentWindow?.__exactPaneSwitch(1); }catch{ forwardToIframe('o',{ctrl:true}); } }
+          else if(act==='theme'){ forwardToIframe('t',{}); }
+          else if(act==='help'){ setSiteHelp(v=>!v); }
+          else if(['left','down','up','right'].includes(act)){ forwardToIframe(k,{ctrl:true}); try{ iframe?.contentWindow?.__exactPaneSwitch(act==='down'||act==='right'?1:-1);}catch{} }
+        }
+        return;
+      }
+
+      // site-level ":" and "/" — entire app keyboard navigation (no mouse)
+      if(k===':' && !meta){ e.preventDefault(); setSiteCmd({open:true,val:''}); return; }
+      if(k==='/' && !meta && !e.shiftKey){ e.preventDefault(); setSiteCmd({open:true,val:'site '}); return; }
+
       // global ? handler — site-level tmux help (preserve iframe's own ? when in nvim)
       if(k==='?' || (k==='/' && e.shiftKey)){
         // if iframe's help is open, let it close; otherwise show site help
@@ -681,6 +719,19 @@ export default function IframeExact(){
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
       />
 
+      {siteCmd.open && (
+        <div style={{position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', zIndex:45, width:'min(520px, 90vw)'}}>
+          <div style={{background:'#1e1e2e', border:'1px solid #89b4fa', borderRadius:8, padding:'8px 10px', display:'flex', alignItems:'center', gap:8, fontFamily:"'Fira Code', monospace", boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+            <span style={{color:'#89b4fa', fontWeight:700}}>:</span>
+            <input autoFocus value={siteCmd.val} onChange={e=> setSiteCmd(s=>({...s,val:e.target.value}))} placeholder="pane 0/1/2 · theme catppuccin · site · help" style={{flex:1, background:'transparent', border:'none', outline:'none', color:'#cdd6f4', font:'400 12px Fira Code, monospace'}} />
+            <span style={{color:'#6c7086', fontSize:10}}>Enter · Esc</span>
+          </div>
+          <div style={{marginTop:6, textAlign:'center', color:'#6c7086', font:'400 10px Fira Code, monospace'}}>entire app keyboard-only — C-b + 0/1/2/o/h/j/k/l/t/? · :pane · /site</div>
+        </div>
+      )}
+      {tmuxPrefix && (
+        <div style={{position:'absolute', top:10, left:'50%', transform:'translateX(-50%)', zIndex:44, background:'#f9e2af', color:'#1e1e2e', font:'700 11px Fira Code, monospace', padding:'4px 10px', borderRadius:6, border:'1px solid #fab387'}}>C-b …</div>
+      )}
       {siteHelp && (
         <div onClick={()=>setSiteHelp(false)} style={{position:'absolute', inset:0, background:'rgba(0,0,0,0.55)', zIndex:40, display:'flex', alignItems:'center', justifyContent:'center', padding:16, cursor:'pointer'}}>
           <div onClick={e=>e.stopPropagation()} style={{
