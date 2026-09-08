@@ -5,10 +5,14 @@ export default function IframeExact(){
   const [siteHelp, setSiteHelp] = useState(false);
   const [siteCmd, setSiteCmd] = useState({ open:false, val:'' });
   const [tmuxPrefix, setTmuxPrefix] = useState(false);
+  // use window global for prefix to avoid React stale closure spamming
+  // eslint-disable-next-line no-unused-vars
   const tmuxPrefixRef = useRef(false);
   // global site-level vim/tmux bindings (outer) — entire app keybinding-only, no mouse needed
   useEffect(()=>{
-    const iframe = ref.current;
+    const getIframe = ()=> ref.current;
+    // ensure window global exists
+    if(typeof window !== 'undefined' && window.__tmuxPrefix===undefined) window.__tmuxPrefix=false;
     const isTyping = (el)=> el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable);
     const forwardToIframe = (key, opts={})=>{
       try{
@@ -26,6 +30,7 @@ export default function IframeExact(){
     };
     const onOuterKey = (e)=>{
       if(e.repeat) return; // prevent spamming kkkk on hold
+      const iframe = getIframe();
       if(siteCmd.open){
         if(e.key==='Escape'){ e.preventDefault(); setSiteCmd({open:false,val:''}); return; }
         if(e.key==='Enter'){
@@ -41,29 +46,27 @@ export default function IframeExact(){
         return;
       }
       if(isTyping(document.activeElement)) return;
-      // if iframe has focus, let its own tmux prefix handler (C-b) handle it — avoid double prefix spamming
-      if(document.activeElement === ref.current) return;
       const k = e.key;
       const meta = e.metaKey || e.ctrlKey;
 
       // tmux prefix C-b — entire app navigated via keybinding only (no mouse needed)
-      if(e.ctrlKey && k==='b'){ e.preventDefault(); e.stopPropagation(); tmuxPrefixRef.current=true; setTmuxPrefix(true); setTimeout(()=>{ tmuxPrefixRef.current=false; setTmuxPrefix(false); }, 2500); return; }
-      if(tmuxPrefixRef.current){
-        e.preventDefault(); e.stopPropagation(); tmuxPrefixRef.current=false; setTmuxPrefix(false);
+      if(e.ctrlKey && k==='b'){ e.preventDefault(); e.stopPropagation(); window.__tmuxPrefix=true; tmuxPrefixRef.current=true; setTmuxPrefix(true); setTimeout(()=>{ window.__tmuxPrefix=false; tmuxPrefixRef.current=false; setTmuxPrefix(false); }, 2500); return; }
+      if(window.__tmuxPrefix){
+        e.preventDefault(); e.stopPropagation(); window.__tmuxPrefix=false; tmuxPrefixRef.current=false; setTmuxPrefix(false);
         const map = { '0':0,'1':1,'2':2,'o':'next','h':'left','j':'down','k':'up','l':'right','t':'theme','?':'help',' ':'next','n':'next','p':'prev',';':'last','z':'zoom','x':'kill','c':'new' };
         const act = map[k];
+        const iframe2 = getIframe();
         if(act!==undefined){
-          if(typeof act==='number'){ try{ iframe?.contentWindow?.__exactSetPane(act); }catch{} }
-          else if(act==='next'){ try{ iframe?.contentWindow?.__exactPaneSwitch(1); }catch{} }
-          else if(act==='theme'){ try{ iframe?.contentWindow?.dispatchEvent(new KeyboardEvent('keydown',{key:'t',bubbles:true})); }catch{} }
+          if(typeof act==='number'){ try{ iframe2?.contentWindow?.__exactSetPane(act); }catch{} }
+          else if(act==='next'){ try{ iframe2?.contentWindow?.__exactPaneSwitch(1); }catch{} }
+          else if(act==='theme'){ try{ iframe2?.contentWindow?.dispatchEvent(new KeyboardEvent('keydown',{key:'t',bubbles:true})); }catch{} }
           else if(act==='help'){ setSiteHelp(v=>!v); }
           else if(['left','down','up','right'].includes(act)){
             try{
-              const win2 = iframe?.contentWindow;
+              const win2 = iframe2?.contentWindow;
               if(win2?.__exactMoveDir) win2.__exactMoveDir(act);
               else win2?.__exactPaneSwitch(act==='down'||act==='right'?1:-1);
             }catch{}
-            // do NOT forward to vim — prevents spamming kkkk as vim l/h motion
           }
         }
         return;
