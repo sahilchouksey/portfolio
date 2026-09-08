@@ -220,7 +220,108 @@ export default function IframeExact(){
         };
         patchTmuxDir();
         if(!win.__tmuxPatchInterval) win.__tmuxPatchInterval = setInterval(()=>{ if(patchTmuxDir()){ clearInterval(win.__tmuxPatchInterval); win.__tmuxPatchInterval=null; } }, 800);
-        // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer)
+        // mount entire vim like codemirror-vim repo (deterministic vim) — replaces custom vimHandler for nvim pane
+        if(!win.__cmVimMounted){
+          win.__cmVimMounted=true;
+          const mountCM = async ()=>{
+            try{
+              const mod = await import('https://esm.sh/@replit/codemirror-vim@6.4.0');
+              const { EditorView, keymap } = await import('https://esm.sh/@codemirror/view@6.43.11');
+              const { EditorState, Compartment } = await import('https://esm.sh/@codemirror/state@6.7.4');
+              const { defaultKeymap, history, historyKeymap } = await import('https://esm.sh/@codemirror/commands@6.8.1');
+              const vim = mod.vim || mod.default?.vim;
+              if(!vim) { console.log('vim not found', mod); return; }
+              // find nvim lines container (scrollable div with data-cur)
+              let bufContainer=null;
+              const candidates = Array.from(document.querySelectorAll('div[style*="overflow-y:auto"]'));
+              for(const c of candidates){ if(c.querySelector('[data-cur]')){ bufContainer=c; break; } }
+              if(!bufContainer) { console.log('bufContainer not found'); return; }
+              const originalLines = bufContainer.innerHTML;
+              const cmHost = document.createElement('div');
+              cmHost.id='__cmvim_host';
+              cmHost.style.cssText='flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; border-top:1px solid var(--surf);';
+              const origWrap = document.createElement('div');
+              origWrap.style.display='none';
+              origWrap.innerHTML=originalLines;
+              bufContainer.innerHTML='';
+              bufContainer.style.display='flex';
+              bufContainer.style.flexDirection='column';
+              bufContainer.appendChild(cmHost);
+              bufContainer.appendChild(origWrap);
+              const getComp = ()=>{
+                try{
+                  const r=document.getElementById('dc-root');
+                  const k=Object.keys(r).find(x=> x.includes('react'));
+                  let f=r[k]; const seen=new Set(); const st=[f];
+                  while(st.length){ const cur=st.pop(); if(!cur||seen.has(cur)) continue; seen.add(cur); if(cur.stateNode && cur.stateNode.state && Array.isArray(cur.stateNode.state.open)) return cur.stateNode; if(cur.child) st.push(cur.child); if(cur.sibling) st.push(cur.sibling); if(cur.alternate) st.push(cur.alternate); }
+                }catch{}
+                return null;
+              };
+              const comp=getComp();
+              let initialDoc='';
+              if(comp){ try{ const p=comp.state.open[comp.state.buf]; initialDoc=comp.readBuf(p); }catch{} }
+              if(!initialDoc) {
+                initialDoc = Array.from(origWrap.querySelectorAll('[data-cur]')).map(d=> d.textContent.replace(/^\s*\d+\s*/, '')).join('\n') || '# Experience\n';
+              }
+              const state = EditorState.create({
+                doc: initialDoc,
+                extensions: [
+                  vim(),
+                  history(),
+                  keymap.of([...defaultKeymap, ...historyKeymap]),
+                  EditorView.lineWrapping,
+                  EditorView.theme({
+                    '&': { backgroundColor: 'var(--bg)', color: 'var(--fg)', fontFamily: "'Fira Code', monospace", fontSize: '12.5px' },
+                    '.cm-content': { padding: '8px 0', lineHeight: '20px' },
+                    '.cm-cursor': { borderLeftColor: 'var(--fg)' },
+                    '.cm-selectionBackground, ::selection': { backgroundColor: 'var(--surf)' },
+                    '.cm-gutters': { backgroundColor: 'var(--bg)', color: 'var(--dim)', borderRight: '1px solid var(--surf)' },
+                    '.cm-activeLineGutter': { backgroundColor: 'var(--bg2)' },
+                    '.cm-activeLine': { backgroundColor: 'var(--bg2)' },
+                  }),
+                  EditorView.updateListener.of(update=>{
+                    if(update.docChanged){
+                      const text=update.state.doc.toString();
+                      const c=getComp();
+                      if(c){ try{ c.writeBuffer(text); }catch{} }
+                    }
+                  })
+                ]
+              });
+              const view = new EditorView({ state, parent: cmHost });
+              window.__cmView = view;
+              window.__cmGetComp = getComp;
+              const syncOnBuf = ()=>{
+                const c=getComp();
+                if(!c) return;
+                try{
+                  const p=c.state.open[c.state.buf];
+                  const txt=c.readBuf(p);
+                  if(txt !== view.state.doc.toString()){
+                    view.dispatch({changes:{from:0, to: view.state.doc.length, insert: txt}});
+                  }
+                }catch{}
+              };
+              let lastBuf=null;
+              setInterval(()=>{
+                const c=getComp();
+                if(c && c.state.buf!==lastBuf){ lastBuf=c.state.buf; syncOnBuf(); }
+              }, 400);
+              window.__cmSync = syncOnBuf;
+              console.log('[cmvim] mounted deterministic vim entire');
+            }catch(e){ console.log('cm vim mount err', e); }
+          };
+          if(!document.querySelector('script[data-cmvim]')){
+            const s=document.createElement('script');
+            s.setAttribute('data-cmvim','1');
+            s.type='module';
+            s.textContent='('+mountCM.toString()+')();';
+            document.head.appendChild(s);
+          } else {
+            mountCM();
+          }
+        }
+        // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer) — kept for tmux but vim now handled by cm
         if(!win.__vimEnhanced){
           win.__vimEnhanced=true;
           // buffer undo/redo stacks per file
@@ -320,6 +421,8 @@ export default function IframeExact(){
           setInterval(()=>{ hookFS(); seedStacks(); }, 2000);
 
           const vimHandler = (e)=>{
+            // if CodeMirror vim has focus, let it handle deterministically (entire vim like repo)
+            if(win.__cmView && win.__cmView.hasFocus) return;
             const meta = e.metaKey || e.ctrlKey;
             const k = e.key;
             const comp = findComponent();
