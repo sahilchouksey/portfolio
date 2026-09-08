@@ -185,7 +185,20 @@ export default function IframeExact(){
             // also dispatch motion so cursor moves if nvim focused
             for(let i=0;i<Math.min(8, Math.abs(amount)/18); i++) doc.dispatchEvent(new KeyboardEvent('keydown', { key: dir>0 ? 'j':'k', bubbles:true }));
           };
-          // hook writeBuffer to push undo
+          // hook writeBuffer to push undo + seed initial contents for deterministic u/Ctrl-r (vim history)
+          const seedStacks = ()=>{
+            try{
+              const comp=findComponent();
+              if(!comp) return;
+              comp.state.open.forEach(p=>{
+                try{
+                  const src=comp.readBuf(p);
+                  if(!win.__vimStacks[p]) win.__vimStacks[p]={undo:[], redo:[]};
+                  if(win.__vimStacks[p].undo.length===0) win.__vimStacks[p].undo.push(src);
+                }catch{}
+              });
+            }catch{}
+          };
           const hookFS = ()=>{
             const comp=findComponent();
             if(comp && comp.writeBuffer && !comp.__vimHooked){
@@ -196,10 +209,11 @@ export default function IframeExact(){
                 return orig(text);
               };
               comp.__vimHooked=true;
+              seedStacks();
             }
           };
-          setTimeout(hookFS, 800);
-          setInterval(hookFS, 2000);
+          setTimeout(()=>{ hookFS(); seedStacks(); }, 800);
+          setInterval(()=>{ hookFS(); seedStacks(); }, 2000);
 
           const vimHandler = (e)=>{
             const meta = e.metaKey || e.ctrlKey;
@@ -321,18 +335,24 @@ export default function IframeExact(){
             if(meta && k==='u'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 220); pendingCount=''; return; }
             if(meta && k==='f'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 420); return; }
             if(meta && k==='b'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 420); return; }
-            if(meta && k.toLowerCase()==='r'){ // Ctrl-r redo
+            if(meta && k.toLowerCase()==='r'){ // Ctrl-r redo — deterministic via codemirror-vim history reference (undo/redo stack)
               e.preventDefault(); e.stopPropagation();
               const { path } = getBufInfo();
               const s=win.__vimStacks[path];
               if(s && s.redo.length){
                 const nxt=s.redo.pop();
                 const curInfo=getBufInfo();
-                pushUndo(path, curInfo.src); // push current before redo?
-                // actually restore nxt
-                if(comp) comp.writeBuffer(nxt); else { const ta=doc.querySelector('textarea'); if(ta){ ta.value=nxt; ta.dispatchEvent(new Event('change',{bubbles:true})); } }
-                flash('redo', 'var(--green)');
-              } else flash('nothing to redo', 'var(--dim)');
+                if(!s.undo) s.undo=[];
+                s.undo.push(curInfo.src);
+                if(s.undo.length>64) s.undo.shift();
+                // do not call pushUndo (would clear redo)
+                if(comp){
+                  // temporarily unhook to avoid double push
+                  const was=comp.__vimHooked; comp.__vimHooked=false;
+                  comp.writeBuffer(nxt);
+                  setTimeout(()=> comp.__vimHooked=was, 50);
+                } else { const ta=doc.querySelector('textarea'); if(ta){ ta.value=nxt; ta.dispatchEvent(new Event('change',{bubbles:true})); } }
+              }
               return;
             }
             if(k==='u' && !meta){ // undo
