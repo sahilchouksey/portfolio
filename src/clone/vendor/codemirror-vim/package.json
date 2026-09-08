@@ -1,0 +1,16 @@
+{
+  "name": "codemirror-vim-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "dev": "pnpm --filter @replit/codemirror-vim run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm --filter @replit/codemirror-vim run test",
+    "testAll": "pnpm --filter @replit/codemirror-vim run testAll && pnpm --filter cm5-vim run buildAndTest",
+    "typecheck": "pnpm -r run typecheck"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/replit/codemirror-vim.git"
+  }
+}
