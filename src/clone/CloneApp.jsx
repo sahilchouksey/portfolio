@@ -2,14 +2,125 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { THEMES, PROCS, EXPERIENCE_MD, PUBLICATIONS_MD, EDUCATION_MD, LINKS_SH } from './data.js';
 import AudioVisualizer from './AudioVisualizer.jsx';
 
-const SPARK = '▁▂▃▄▅▆▇█';
 const fmtMem = (mb)=> mb>=1000 ? (mb/1024).toFixed(1)+'G' : mb+'M';
-const sparkline = (arr,n)=> arr.slice(-n).map(v=> SPARK[Math.min(7, Math.floor(v*8))]).join('');
 const shareCpu = (procs, load)=>{
   const w = procs.map(p=> Math.max(0.05, p.base*(0.6+Math.random()*0.8)));
   const sum = w.reduce((a,b)=>a+b,0);
   return procs.map((p,i)=> ({...p, cpu:(w[i]/sum)*load*100}));
 };
+
+// --- exact htop-style smooth sparkline (canvas, 60fps, lerp) ---
+function SmoothSparkline({ data, color, bg, surf, height=28 }){
+  const ref = useRef(null);
+  const anim = useRef(null);
+  const displayRef = useRef([...data]);
+  useEffect(()=>{ displayRef.current = [...data]; },[data]);
+  useEffect(()=>{
+    const canvas = ref.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf;
+    let t0 = performance.now();
+    // lerp displayed values toward target at 60fps
+    const loop = (now)=>{
+      const dt = Math.min(32, now - t0); t0 = now;
+      // smooth lerp 0.12 per frame ~ 150ms settle
+      const target = displayRef.current;
+      // we keep an internal rendered array that chases target
+      if(!canvas._rendered) canvas._rendered = [...target];
+      const rendered = canvas._rendered;
+      // if lengths differ, reset
+      if(rendered.length !== target.length) canvas._rendered = [...target];
+      else {
+        for(let i=0;i<rendered.length;i++){
+          rendered[i] += (target[i] - rendered[i]) * 0.18;
+        }
+      }
+      drawSpark(ctx, canvas, rendered, color, bg, surf, height);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return ()=> cancelAnimationFrame(raf);
+  },[color, bg, surf, height]);
+
+  // initial draw + resize
+  useEffect(()=>{
+    const canvas = ref.current;
+    if(!canvas) return;
+    const ro = new ResizeObserver(()=>{
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio||1);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+    });
+    ro.observe(canvas);
+    return ()=> ro.disconnect();
+  },[]);
+
+  return <canvas ref={ref} style={{width:'100%', height, display:'block'}} />;
+}
+
+function drawSpark(ctx, canvas, arr, color, bg, surf, h){
+  const W = canvas.width, H = canvas.height;
+  const dpr = window.devicePixelRatio||1;
+  // clear
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle = surf + '33';
+  ctx.lineWidth = 1 * dpr;
+  ctx.beginPath();
+  for(let i=1;i<3;i++){
+    const y = H * i/3;
+    ctx.moveTo(0,y); ctx.lineTo(W,y);
+  }
+  ctx.stroke();
+  if(arr.length < 2) return;
+  const n = arr.length;
+  const step = W / (n-1);
+  // gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, color + '3A');
+  grad.addColorStop(1, color + '00');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0,H);
+  arr.forEach((v,i)=>{
+    const x = i*step;
+    const y = H - Math.max(0, Math.min(1, v)) * (H*0.82) - H*0.09;
+    if(i===0) ctx.lineTo(x,y); else {
+      // smooth cubic via mid
+      const prevX = (i-1)*step, prevY = H - Math.max(0,Math.min(1, arr[i-1]))*(H*0.82)-H*0.09;
+      const cx = (prevX + x)/2;
+      ctx.quadraticCurveTo(prevX, prevY, cx, (prevY+y)/2);
+      if(i===n-1) ctx.lineTo(x,y);
+    }
+  });
+  ctx.lineTo((n-1)*step, H);
+  ctx.closePath();
+  ctx.fill();
+  // line - exactly like htop green bar
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.6 * dpr;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  arr.forEach((v,i)=>{
+    const x = i*step;
+    const y = H - Math.max(0, Math.min(1, v)) * (H*0.82) - H*0.09;
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  // glow dot at head
+  const lastY = H - Math.max(0,Math.min(1, arr[n-1]))*(H*0.82)-H*0.09;
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6 * dpr;
+  ctx.beginPath();
+  ctx.arc((n-1)*step, lastY, 2.2*dpr, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
 
 function fmtDate(){
   return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -167,18 +278,37 @@ export default function CloneApp(){
 
   const cpuPct = Math.round((cpuHist[cpuHist.length-1]||0.5)*100);
   const memPct = Math.round((memHist[memHist.length-1]||0.6)*100);
-  const cpuSpark = sparkline(cpuHist, sparkN);
-  const memSpark = sparkline(memHist, sparkN);
+  // htop exact: keep full 80 history, canvas scales automatically — sparkN now only for fallback text width
+  const cpuSlice = useMemo(()=> cpuHist.slice(-Math.max(20,sparkN)), [cpuHist, sparkN]);
+  const memSlice = useMemo(()=> memHist.slice(-Math.max(20,sparkN)), [memHist, sparkN]);
 
+  // htop exact: smooth cpu% lerp at 60fps — prevents 1s jumps
+  const [displayProcs, setDisplayProcs] = useState(()=> procs);
+  useEffect(()=>{
+    let raf;
+    const lerp = ()=>{
+      setDisplayProcs(prev=>{
+        const next = prev.map(p=>{
+          const target = procs.find(x=> x.pid===p.pid);
+          if(!target) return p;
+          return {...p, cpu: p.cpu + (target.cpu - p.cpu)*0.22, memMB: p.memMB + (target.memMB - p.memMB)*0.22 };
+        });
+        return next;
+      });
+      raf = requestAnimationFrame(lerp);
+    };
+    raf = requestAnimationFrame(lerp);
+    return ()=> cancelAnimationFrame(raf);
+  },[procs]);
   const sortedProcs = useMemo(()=>{
-    const arr=[...procs];
+    const arr=[...displayProcs];
     if(sortKey==='cpu') arr.sort((a,b)=> b.cpu - a.cpu);
     else if(sortKey==='mem') arr.sort((a,b)=> b.memMB - a.memMB);
     else arr.sort((a,b)=> +a.pid - +b.pid);
     return arr;
-  },[procs, sortKey]);
+  },[displayProcs, sortKey]);
 
-  const selDetail = useMemo(()=> (procs.find(p=>p.pid===selPid)?.detail) || sortedProcs[0]?.detail || '', [procs, selPid, sortedProcs]);
+  const selDetail = useMemo(()=> (displayProcs.find(p=>p.pid===selPid)?.detail) || sortedProcs[0]?.detail || '', [displayProcs, selPid, sortedProcs]);
 
   const nfLinesTop = [
     {k:'OS:', v:'Vision · Graphics · ML', isText:true},
@@ -337,15 +467,15 @@ export default function CloneApp(){
                 <div style={{position:'absolute', top:-8, left:12, background: theme.bg, padding:'0 6px', fontSize:11, color: theme.muted, whiteSpace:'nowrap'}}>1: htop — now</div>
                 <div style={{display:'flex', flexDirection:'column', gap:8, padding:'14px 14px 10px', flex:1, minHeight:0}}>
                   <div style={{display:'grid', gridTemplateColumns:'minmax(0,1fr) minmax(0,1fr)', gap:10, flex:'none'}}>
-                    <div ref={meterRef} style={{border:`1px solid ${theme.surf}`, borderRadius:3, padding:'6px 8px', position:'relative', minWidth:0}}>
+                    <div ref={meterRef} style={{border:`1px solid ${theme.surf}`, borderRadius:3, padding:'6px 8px 4px', position:'relative', minWidth:0, overflow:'hidden'}}>
                       <div style={{position:'absolute', top:-7, left:8, background:theme.bg, padding:'0 4px', fontSize:10, color:theme.muted, whiteSpace:'nowrap'}}>cpu <span style={{color:theme.fg}}>focus</span></div>
-                      <div style={{color:theme.green, fontSize:13, letterSpacing:0, whiteSpace:'nowrap', overflow:'hidden'}}>{cpuSpark}</div>
-                      <div style={{display:'flex', justifyContent:'space-between', fontSize:11, color:theme.muted, marginTop:2}}><span>load</span><span style={{color:theme.fg}}>{cpuPct}%</span></div>
+                      <SmoothSparkline data={cpuSlice} color={theme.green} bg={theme.bg} surf={theme.surf} height={28} />
+                      <div style={{display:'flex', justifyContent:'space-between', fontSize:11, color:theme.muted, marginTop:4}}><span>load</span><span style={{color:theme.fg, fontVariantNumeric:'tabular-nums'}}>{cpuPct}%</span></div>
                     </div>
-                    <div style={{border:`1px solid ${theme.surf}`, borderRadius:3, padding:'6px 8px', position:'relative', minWidth:0}}>
+                    <div style={{border:`1px solid ${theme.surf}`, borderRadius:3, padding:'6px 8px 4px', position:'relative', minWidth:0, overflow:'hidden'}}>
                       <div style={{position:'absolute', top:-7, left:8, background:theme.bg, padding:'0 4px', fontSize:10, color:theme.muted, whiteSpace:'nowrap'}}>mem <span style={{color:theme.fg}}>context</span></div>
-                      <div style={{color:theme.magenta, fontSize:13, letterSpacing:0, whiteSpace:'nowrap', overflow:'hidden'}}>{memSpark}</div>
-                      <div style={{display:'flex', justifyContent:'space-between', fontSize:11, color:theme.muted, marginTop:2}}><span>used</span><span style={{color:theme.fg}}>{memPct}%</span></div>
+                      <SmoothSparkline data={memSlice} color={theme.magenta} bg={theme.bg} surf={theme.surf} height={28} />
+                      <div style={{display:'flex', justifyContent:'space-between', fontSize:11, color:theme.muted, marginTop:4}}><span>used</span><span style={{color:theme.fg, fontVariantNumeric:'tabular-nums'}}>{memPct}%</span></div>
                     </div>
                   </div>
                   <div style={{flex:1, minHeight:0, display:'flex', flexDirection:'column', border:`1px solid ${theme.surf}`, borderRadius:3, position:'relative'}}>
@@ -356,14 +486,21 @@ export default function CloneApp(){
                       </div>
                       {sortedProcs.map(p=>{
                         const isSel = p.pid===selPid;
+                        // htop exact: tiny per-proc cpu bar behind %
+                        const barW = Math.min(100, Math.max(4, (p.cpu/18)*100));
                         return (
                           <div key={p.pid} onClick={()=>setSelPid(p.pid)} style={{
-                            cursor:'pointer', display:'grid', gridTemplateColumns:'38px minmax(0,1fr) 42px 44px', gap:'0 8px', fontSize:12, padding:'4px 6px', margin:'0 -6px', borderBottom: `1px solid ${theme.bg2}`, alignItems:'baseline', background: isSel? theme.surf: 'transparent', borderRadius:2
+                            cursor:'pointer', display:'grid', gridTemplateColumns:'38px minmax(0,1fr) 42px 44px', gap:'0 8px', fontSize:12, padding:'4px 6px', margin:'0 -6px', borderBottom: `1px solid ${theme.bg2}`, alignItems:'center', background: isSel? theme.surf: 'transparent', borderRadius:2, transition:'background 120ms'
                           }}>
-                            <span style={{color: isSel? theme.yellow: theme.dim}}>{p.pid}</span>
+                            <span style={{color: isSel? theme.yellow: theme.dim, fontVariantNumeric:'tabular-nums'}}>{p.pid}</span>
                             <span style={{minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}><span style={{color:theme.fg, fontWeight:500}}>{p.name}</span><span style={{color:theme.muted}}> {p.desc}</span></span>
-                            <span style={{textAlign:'right', color:theme.muted}}>{fmtMem(p.memMB)}</span>
-                            <span style={{textAlign:'right', color: p.cpu>8? theme.green: theme.muted}}>{p.cpu.toFixed(1)}</span>
+                            <span style={{textAlign:'right', color:theme.muted, fontVariantNumeric:'tabular-nums'}}>{fmtMem(p.memMB)}</span>
+                            <span style={{display:'flex', alignItems:'center', justifyContent:'flex-end', gap:6}}>
+                              <span style={{flex:'none', width:28, height:4, borderRadius:2, background: theme.surf, overflow:'hidden', display:'block'}}>
+                                <span style={{display:'block', height:'100%', width: `${barW}%`, background: p.cpu>12? theme.green: p.cpu>6? theme.yellow: theme.muted, borderRadius:2, transition:'width 220ms linear'}} />
+                              </span>
+                              <span style={{textAlign:'right', color: p.cpu>8? theme.green: theme.muted, fontVariantNumeric:'tabular-nums', minWidth:32}}>{p.cpu.toFixed(1)}</span>
+                            </span>
                           </div>
                         );
                       })}
