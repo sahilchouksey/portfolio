@@ -178,10 +178,7 @@ export default function IframeExact(){
             s.redo.length=0;
           };
           // silent — user asked not to show trigger on filename/status anywhere
-          const flash = (msg, color='var(--yellow)')=>{
-            // intentionally no UI; keep vim silent. Uncomment to debug: console.debug('[vim]', msg);
-            try{ /* no status bar overwrite */ }catch{}
-          };
+          const flash = (msg, color='var(--yellow)')=>{ /* silent: user asked not to show trigger on filename/status anywhere */ };
           const doScroll = (dir, amount)=>{
             const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]') || doc.querySelector('div[style*="flex:1"][style*="overflow"]');
             if(buf) buf.scrollBy({ top: dir*amount, behavior:'smooth' });
@@ -228,14 +225,52 @@ export default function IframeExact(){
               return;
             }
             if(isVisual){
-              // visual mode full multi-key (reference: codemirror-vim visual: charwise/linewise/blockwise, operators y/d/c/>/</~)
-              // allow Ctrl/Super speed scroll even in visual
-              if(meta && (k==='d' || k==='u' || k==='f' || k==='b')){
-                e.preventDefault(); e.stopPropagation(); doScroll(k==='d'||k==='f'?1:-1, k==='f'||k==='b'?420:220); return;
+              // visual mode full multi-key (codemirror-vim: charwise/linewise/blockwise)
+              // Ctrl/Super+d/u = half-page extend selection (user: v -> select piece -> Super/Ctrl+d/u failed)
+              const visualHalf = (dir)=>{
+                e.preventDefault(); e.stopPropagation();
+                const compV = findComponent();
+                const ta = doc.querySelector('textarea');
+                if(compV && ta){
+                  const t=ta.value;
+                  const cur = compV.vHead;
+                  const curLine = t.slice(0,cur).split('\n').length -1;
+                  const targetLine = Math.max(0, Math.min(t.split('\n').length-1, curLine + dir*12));
+                  let pos=0; const lines=t.split('\n');
+                  for(let i=0;i<targetLine;i++) pos+=lines[i].length+1;
+                  // keep column
+                  const col = cur - (t.lastIndexOf('\n', cur-1)+1);
+                  const lineLen = lines[targetLine].length;
+                  pos = Math.min(pos+Math.min(col, lineLen), t.length);
+                  compV.vHead = pos;
+                  compV.applyVisual(ta);
+                  const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
+                  if(buf) buf.scrollBy({ top: dir*220, behavior:'smooth' });
+                } else {
+                  doScroll(dir, 220);
+                  const cnt=12; for(let i=0;i<cnt;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key: dir>0?'j':'k', bubbles:true}));
+                }
+              };
+              if(meta && k==='d'){ visualHalf(1); return; }
+              if(meta && k==='u'){ visualHalf(-1); return; }
+              if(meta && k==='f'){ e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){ const t=ta.value; compV.vHead = t.length; compV.applyVisual(ta); doScroll(1,420); } else doScroll(1,420);
+                return;
               }
-              if(meta && k.toLowerCase()==='j'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 90); // also extend selection 5 lines
-                for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); return; }
-              if(meta && k.toLowerCase()==='k'){ e.preventDefault(); e.stopPropagation(); doScroll(-1,90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); return; }
+              if(meta && k==='b'){ e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){ compV.vHead=0; compV.applyVisual(ta); doScroll(-1,420); } else doScroll(-1,420);
+                return;
+              }
+              if(meta && k.toLowerCase()==='j'){ e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'j', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(1, 90); } else { doScroll(1, 90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); }
+                return; }
+              if(meta && k.toLowerCase()==='k'){ e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'k', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(-1,90); } else { doScroll(-1,90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); }
+                return; }
               // count prefix in visual
               if(/^[1-9]$/.test(k) && !pendingOp){ pendingCount+=k; e.preventDefault(); e.stopPropagation(); return; }
               if(/^[0-9]$/.test(k) && pendingCount){ pendingCount+=k; e.preventDefault(); return; }
@@ -282,10 +317,10 @@ export default function IframeExact(){
             }
 
             // super/meta fast + undo/redo + half-page
-            if(meta && k==='d'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 220); flash('half page down (Ctrl-d) — '+ (pendingCount||1)+'×'); pendingCount=''; return; }
-            if(meta && k==='u'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 220); flash('half page up (Ctrl-u)'); pendingCount=''; return; }
-            if(meta && k==='f'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 420); flash('page down (Ctrl-f)'); return; }
-            if(meta && k==='b'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 420); flash('page up (Ctrl-b)'); return; }
+            if(meta && k==='d'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 220); pendingCount=''; return; }
+            if(meta && k==='u'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 220); pendingCount=''; return; }
+            if(meta && k==='f'){ e.preventDefault(); e.stopPropagation(); doScroll(1, 420); return; }
+            if(meta && k==='b'){ e.preventDefault(); e.stopPropagation(); doScroll(-1, 420); return; }
             if(meta && k.toLowerCase()==='r'){ // Ctrl-r redo
               e.preventDefault(); e.stopPropagation();
               const { path } = getBufInfo();
@@ -315,12 +350,12 @@ export default function IframeExact(){
             }
             // super+j/k fast 5× + top/bottom
             if(meta && k.toLowerCase()==='j'){
-              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'G',shiftKey:true,bubbles:true})); flash('G bottom (Super+J)'); }
+              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'G',shiftKey:true,bubbles:true})); }
               else { e.preventDefault(); e.stopPropagation(); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); doScroll(1, 120); }
               return;
             }
             if(meta && k.toLowerCase()==='k'){
-              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})); setTimeout(()=>doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})), 10); flash('gg top (Super+K)'); }
+              if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})); setTimeout(()=>doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})), 10); }
               else { e.preventDefault(); e.stopPropagation(); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); doScroll(-1, 120); }
               return;
             }
