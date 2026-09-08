@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import CloneApp from './clone/CloneApp.jsx';
+import IframeExact from './clone/IframeExact.jsx';
 const ResumeEditor = lazy(() => import('./resume-editor/ResumeEditor.jsx'));
 
 function App() {
@@ -25,6 +25,6 @@ function App() {
       </Suspense>
     );
   }
-  return <CloneApp />;
+  return <IframeExact />;
 }
 export default App;
