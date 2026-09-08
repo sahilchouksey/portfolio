@@ -5,7 +5,8 @@ export default function IframeExact(){
   const [siteHelp, setSiteHelp] = useState(false);
   const [siteCmd, setSiteCmd] = useState({ open:false, val:'' });
   const [tmuxPrefix, setTmuxPrefix] = useState(false);
-  // global site-level vim/tmux bindings (outer)
+  const tmuxPrefixRef = useRef(false);
+  // global site-level vim/tmux bindings (outer) — entire app keybinding-only, no mouse needed
   useEffect(()=>{
     const iframe = ref.current;
     const isTyping = (el)=> el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable);
@@ -44,9 +45,9 @@ export default function IframeExact(){
       const meta = e.metaKey || e.ctrlKey; // super = Cmd on Mac / Ctrl on Win
 
       // tmux prefix C-b — entire app navigated via keybinding only (no mouse needed)
-      if(e.ctrlKey && k==='b'){ e.preventDefault(); setTmuxPrefix(true); setTimeout(()=> setTmuxPrefix(false), 2500); return; }
-      if(tmuxPrefix){
-        e.preventDefault(); setTmuxPrefix(false);
+      if(e.ctrlKey && k==='b'){ e.preventDefault(); tmuxPrefixRef.current=true; setTmuxPrefix(true); setTimeout(()=>{ tmuxPrefixRef.current=false; setTmuxPrefix(false); }, 2500); return; }
+      if(tmuxPrefixRef.current){
+        e.preventDefault(); tmuxPrefixRef.current=false; setTmuxPrefix(false);
         const map = { '0':0,'1':1,'2':2,'o':'next','h':'left','j':'down','k':'up','l':'right','t':'theme','?':'help',' ':'next','n':'next','p':'prev',';':'last','z':'zoom','x':'kill','c':'new' };
         const act = map[k];
         if(act!==undefined){
@@ -54,7 +55,14 @@ export default function IframeExact(){
           else if(act==='next'){ try{ iframe?.contentWindow?.__exactPaneSwitch(1); }catch{ forwardToIframe('o',{ctrl:true}); } }
           else if(act==='theme'){ forwardToIframe('t',{}); }
           else if(act==='help'){ setSiteHelp(v=>!v); }
-          else if(['left','down','up','right'].includes(act)){ forwardToIframe(k,{ctrl:true}); try{ iframe?.contentWindow?.__exactPaneSwitch(act==='down'||act==='right'?1:-1);}catch{} }
+          else if(['left','down','up','right'].includes(act)){
+            forwardToIframe(k,{ctrl:true});
+            try{
+              const win2 = iframe?.contentWindow;
+              if(win2?.__exactMoveDir) win2.__exactMoveDir(act);
+              else win2?.__exactPaneSwitch(act==='down'||act==='right'?1:-1);
+            }catch{}
+          }
         }
         return;
       }
@@ -161,6 +169,20 @@ export default function IframeExact(){
               const active = spans.findIndex(s=> s.style.opacity==='1' || s.style.fontWeight==='700');
               const cur = active>=0? active : 0;
               const nxt = (cur + dir + order.length)%order.length;
+              win.__exactSetPane(nxt);
+            }catch{}
+          };
+          win.__exactMoveDir = (dir)=>{
+            // deterministic directional move in single-window 3-pane image layout:
+            // 0=top-left, 1=bottom-left, 2=right (full height) — C-b l = right, C-b h = left etc
+            try{
+              const comp = (()=>{ try{ const r=doc.getElementById('dc-root'); const k=Object.keys(r).find(x=>x.startsWith('__reactFiber')); let f=r[k]; const st=[f]; while(st.length){ const cur=st.pop(); if(cur && cur.stateNode && cur.stateNode.state && typeof cur.stateNode.state.pane==='number') return cur.stateNode; if(cur && cur.child) st.push(cur.child); if(cur && cur.sibling) st.push(cur.sibling); } }catch{} return null; })();
+              const cur = comp ? comp.state.pane : 0;
+              let nxt = cur;
+              if(dir==='left') nxt = cur===2 ? 0 : cur;
+              else if(dir==='right') nxt = (cur===0||cur===1) ? 2 : cur;
+              else if(dir==='down') nxt = cur===0 ? 1 : cur;
+              else if(dir==='up') nxt = cur===1 ? 0 : cur===2 ? 0 : cur;
               win.__exactSetPane(nxt);
             }catch{}
           };
