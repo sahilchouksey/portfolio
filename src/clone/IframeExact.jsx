@@ -234,17 +234,28 @@ export default function IframeExact(){
             try{
               const root = doc.getElementById('dc-root');
               if(!root) return null;
-              const k = Object.keys(root).find(x=> x.startsWith('__reactFiber') || x.startsWith('__reactInternalInstance'));
-              let fiber = root[k];
-              // traverse to find stateNode with open/buf
+              // try all react keys
+              let fiber=null;
+              for(const kk of Object.keys(root)){ if(kk.includes('react')){ fiber=root[kk]; break; } }
+              if(!fiber) return null;
+              const seen=new Set();
               const stack=[fiber];
               while(stack.length){
                 const f=stack.pop();
-                if(f && f.stateNode && f.stateNode.state && Array.isArray(f.stateNode.state.open)) return f.stateNode;
-                if(f && f.child) stack.push(f.child);
-                if(f && f.sibling) stack.push(f.sibling);
+                if(!f || seen.has(f)) continue; seen.add(f);
+                // look for vim state: vHead/vAnchor or open/buf
+                if(f.stateNode && f.stateNode.state && (Array.isArray(f.stateNode.state.open) || typeof f.stateNode.state.vHead==='number')) return f.stateNode;
+                if(f.stateNode && typeof f.stateNode.vHead==='number') return f.stateNode;
+                if(f.child) stack.push(f.child);
+                if(f.sibling) stack.push(f.sibling);
+                if(f.alternate) stack.push(f.alternate);
+                if(f.return) {} // ignore
               }
-            }catch{}
+              // fallback: search via window
+              if(win && win.__vimStacks) {
+                // try to find via __exactSetPane holder
+              }
+            }catch(e){ console.log('findComponent err', e); }
             return null;
           };
           const getBufInfo = ()=>{
@@ -312,7 +323,12 @@ export default function IframeExact(){
             const meta = e.metaKey || e.ctrlKey;
             const k = e.key;
             const comp = findComponent();
-            const mode = comp ? comp.state.mode : 'normal';
+            let mode = comp ? comp.state.mode : 'normal';
+            // fallback visual detection via textarea selection (findComponent may fail)
+            if((!comp || mode==='unknown') && doc.querySelector('textarea')){
+              const taTmp=doc.querySelector('textarea');
+              if(taTmp && taTmp.selectionEnd > taTmp.selectionStart) mode='visual';
+            }
             const isNormal = mode==='normal';
             const isVisual = mode==='visual';
             const isInsert = mode==='insert' || mode==='replace';
@@ -338,14 +354,13 @@ export default function IframeExact(){
                 e.preventDefault(); e.stopPropagation();
                 const compV = findComponent();
                 const ta = doc.querySelector('textarea');
-                if(compV && ta){
+                if(compV && ta && typeof compV.vHead==='number'){
                   const t=ta.value;
                   const cur = compV.vHead;
                   const curLine = t.slice(0,cur).split('\n').length -1;
                   const targetLine = Math.max(0, Math.min(t.split('\n').length-1, curLine + dir*12));
                   let pos=0; const lines=t.split('\n');
                   for(let i=0;i<targetLine;i++) pos+=lines[i].length+1;
-                  // keep column
                   const col = cur - (t.lastIndexOf('\n', cur-1)+1);
                   const lineLen = lines[targetLine].length;
                   pos = Math.min(pos+Math.min(col, lineLen), t.length);
@@ -353,9 +368,18 @@ export default function IframeExact(){
                   compV.applyVisual(ta);
                   const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
                   if(buf) buf.scrollBy({ top: dir*220, behavior:'smooth' });
+                } else if(ta){
+                  // fallback without compV — extend selection half page via ta
+                  const t=ta.value; let pos=ta.selectionEnd; let line=t.slice(0,pos).split('\n').length-1;
+                  const target=Math.max(0, Math.min(t.split('\n').length-1, line+dir*12));
+                  let newPos=0; const lines=t.split('\n'); for(let i=0;i<target;i++) newPos+=lines[i].length+1;
+                  const col=pos - (t.lastIndexOf('\n', pos-1)+1);
+                  newPos=Math.min(t.length, newPos+Math.min(col, lines[target]?.length||0));
+                  ta.setSelectionRange(ta.selectionStart, newPos);
+                  const buf = doc.querySelectorAll('div[style*="overflow-y:auto"]')[1] || doc.querySelector('div[style*="overflow-y:auto"]');
+                  if(buf) buf.scrollBy({ top: dir*220, behavior:'smooth' });
                 } else {
                   doScroll(dir, 220);
-                  const cnt=12; for(let i=0;i<cnt;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key: dir>0?'j':'k', bubbles:true}));
                 }
               };
               if(meta && k==='d'){ visualHalf(1); return; }
@@ -372,39 +396,116 @@ export default function IframeExact(){
               }
               if(meta && k.toLowerCase()==='j'){ e.preventDefault(); e.stopPropagation();
                 const compV=findComponent(); const ta=doc.querySelector('textarea');
-                if(compV && ta){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'j', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(1, 90); } else { doScroll(1, 90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'j',bubbles:true})); }
+                if(compV && ta && typeof compV.vHead==='number'){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'j', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(1, 90); }
+                else if(ta){ // fallback without compV — extend selection 5 lines via ta
+                  const t=ta.value; let pos=ta.selectionEnd; let line=t.slice(0,pos).split('\n').length-1;
+                  const lines=t.split('\n'); const target=Math.min(lines.length-1, line+5);
+                  let newPos=0; for(let i=0;i<target;i++) newPos+=lines[i].length+1;
+                  newPos=Math.min(t.length, newPos+ (ta.selectionStart - (t.lastIndexOf('\n', ta.selectionStart-1)+1)) );
+                  ta.setSelectionRange(ta.selectionStart, newPos); doScroll(1,90);
+                } else { doScroll(1, 90); }
                 return; }
               if(meta && k.toLowerCase()==='k'){ e.preventDefault(); e.stopPropagation();
                 const compV=findComponent(); const ta=doc.querySelector('textarea');
-                if(compV && ta){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'k', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(-1,90); } else { doScroll(-1,90); for(let i=0;i<5;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:'k',bubbles:true})); }
+                if(compV && ta && typeof compV.vHead==='number'){ for(let i=0;i<5;i++){ const cur=compV.vHead; const nxt=compV.motion(ta.value, cur, 'k', {}); if(nxt!==null) compV.vHead=nxt; } compV.applyVisual(ta); doScroll(-1,90); }
+                else if(ta){
+                  const t=ta.value; let pos=ta.selectionEnd; let line=t.slice(0,pos).split('\n').length-1;
+                  const target=Math.max(0, line-5);
+                  let newPos=0; const lines=t.split('\n'); for(let i=0;i<target;i++) newPos+=lines[i].length+1;
+                  const col=pos - (t.lastIndexOf('\n', pos-1)+1);
+                  newPos=Math.min(t.length, newPos+Math.min(col, lines[target]?.length||0));
+                  ta.setSelectionRange(ta.selectionStart, newPos); doScroll(-1,90);
+                } else { doScroll(-1,90); }
                 return; }
               // count prefix in visual
               if(/^[1-9]$/.test(k) && !pendingOp){ pendingCount+=k; e.preventDefault(); e.stopPropagation(); return; }
               if(/^[0-9]$/.test(k) && pendingCount){ pendingCount+=k; e.preventDefault(); return; }
-              // visual operators multi-key: y/d/c/x, >/<, ~, u/U, o, v/V, Esc
-              if(k==='o'){ e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:'o',bubbles:true})); pendingCount=''; return; }
-              if(k==='u'){ e.preventDefault(); e.stopPropagation(); // visual lower
-                const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); ta.value=t.slice(0,s)+sel.toLowerCase()+t.slice(eb); ta.setSelectionRange(s, eb); ta.dispatchEvent(new Event('change',{bubbles:true})); } return; }
-              if(k==='U'){ e.preventDefault(); e.stopPropagation(); const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); ta.value=t.slice(0,s)+sel.toUpperCase()+t.slice(eb); ta.setSelectionRange(s, eb);} return; }
-              if(k==='>'||k==='<'||k==='~'){ e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true})); return; }
+              // visual operators multi-key: y/d/c/x, >/<, ~, u/U, o, v/V, Esc — direct to avoid dispatch recursion
+              if(k==='o'){ e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){ const tmp=compV.vAnchor; compV.vAnchor=compV.vHead; compV.vHead=tmp; compV.applyVisual(ta); }
+                pendingCount=''; return;
+              }
+              if(k==='u'){ e.preventDefault(); e.stopPropagation();
+                const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); const nv=t.slice(0,s)+sel.toLowerCase()+t.slice(eb); ta.value=nv; ta.setSelectionRange(s, eb); const compV=findComponent(); if(compV){ compV.writeBuffer(nv); } }
+                return;
+              }
+              if(k==='U'){ e.preventDefault(); e.stopPropagation();
+                const ta=doc.querySelector('textarea'); if(ta){ const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value; const sel=t.slice(s,eb); const nv=t.slice(0,s)+sel.toUpperCase()+t.slice(eb); ta.value=nv; ta.setSelectionRange(s, eb); const compV=findComponent(); if(compV) compV.writeBuffer(nv); }
+                return;
+              }
+              if(k==='>'||k==='<'||k==='~'){
+                e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){
+                  const s=ta.selectionStart, eb=ta.selectionEnd;
+                  const t=ta.value;
+                  if(k==='>'){ const nv=t.slice(0,s)+'  '+t.slice(s,eb)+'  '+t.slice(eb); ta.value=nv; compV.writeBuffer(nv); }
+                  else if(k==='<'){ const nv=t.slice(0,s)+t.slice(s,eb).replace(/^  /gm,'')+t.slice(eb); ta.value=nv; compV.writeBuffer(nv); }
+                  else if(k==='~'){ const sel=t.slice(s,eb); const swapped=sel.split('').map(c=> c===c.toLowerCase()?c.toUpperCase():c.toLowerCase()).join(''); const nv=t.slice(0,s)+swapped+t.slice(eb); ta.value=nv; compV.writeBuffer(nv); }
+                }
+                return;
+              }
               if(k==='y' || k==='d' || k==='c' || k==='x'){
                 e.preventDefault(); e.stopPropagation();
-                // leverage DC runtime's visual y/d/c by forwarding single key
-                doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){
+                  const s=ta.selectionStart, eb=ta.selectionEnd; const t=ta.value;
+                  const sel=t.slice(s,eb);
+                  if(k==='y'){ win.__vimReg['"']=sel; navigator.clipboard?.writeText(sel).catch(()=>{}); compV.vHead=s; compV.leaveMode(); }
+                  else if(k==='d' || k==='x'){ const nv=t.slice(0,s)+t.slice(eb); ta.value=nv; ta.setSelectionRange(s,s); compV.writeBuffer(nv); compV.vHead=s; compV.leaveMode(); }
+                  else if(k==='c'){ const nv=t.slice(0,s)+t.slice(eb); ta.value=nv; ta.setSelectionRange(s,s); compV.writeBuffer(nv); compV.vHead=s; compV.enterMode('insert', s); }
+                }
                 pendingCount=''; pendingOp='';
                 return;
               }
-              // visual motions with count
+              // visual motions with count — direct vHead move to avoid dispatch recursion (was dispatching k)
               if(/^[hjklwbe$0]$/.test(k)){
                 const cnt = parseInt(pendingCount||'1',10);
                 e.preventDefault(); e.stopPropagation();
-                for(let i=0;i<cnt;i++) doc.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV && ta){
+                  for(let i=0;i<cnt;i++){
+                    const nxt=compV.motion(ta.value, compV.vHead, k, {});
+                    if(nxt!==null) compV.vHead=nxt;
+                  }
+                  compV.applyVisual(ta);
+                }
                 pendingCount='';
                 return;
               }
               if(k==='G' || k==='g'){
-                e.preventDefault(); e.stopPropagation(); doc.dispatchEvent(new KeyboardEvent('keydown',{key:k, shiftKey: k==='G', bubbles:true}));
-                if(k==='g'){ setTimeout(()=> doc.dispatchEvent(new KeyboardEvent('keydown',{key:'g',bubbles:true})), 10); }
+                e.preventDefault(); e.stopPropagation();
+                const compV=findComponent(); const ta=doc.querySelector('textarea');
+                if(compV){
+                  if(k==='G'){
+                    const cnt = pendingCount ? parseInt(pendingCount,10) : null;
+                    if(cnt){
+                      const lines=ta ? ta.value.split('\n').length : 34;
+                      const target=Math.min(lines, cnt);
+                      let pos=0; const ls=ta.value.split('\n');
+                      for(let i=0;i<target-1;i++) pos+=ls[i].length+1;
+                      compV.vHead=pos; compV.applyVisual(ta);
+                    } else {
+                      compV.vHead = ta ? ta.value.length : 0; compV.applyVisual(ta);
+                    }
+                  } else {
+                    // g -> wait for second g (gg) handled separately; single g does nothing
+                    if(pendingG){
+                      compV.vHead=0; compV.applyVisual(ta);
+                    }
+                  }
+                }
+                if(k==='g'){
+                  if(pendingG){
+                    // gg already handled above as visual gg top
+                    pendingG=false; pendingCount='';
+                    return;
+                  }
+                  pendingG=true; clearTimeout(gTimer); gTimer=setTimeout(()=>{ pendingG=false; },800);
+                  return;
+                }
+                pendingCount=''; pendingG=false;
                 return;
               }
               return;
