@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { seed as fsSeed, VFS as SeedVFS } from './fs-seed.js';
 
 export default function IframeExact(){
   const ref = useRef(null);
@@ -100,58 +101,39 @@ export default function IframeExact(){
       }
       if(k==='Escape' && siteHelp){ e.preventDefault(); setSiteHelp(false); return; }
 
-      // super + j/k fast scroll in nvim OR pane switch in tmux single-window panel
+      // outer fires only when focus is OUTSIDE the iframe: direct calls only (no event
+      // forwarding — inner capture owns real keypresses; forwarding caused double handling).
+      const W = ()=> iframe?.contentWindow;
       if(meta && (k==='j' || k==='J' || k==='k' || k==='K')){
         e.preventDefault();
-        // if nvim pane is active, treat as super+j/k = 5x scroll (fast file navigation)
-        // else treat as tmux pane switch j/k = next/prev pane inside single window
-        forwardToIframe(k.toLowerCase(), { meta: true, ctrl: meta });
-        // also directly switch pane when at site level (tmux single panel image model)
-        const dir = k.toLowerCase()==='j' ? 1 : -1;
-        try{
-          const doc = iframe?.contentDocument;
-          if(doc){
-            // try to use exposed setter else simulate C-b + o / h/j/k/l
-            if(doc.defaultView?.__exactPaneSwitch) doc.defaultView.__exactPaneSwitch(dir);
-            else {
-              // fallback: cycle pane via outer state forwarded as 0/1/2 clicks
-              const w = iframe.contentWindow;
-              w?.dispatchEvent(new KeyboardEvent('keydown', { key: dir>0?'j':'k', ctrlKey:true, bubbles:true }));
-            }
-          }
-        }catch{}
+        try{ W()?.__exactPaneSwitch(k.toLowerCase()==='j'?1:-1); W()?.__paintPanes&&W().__paintPanes(); }catch{}
         return;
       }
       if(meta && (k==='h' || k==='H' || k==='l' || k==='L')){
         e.preventDefault();
-        forwardToIframe(k.toLowerCase(), { meta:true });
+        try{ const d=k.toLowerCase()==='l'?'right':'left'; if(W()?.__exactMoveDir) W().__exactMoveDir(d); }catch{}
         return;
       }
       if(meta && /^[0-2]$/.test(k)){
         e.preventDefault();
-        forwardToIframe(k, { meta:true });
-        try{
-          const n = parseInt(k,10);
-          const doc = iframe?.contentDocument;
-          if(doc?.defaultView?.__exactSetPane) doc.defaultView.__exactSetPane(n);
-          else {
-            // click tmux status bar window
-            const spans = doc?.querySelectorAll('span');
-            spans?.forEach(s=>{ if(s.textContent?.trim().startsWith(`${n}:`)) s.click(); });
-          }
-        }catch{}
+        try{ W()?.__exactSetPane(parseInt(k,10)); }catch{}
         return;
       }
-      // vim full: J/K half-page, Ctrl-d/Ctrl-u, gg/G shortcuts when meta held
+      // scroll nvim buffer directly via DOM (no forwarding, no recursion)
       if(meta && (k==='d' || k==='u' || k==='f' || k==='b')){
         e.preventDefault();
-        forwardToIframe(k, { ctrl:true, meta:true });
+        try{
+          const cdoc=iframe?.contentDocument;
+          const all=Array.from(cdoc.querySelectorAll('div[style*="overflow-y:auto"]'));
+          const buf=all.find(x=>x.querySelector('[data-cur]'))||all[1]||all[0];
+          if(buf) buf.scrollBy({top:(k==='d'||k==='f'?1:-1)*(k==='f'||k==='b'?420:220),behavior:'smooth'});
+        }catch{}
         return;
       }
     };
     window.addEventListener('keydown', onOuterKey);
     return ()=> window.removeEventListener('keydown', onOuterKey);
-  },[siteHelp]);
+  },[siteHelp, siteCmd]);
 
   useEffect(()=>{
     const iframe = ref.current;
@@ -161,70 +143,159 @@ export default function IframeExact(){
         const doc = iframe.contentDocument;
         const win = iframe.contentWindow;
         if(!doc || !win) return;
-        // expose pane helpers for outer super+ bindings (tmux single window: each window is pane image)
+        // ---- tmux single window: 3 pane-images. Fiber-free: tmux status bar DOM is source of truth.
+        // Layout: 0=top-left(zsh), 1=bottom-left(htop), 2=right(nvim full height).
+        const statusBar=()=>{ try{ const m=Array.from(doc.querySelectorAll('span')).find(s=>((s.textContent||'').trim()==='[sameh]')); return m?m.parentElement:null; }catch{ return null; } };
+        const statusTabs=()=>{ const bar=statusBar(); if(!bar) return []; return Array.from(bar.querySelectorAll('span')).filter(s=>/^\d:/.test(((s.textContent||'').trim()))); };
+        const activeIdx=()=>{ const ss=statusTabs(); if(!ss.length) return 0; const el=ss.find(s=>((s.textContent||'').includes('*')))||ss.find(s=>s.style.opacity==='1')||ss[0]; const m=/^(\d):/.exec((el.textContent||'').trim()); return m?parseInt(m[1],10):0; };
+        // highlight ring follows focus (explicit ask): outline is additive, React doesn't manage it.
+        const paintPanes=()=>{
+          try{
+            const bar=statusBar(); if(!bar) return;
+            const green=getComputedStyle(bar).backgroundColor||'#a6e3a1';
+            const idx=activeIdx();
+            ['0: zsh','1: htop — now','2: nvim'].forEach((txt,i)=>{
+              const lab=Array.from(doc.querySelectorAll('div')).find(d=>(d.textContent||'').trim()===txt);
+              const frame=lab?lab.parentElement:null;
+              if(!frame) return;
+              if(i===idx){ frame.style.outline=`2px solid ${green}`; frame.style.outlineOffset='2px'; }
+              else { frame.style.outline='none'; }
+            });
+          }catch{}
+        };
+        win.__paintPanes=paintPanes;
+        const setPaneNum=(n)=>{
+          try{ win.__exactSetPane(n); }catch{}
+          if(n===2){ setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },80); }
+          setTimeout(paintPanes,60);
+        };
         if(!win.__exactSetPane){
           win.__exactSetPane = (n)=>{
             try{
-              // find tmux status bar spans 0: 1: 2: and click
-              const spans = Array.from(doc.querySelectorAll('span'));
-              const target = spans.find(s=> s.textContent.trim().startsWith(`${n}:`));
+              // scoped to status bar (avoids duplicate-label decoys elsewhere in DOM)
+              const bar=statusBar();
+              const spans=Array.from((bar||doc).querySelectorAll('span'));
+              const target = spans.find(s=> (s.textContent||'').trim().startsWith(`${n}:`));
               if(target) target.click();
-              // also try to set via React internal if available
-              const dcHost = doc.querySelector('#dc-root');
-              if(dcHost) dcHost.dispatchEvent(new CustomEvent('exact-pane', { detail:n }));
             }catch{}
+            setTimeout(paintPanes,60);
+            if(n===2){ setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },80); }
           };
           win.__exactPaneSwitch = (dir)=>{
-            // cycle 0->1->2 inside single tmux window (each window treated as image pane)
-            try{
-              const order = [0,1,2];
-              const spans = Array.from(doc.querySelectorAll('span')).filter(s=> /^\d:/.test(s.textContent.trim()));
-              const active = spans.findIndex(s=> s.style.opacity==='1' || s.style.fontWeight==='700');
-              const cur = active>=0? active : 0;
-              const nxt = (cur + dir + order.length)%order.length;
-              win.__exactSetPane(nxt);
-            }catch{}
+            try{ setPaneNum((activeIdx()+dir+3)%3); }catch{}
           };
           win.__exactMoveDir = (dir)=>{
-            // deterministic directional move in single-window 3-pane image layout:
-            // 0=top-left, 1=bottom-left, 2=right (full height) — C-b l = right, C-b h = left etc
             try{
-              const comp = (()=>{ try{ const r=doc.getElementById('dc-root'); const k=Object.keys(r).find(x=>x.startsWith('__reactFiber')); let f=r[k]; const st=[f]; while(st.length){ const cur=st.pop(); if(cur && cur.stateNode && cur.stateNode.state && typeof cur.stateNode.state.pane==='number') return cur.stateNode; if(cur && cur.child) st.push(cur.child); if(cur && cur.sibling) st.push(cur.sibling); } }catch{} return null; })();
-              const cur = comp ? comp.state.pane : 0;
-              let nxt = cur;
+              const cur=activeIdx(); let nxt=cur;
               if(dir==='left') nxt = cur===2 ? 0 : cur;
               else if(dir==='right') nxt = (cur===0||cur===1) ? 2 : cur;
               else if(dir==='down') nxt = cur===0 ? 1 : cur;
-              else if(dir==='up') nxt = cur===1 ? 0 : cur===2 ? 0 : cur;
-              win.__exactSetPane(nxt);
+              else if(dir==='up') nxt = cur===1 ? 0 : cur;
+              setPaneNum(nxt);
             }catch{}
           };
         }
-        // patch inner tmux prefix directional l/h to use image logic (was pane+1 cycle) — fix C-b l not moving right when focus inside iframe
-        const patchTmuxDir = ()=>{
-          try{
-            const compPatch = (()=>{ try{ const r=doc.getElementById('dc-root'); const k=Object.keys(r).find(x=>x.startsWith('__reactFiber')||x.startsWith('__reactContainer')); let f=r[k]; if(!f) return null; const seen=new Set(); const st=[f]; while(st.length){ const cur=st.pop(); if(!cur || seen.has(cur)) continue; seen.add(cur); if(cur.stateNode && cur.stateNode.handleKey) return cur.stateNode; if(cur.child) st.push(cur.child); if(cur.sibling) st.push(cur.sibling); } }catch{} return null; })();
-            if(compPatch && !compPatch.__patchedDir){
-              const origHK = compPatch.handleKey.bind(compPatch);
-              compPatch.handleKey = function(e){
-                const k=e.key;
-                if(this.state.prefix==='C-b'){
-                  if(k==='l'){ e.preventDefault(); this.setState({pane: this.state.pane===0||this.state.pane===1 ? 2 : 2}); this.setPrefix(null); return; }
-                  if(k==='h'){ e.preventDefault(); this.setState({pane: this.state.pane===2 ? 0 : 0}); this.setPrefix(null); return; }
-                  if(k==='j'){ e.preventDefault(); this.setState({pane: this.state.pane===0 ? 1 : this.state.pane===2 ? 1 : this.state.pane}); this.setPrefix(null); return; }
-                  if(k==='k'){ e.preventDefault(); this.setState({pane: this.state.pane===1 ? 0 : this.state.pane===2 ? 0 : this.state.pane}); this.setPrefix(null); return; }
-                }
-                return origHK(e);
-              };
-              compPatch.__patchedDir=true;
-              console.log('[inner] tmux directional patched');
-              return true;
-            }
-          }catch{}
-          return false;
+        const tmuxKey=(k)=>{
+          if(k==='0'||k==='1'||k==='2'){ setPaneNum(parseInt(k,10)); return; }
+          if(k==='o'||k===' '||k==='n'){ try{win.__exactPaneSwitch(1);}catch{} setTimeout(paintPanes,60); return; }
+          if(k==='p'){ try{win.__exactPaneSwitch(-1);}catch{} setTimeout(paintPanes,60); return; }
+          if(k==='h'){ try{win.__exactMoveDir('left');}catch{} return; }
+          if(k==='j'){ try{win.__exactMoveDir('down');}catch{} return; }
+          if(k==='k'){ try{win.__exactMoveDir('up');}catch{} return; }
+          if(k==='l'){ try{win.__exactMoveDir('right');}catch{} return; }
+          // non-trusted synth: our capture ignores it, DC bubble handles theme natively
+          if(k==='t'){ try{ doc.dispatchEvent(new KeyboardEvent('keydown',{key:'t',bubbles:true})); }catch{} return; }
+          if(k==='?'){ try{ setSiteHelp(v=>!v); }catch{} return; }
         };
-        patchTmuxDir();
-        if(!win.__tmuxPatchInterval) win.__tmuxPatchInterval = setInterval(()=>{ if(patchTmuxDir()){ clearInterval(win.__tmuxPatchInterval); win.__tmuxPatchInterval=null; } }, 800);
+        // repo-vim primitives (no synthetic key dispatch — that caused handler recursion)
+        const isCmFocused=(cv)=>{ try{ if(!cv) return false; const h=cv.hasFocus; return typeof h==='function'?!!h.call(cv):!!h; }catch{ return false; } };
+        const cmMove=(cv,dl)=>{
+          try{
+            const st=cv.state, sel=st.selection.main;
+            const vs=cv.cm&&cv.cm.state&&cv.cm.state.vim;
+            const isV=!!(vs&&(vs.visualMode||vs.mode==='visual'))||sel.anchor!==sel.head;
+            const curLine=st.doc.lineAt(sel.head);
+            const target=Math.max(1,Math.min(st.doc.lines,curLine.number+dl));
+            const line=st.doc.line(target);
+            const col=Math.min(sel.head-curLine.from,line.length);
+            const pos=line.from+col;
+            cv.dispatch({selection:isV?{anchor:sel.anchor,head:pos}:{anchor:pos},scrollIntoView:true});
+          }catch{}
+        };
+        const cmHalfScroll=(cv,dir,pages)=>{
+          try{ const el=cv.scrollDOM; if(el) el.scrollBy({top:dir*el.clientHeight*0.5*(pages||1),behavior:'smooth'}); }catch{}
+        };
+        win.__cmMove=cmMove;
+        // localStorage VFS (same JSON shape as clone-assets/fs.js) — buffer sync without fiber
+        const lsGet=(k,d)=>{ try{ const v=win.localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch{ return d; } };
+        const lsSet=(k,v)=>{ try{ win.localStorage.setItem(k,JSON.stringify(v)); }catch{} };
+        const fsNode=(root,abs)=>{ let n=root; for(const part of abs.split('/').filter(Boolean)){ if(!n||n.t!=='d'||!n.c||!n.c[part]) return null; n=n.c[part]; } return n; };
+        const readLSFile=(p)=>{ const s=lsGet('sk-fs-v25',null); if(!s||!s.root) return null; const n=fsNode(s.root,p); return n&&n.t==='f'?n.s:null; };
+        const writeLSFile=(p,text)=>{ const s=lsGet('sk-fs-v25',null); if(!s||!s.root) return false; const n=fsNode(s.root,p); if(!n||n.t!=='f') return false; n.s=text; lsSet('sk-fs-v25',s); return true; };
+        const seedLS=async ()=>{ if(lsGet('sk-fs-v25',null)) return true; try{ const vfs=new SeedVFS(fsSeed()); lsSet('sk-fs-v25',{root:vfs.toJSON(),cwd:vfs.cwd}); return true; }catch(e){ console.log('seedLS err',e); return false; } };
+        const domLines=()=>{ const rows=Array.from(doc.querySelectorAll('[data-cur]')); if(!rows.length) return ''; return rows.map(d=>{ const t=d.textContent||''; const m=t.match(/^\s*\d+\s*/); return m?t.slice(m[0].length):t; }).join('\n'); };
+        const nvimTabs=()=>Array.from(doc.querySelectorAll('button[title]')).filter(b=>/resume\/|\/home\//.test(b.title||'')).map(b=>({path:b.title,active:getComputedStyle(b).fontWeight==='700'}));
+        const ensureCmCss=()=>{ if(doc.getElementById('__cmvim_css')) return; try{ const st=doc.createElement('style'); st.id='__cmvim_css'; st.textContent='#__dc_buf{display:none!important;}#__cmvim_host{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;min-width:0;}'; doc.head.appendChild(st); }catch{} };
+        // inner tmux prefix owns C-b end-to-end (capture beats DC bubble listener; replaces fiber patching)
+        if(!win.__tmuxCap){
+          win.__tmuxCap=true;
+          const tmuxCapture=(e)=>{
+            try{
+              if(!e.isTrusted) return;
+              const k=e.key, t=e.target;
+              const inShellInput=t&&t.tagName==='INPUT';
+              if(e.ctrlKey&&k==='b'&&!inShellInput){
+                e.preventDefault(); e.stopPropagation();
+                win.__tmuxPrefix=true; try{setTmuxPrefix(true);}catch{}
+                clearTimeout(win.__tmuxTimer);
+                win.__tmuxTimer=setTimeout(()=>{ win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{} },2500);
+                return;
+              }
+              if(win.__tmuxPrefix){
+                if(e.repeat) return;
+                e.preventDefault(); e.stopPropagation();
+                win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{}
+                tmuxKey(k);
+                return;
+              }
+              const meta=e.metaKey||e.ctrlKey;
+              if(meta&&!inShellInput){
+                const cv=win.__cmView;
+                if(cv&&isCmFocused(cv)){
+                  const lk=(k||'').toLowerCase();
+                  if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); cmMove(cv,lk==='j'?5:-5); return; }
+                  if(k==='d'||k==='u'){ e.preventDefault(); e.stopPropagation(); const d=k==='d'?1:-1; cmMove(cv,d*12); cmHalfScroll(cv,d,1); return; }
+                  if(k==='f'||k==='b'){ e.preventDefault(); e.stopPropagation(); const d=k==='f'?1:-1; cmMove(cv,d*24); cmHalfScroll(cv,d,2); return; }
+                  if(k==='0'||k==='1'||k==='2'){ e.preventDefault(); e.stopPropagation(); setPaneNum(parseInt(k,10)); return; }
+                }
+              }
+            }catch{}
+          };
+          win.addEventListener('keydown',tmuxCapture,true);
+          // guard: CM consumed the key at target; keep DC from double-handling (t/?/space/i/x...).
+          // Tab passes (DC buffer switch; CM reloads via heal poll).
+          const dcGuard=(e)=>{
+            try{
+              if(!e.isTrusted) return;
+              const cv=win.__cmView;
+              if(!(cv&&isCmFocused(cv))) return;
+              if(e.key==='Tab') return;
+              e.stopPropagation();
+            }catch{}
+          };
+          doc.addEventListener('keydown',dcGuard);
+          // tab click => focus editor so typing stays in repo vim
+          doc.addEventListener('click',(e)=>{
+            try{
+              const el=e.target&&e.target.closest?e.target.closest('button[title],span'):null;
+              if(!el) return;
+              const txt=(el.title||el.textContent||'').trim();
+              if(/resume\/|\/home\//.test(el.title||'')||/^2:/.test(txt)){
+                setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },120);
+              }
+            }catch{}
+          },true);
+        }
         // mount entire vim like codemirror-vim repo (deterministic vim) — replaces custom vimHandler for nvim pane
         // NOTE: runs directly in outer closure with explicit doc/win (iframe document) — NOT stringified,
         // so closure vars stay valid. Previously injected a stringified fn into the wrong document.
@@ -241,40 +312,21 @@ export default function IframeExact(){
               const { defaultKeymap, history, historyKeymap } = await import('https://esm.sh/@codemirror/commands@6.8.1');
               const vim = mod.vim || mod.default?.vim;
               if(!vim) { console.log('vim not found', mod); return; }
-              // find nvim lines container inside IFRAME doc — use data-cur closest overflow
-              let bufContainer = doc.querySelector('[data-cur]')?.closest('div[style*="overflow"]');
-              if(!bufContainer){
-                const candidates = Array.from(doc.querySelectorAll('div[style*="overflow-y:auto"]'));
-                for(const c of candidates){ if(c.querySelector('[data-cur]')){ bufContainer=c; break; } }
-              }
-              if(!bufContainer) { console.log('bufContainer not found try', win.__cmTries); setTimeout(()=>win.__mountCM(), 700); return; }
-              const originalLines = bufContainer.innerHTML;
-              const cmHost = doc.createElement('div');
-              cmHost.id='__cmvim_host';
-              cmHost.style.cssText='flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; border-top:1px solid var(--surf);';
-              const origWrap = doc.createElement('div');
-              origWrap.style.display='none';
-              origWrap.innerHTML=originalLines;
-              bufContainer.innerHTML='';
-              bufContainer.style.display='flex';
-              bufContainer.style.flexDirection='column';
-              bufContainer.appendChild(cmHost);
-              bufContainer.appendChild(origWrap);
-              const getComp = ()=>{
-                try{
-                  const r=doc.getElementById('dc-root');
-                  const k=Object.keys(r).find(x=> x.includes('react'));
-                  let f=r[k]; const seen=new Set(); const st=[f];
-                  while(st.length){ const cur=st.pop(); if(!cur||seen.has(cur)) continue; seen.add(cur); if(cur.stateNode && cur.stateNode.state && Array.isArray(cur.stateNode.state.open)) return cur.stateNode; if(cur.child) st.push(cur.child); if(cur.sibling) st.push(cur.sibling); if(cur.alternate) st.push(cur.alternate); }
-                }catch{}
-                return null;
-              };
-              const comp=getComp();
-              let initialDoc='';
-              if(comp){ try{ const p=comp.state.open[comp.state.buf]; initialDoc=comp.readBuf(p); }catch{} }
-              if(!initialDoc) {
-                initialDoc = Array.from(origWrap.querySelectorAll('[data-cur]')).map(d=> d.textContent.replace(/^\s*\d+\s*/, '')).join('\n') || '# Experience\n';
-              }
+              // overlay: hide DC lines via id+CSS (React-proof), CM lives in sibling host.
+              // Single cursor by construction — DC cursor goes invisible with its container.
+              let buf=doc.getElementById('__dc_buf')||doc.querySelector('[data-cur]')?.closest('div[style*="overflow"]');
+              if(!buf){ const cs=Array.from(doc.querySelectorAll('div[style*="overflow-y:auto"]')); for(const c of cs){ if(c.querySelector('[data-cur]')){ buf=c; break; } } }
+              if(!buf){ console.log('bufContainer not found try',win.__cmTries); setTimeout(()=>win.__mountCM(),700); return; }
+              buf.id='__dc_buf';
+              ensureCmCss();
+              let cmHost=doc.getElementById('__cmvim_host');
+              if(!cmHost){ cmHost=doc.createElement('div'); cmHost.id='__cmvim_host'; buf.parentElement.insertBefore(cmHost,buf.nextSibling); }
+              await seedLS();
+              const tabs0=nvimTabs();
+              const act0=tabs0.find(t=>t.active)||tabs0[0];
+              const ipath=act0?act0.path:'/home/sameh/resume/experience.md';
+              const initialDoc=readLSFile(ipath)||domLines()||'# Experience\n';
+              win.__cmPath=ipath;
               const state = EditorState.create({
                 doc: initialDoc,
                 extensions: [
@@ -292,39 +344,49 @@ export default function IframeExact(){
                     '.cm-activeLine': { backgroundColor: 'var(--bg2)' },
                   }),
                   EditorView.updateListener.of(update=>{
-                    if(update.docChanged){
-                      const text=update.state.doc.toString();
-                      const c=getComp();
-                      if(c){ try{ c.writeBuffer(text); }catch{} }
-                    }
+                    if(update.docChanged&&win.__cmPath){ writeLSFile(win.__cmPath,update.state.doc.toString()); }
                   })
                 ]
               });
               const view = new EditorView({ state, parent: cmHost });
-              view.focus();
               win.__cmView = view;
-              win.__cmGetComp = getComp;
-              const syncOnBuf = ()=>{
-                const c=getComp();
-                if(!c) return;
-                try{
-                  const p=c.state.open[c.state.buf];
-                  const txt=c.readBuf(p);
-                  if(txt !== view.state.doc.toString()){
-                    view.dispatch({changes:{from:0, to: view.state.doc.length, insert: txt}});
-                  }
-                }catch{}
-              };
-              let lastBuf=null;
-              setInterval(()=>{
-                const c=getComp();
-                if(c && c.state.buf!==lastBuf){ lastBuf=c.state.buf; syncOnBuf(); }
-              }, 400);
-              win.__cmSync = syncOnBuf;
               console.log('[cmvim] mounted deterministic vim entire');
             }catch(e){ console.log('cm vim mount err', e); }
           };
           win.__mountCM();
+        }
+        // heal: re-place CM host (React drops unknown DOM on re-render), reload on tab switch,
+        // refocus after wipe-steal, repaint highlight ring. All DOM/LS — no fiber.
+        if(!win.__cmHeal){
+          win.__cmHeal=true;
+          setInterval(()=>{
+            try{
+              if(!win.__cmView){ try{win.__mountCM&&win.__mountCM();}catch{} return; }
+              ensureCmCss();
+              let buf=doc.getElementById('__dc_buf');
+              if(!buf){ const q=doc.querySelector('[data-cur]')?.closest('div[style*="overflow"]'); if(q){ q.id='__dc_buf'; buf=q; } }
+              const host=doc.getElementById('__cmvim_host');
+              if(buf&&host){
+                if(host.parentElement!==buf.parentElement||host.previousElementSibling!==buf){ try{buf.parentElement.insertBefore(host,buf.nextSibling);}catch{} }
+                if(!host.contains(win.__cmView.dom)){ try{host.appendChild(win.__cmView.dom);}catch{} win.__cmWiped=true; }
+                if(win.__cmWiped){
+                  win.__cmWiped=false;
+                  try{ const ae=doc.activeElement; if(doc.hasFocus()&&(!ae||ae===doc.body)) win.__cmView.focus(); }catch{}
+                }
+              }
+              try{
+                const tabs=nvimTabs();
+                const act=tabs.find(t=>t.active);
+                const p=act?act.path:null;
+                if(p&&p!==win.__cmPath){
+                  const txt=readLSFile(p);
+                  if(txt!=null&&txt!==win.__cmView.state.doc.toString()){ try{win.__cmView.dispatch({changes:{from:0,to:win.__cmView.state.doc.length,insert:txt}});}catch{} }
+                  win.__cmPath=p;
+                }
+              }catch{}
+              paintPanes();
+            }catch{}
+          },700);
         }
         // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer) — kept for tmux but vim now handled by cm
         if(!win.__vimEnhanced){
@@ -422,8 +484,7 @@ export default function IframeExact(){
               seedStacks();
             }
           };
-          setTimeout(()=>{ hookFS(); seedStacks(); }, 800);
-          setInterval(()=>{ hookFS(); seedStacks(); }, 2000);
+          // writeBuffer hook retired — CM syncs via localStorage VFS in heal poll (no fiber, no stacks).
 
           const vimHandler = (e)=>{
             // if CodeMirror vim has focus, let it handle deterministically (entire vim like repo)
@@ -796,9 +857,9 @@ export default function IframeExact(){
               setTimeout(()=> pendingCount='', 10);
             }
           };
-          // capture phase to intercept before DC runtime
-          win.addEventListener('keydown', vimHandler, true);
-          doc.addEventListener('keydown', vimHandler, true);
+          // vimHandler retired: repo vim (CM) owns keys when mounted (see tmuxCapture/dcGuard above);
+          // registering it caused synthetic-dispatch recursion (RangeError) and dual cursors.
+          // Fallback (CM absent): plain keys flow to DC natively; no interception at all.
         }
 
         if(doc.getElementById('__audio_injected')) return;
@@ -1010,39 +1071,35 @@ export default function IframeExact(){
             <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:'16px 20px'}}>
               {[
                 {title:'tmux — single window, panes as images', keys:[
-                  ['C-b 0/1/2','go to pane 0:zsh / 1:htop / 2:nvim (window as image)'],
-                  ['Super+1/2/3','same — fast (⌘/Ctrl + number)'],
-                  ['C-b o · Super+o','next pane'],
-                  ['Super+j / Super+k','next / prev pane (tmux single panel cycle) — treat each window as image'],
-                  ['C-b h/j/k/l · Super+h/j/k/l','move between panes (vim-style)'],
-                  ['t · Super+t','cycle theme (8)'],
-                  ['C-b ? / ?','toggle this site-level help (Esc to close)'],
-                  ['C-b C-o','rotate panes (site)'],
+                  ['C-b 0/1/2','pane 0:zsh / 1:htop / 2:nvim — green ring follows'],
+                  ['C-b o / Space','next pane'],
+                  ['C-b h/j/k/l','left / down / up / right in single window'],
+                  ['Super+1/2/3','jump to pane'],
+                  ['Super+h/j/k/l','directional panes'],
+                  ['C-b t','cycle theme (8)'],
+                  ['C-b ? / ? button','this help (Esc closes)'],
+                  [':pane n · /site',': palette — keyboard-only nav'],
                 ]},
-                {title:'vim — normal (full) + buffer', keys:[
-                  ['h j k l / ←↓↑→','char left/down/up/right (with count, e.g. 5j)'],
-                  ['J / K  · Super+j/k','5j / 5k — fast 5× scroll'],
-                  ['Super+J / Super+K','G / gg — bottom / top (super+shift) — also gg/G'],
-                  ['w b 0 ^ $ g_ ','word / line motions incl 0 ^ $'],
-                  ['gg / G  · :n','top / bottom / :n goto line'],
-                  ['Ctrl-d / Ctrl-u · Super+d/u','half page down / up (speed scroll)'],
-                  ['Ctrl-f / Ctrl-b · PageDown/Up','page down / up'],
-                  ['Ctrl-e / Ctrl-y','line scroll down / up'],
-                  ['H / M / L · zz/zt/zb','top / middle / bottom screen + center'],
-                  ['x / dd / D · yy / Y p P','delete char / cut line / yank line / put (with count, e.g. 3dd)'],
-                  ['d w/$/b/G + y/c variants','operator pending: dw d$ dG yw cw etc'],
-                  ['u · Ctrl-r','undo / redo (buffer)'],
+                {title:'vim — repo engine (deterministic)', keys:[
+                  ['h j k l (counts)','move — 5j works'],
+                  ['Ctrl-d/u · Ctrl-f/b','half / full page'],
+                  ['gg / G (+count)','top / bottom / :15 G'],
+                  ['w b e 0 ^ $','word / line motions'],
+                  ['H / M / L · zz/zt/zb','screen top / mid / bottom'],
+                  ['x dd D yy Y p P','edit + put (counts: 3dd)'],
+                  ['u · Ctrl-r','undo / redo (native history)'],
                   ['. · J','repeat / join'],
                   ['i a o A I · v V · R','insert / visual / replace'],
-                  ['Tab / n p / q r','next / prev buffer, close / reset'],
-                  ['?','pane-local vim help (inside nvim)'],
+                  ['Tab / Shift-Tab','next / prev file buffer'],
+                  [':','vim ex (:w :q :e …)'],
+                  ['? in nvim','vim search-backward'],
                 ]},
                 {title:'vim — visual + insert', keys:[
-                  ['h j k l','extend selection'],
+                  ['extend: hjkl wbe','counts work (5j)'],
+                  ['Ctrl+j/k · Ctrl+d/u','fast extend 5 lines / half-page'],
                   ['y / d / c','yank / delete / change'],
                   ['o','swap anchor'],
-                  ['Esc','leave visual/insert → normal'],
-                  ['Super+j / Super+k','fast extend 5 lines'],
+                  ['Esc','back to normal'],
                 ]},
                 {title:'shell — zsh (0:zsh image pane)', keys:[
                   ['help','list commands'],
