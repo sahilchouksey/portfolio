@@ -56,3 +56,4 @@ ascii-art*.txt
 !public/images/*.png
 dragons/
 temp/
+.playwright-mcp/
