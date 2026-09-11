@@ -52,11 +52,11 @@ export default function IframeExact(){
       const k = e.key;
       const meta = e.metaKey || e.ctrlKey;
 
-      // tmux prefix C-b — entire app navigated via keybinding only (no mouse needed)
-      if(e.ctrlKey && k==='b'){ e.preventDefault(); e.stopPropagation(); window.__tmuxPrefix=true; tmuxPrefixRef.current=true; setTmuxPrefix(true); setTimeout(()=>{ window.__tmuxPrefix=false; tmuxPrefixRef.current=false; setTmuxPrefix(false); }, 2500); return; }
+      // tmux prefix C-a (local config) + C-b (compat) — entire app keyboard-only
+      if(e.ctrlKey && (k==='b'||k==='a')){ e.preventDefault(); e.stopPropagation(); window.__tmuxPrefix=true; tmuxPrefixRef.current=true; setTmuxPrefix(true); setTimeout(()=>{ window.__tmuxPrefix=false; tmuxPrefixRef.current=false; setTmuxPrefix(false); }, 2500); return; }
       if(window.__tmuxPrefix){
         e.preventDefault(); e.stopPropagation(); window.__tmuxPrefix=false; tmuxPrefixRef.current=false; setTmuxPrefix(false);
-        const map = { '0':0,'1':1,'2':2,'o':'next','h':'left','j':'down','k':'up','l':'right','t':'theme','?':'help',' ':'next','n':'next','p':'prev',';':'last','z':'zoom','x':'kill','c':'new' };
+        const map = { '0':0,'1':1,'2':2,'o':'next','h':'left','j':'down','k':'up','l':'right','ArrowLeft':'left','ArrowRight':'right','ArrowUp':'up','ArrowDown':'down','t':'theme','?':'help',' ':'next','n':'next','p':'prev',';':'last','z':'zoom','x':'kill','c':'new' };
         const act = map[k];
         const iframe2 = getIframe();
         if(act!==undefined){
@@ -74,10 +74,10 @@ export default function IframeExact(){
         }
         return;
       }
-      // let codemirror vim handle ":" as ex when nvim has focus — don't open site palette
+      // ':' inside nvim opens VIM ex (palette in vim mode), elsewhere site palette
       try{
-        const cmHasFocus = getIframe()?.contentWindow?.__cmView?.hasFocus;
-        if(cmHasFocus && k===':' && !meta) return;
+        const iw=getIframe()?.contentWindow;
+        if(iw&&iw.__nvimActive&&iw.__nvimActive()&&k===':'&&!meta){ e.preventDefault(); setSiteCmd({open:true,val:':',vim:true}); return; }
       }catch{}
       if(isTyping(document.activeElement)) return;
 
@@ -239,66 +239,103 @@ export default function IframeExact(){
         // inner tmux prefix owns C-b end-to-end (capture beats DC bubble listener; replaces fiber patching)
         if(!win.__tmuxCap){
           win.__tmuxCap=true;
-          const tmuxCapture=(e)=>{
-            try{
-              if(!e.isTrusted) return;
-              const k=e.key, t=e.target;
-              const inShellInput=t&&t.tagName==='INPUT';
-              if(e.ctrlKey&&k==='b'&&!inShellInput){
-                e.preventDefault(); e.stopPropagation();
-                win.__tmuxPrefix=true; try{setTmuxPrefix(true);}catch{}
-                clearTimeout(win.__tmuxTimer);
-                win.__tmuxTimer=setTimeout(()=>{ win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{} },2500);
-                return;
-              }
-              if(win.__tmuxPrefix){
-                if(e.repeat) return;
-                e.preventDefault(); e.stopPropagation();
-                win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{}
-                tmuxKey(k);
-                return;
-              }
-              const meta=e.metaKey||e.ctrlKey;
-              if(meta&&!inShellInput){
-                const cv=win.__cmView;
-                if(cv&&isCmFocused(cv)){
-                  const lk=(k||'').toLowerCase();
-                  if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); cmMove(cv,lk==='j'?5:-5); return; }
-                  if(k==='d'||k==='u'){ e.preventDefault(); e.stopPropagation(); const d=k==='d'?1:-1; cmMove(cv,d*12); cmHalfScroll(cv,d,1); return; }
-                  if(k==='f'||k==='b'){ e.preventDefault(); e.stopPropagation(); const d=k==='f'?1:-1; cmMove(cv,d*24); cmHalfScroll(cv,d,2); return; }
-                  if(k==='0'||k==='1'||k==='2'){ e.preventDefault(); e.stopPropagation(); setPaneNum(parseInt(k,10)); return; }
+            const tmuxCapture=(e)=>{
+              try{
+                if(!e.isTrusted) return;
+                const k=e.key, t=e.target;
+                const inShellInput=t&&t.tagName==='INPUT';
+                const ik=!!(e.ctrlKey&&k==='b')||!!(win.__tmuxPrefix);
+                // C-b l/h/j/k + arrows must update highlight + pane focus regardless of cm focus
+                if(e.ctrlKey&&k==='b'&&!inShellInput){
+                  e.preventDefault(); e.stopPropagation();
+                  win.__tmuxPrefix=true; try{setTmuxPrefix(true);}catch{}
+                  clearTimeout(win.__tmuxTimer);
+                  win.__tmuxTimer=setTimeout(()=>{ win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{} },2500);
+                  return;
                 }
-              }
-            }catch{}
-          };
-          win.addEventListener('keydown',tmuxCapture,true);
-          // guard: CM consumed the key at target; keep DC from double-handling (t/?/space/i/x...).
-          // Tab passes (DC buffer switch; CM reloads via heal poll).
-          const dcGuard=(e)=>{
-            try{
-              if(!e.isTrusted) return;
-              const cv=win.__cmView;
-              if(!(cv&&isCmFocused(cv))) return;
-              if(e.key==='Tab') return;
-              e.stopPropagation();
-            }catch{}
-          };
-          doc.addEventListener('keydown',dcGuard);
-          // tab click => focus editor so typing stays in repo vim
-          doc.addEventListener('click',(e)=>{
-            try{
-              const el=e.target&&e.target.closest?e.target.closest('button[title],span'):null;
-              if(!el) return;
-              const txt=(el.title||el.textContent||'').trim();
-              if(/resume\/|\/home\//.test(el.title||'')||/^2:/.test(txt)){
-                setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },120);
-              }
-            }catch{}
-          },true);
+                if(win.__tmuxPrefix){
+                  if(e.repeat) return;
+                  e.preventDefault(); e.stopPropagation();
+                  win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{}
+                  if(k==='ArrowLeft'){ try{setPaneNum(activeIdx()===2?0:0);}catch{} return; }
+                  if(k==='ArrowRight'){ try{setPaneNum(activeIdx()===0||activeIdx()===1?2:2);}catch{} return; }
+                  if(k==='ArrowUp'){ try{setPaneNum(activeIdx()===1?0:0);}catch{} return; }
+                  if(k==='ArrowDown'){ try{setPaneNum(activeIdx()===0?1:1);}catch{} return; }
+                  tmuxKey(k);
+                  return;
+                }
+                const meta=e.metaKey||e.ctrlKey;
+                if(meta&&!inShellInput){
+                  const cv=win.__cmView;
+                  if(k==='0'||k==='1'||k==='2'){ e.preventDefault(); e.stopPropagation(); setPaneNum(parseInt(k,10)); return; }
+                  if(cv&&isCmFocused(cv)){
+                    const lk=(k||'').toLowerCase();
+                    if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); cmMove(cv,lk==='j'?5:-5); return; }
+                    if(k==='d'||k==='u'){ e.preventDefault(); e.stopPropagation(); const d=k==='d'?1:-1; cmMove(cv,d*12); cmHalfScroll(cv,d,1); return; }
+                    if(k==='f'||k==='b'){ e.preventDefault(); e.stopPropagation(); const d=k==='f'?1:-1; cmMove(cv,d*24); cmHalfScroll(cv,d,2); return; }
+                  }
+                  if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactPaneSwitch(lk==='j'?1:-1);}catch{} return; }
+                  if(k==='h'||k==='l'||k==='ArrowLeft'||k==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir(k==='h'||k==='ArrowLeft'?'left':'right');}catch{} return; }
+                }
+              }catch{}
+            };
+            win.addEventListener('keydown',tmuxCapture,true);
+            // guard: CM consumed the key at target; keep DC from double-handling (t/?/space/i/x...).
+            // Tab passes (DC buffer switch; CM reloads via heal poll).
+            // C-b/arrows bypass — needed for tmux; cm focus must not swallow them.
+            const dcGuard=(e)=>{
+              try{
+                if(!e.isTrusted) return;
+                const k=e.key;
+                if(e.ctrlKey&&k==='b') return;
+                if(k==='ArrowLeft'||k==='ArrowRight'||k==='ArrowUp'||k==='ArrowDown') return;
+                const cv=win.__cmView;
+                if(!(cv&&isCmFocused(cv))) return;
+                if(e.key==='Tab') return;
+                if(k===':'||k==='/'||k==='?') return;
+                e.stopPropagation();
+              }catch{}
+            };
+            doc.addEventListener('keydown',dcGuard);
+            // tab click => focus editor so typing stays in repo vim
+            doc.addEventListener('click',(e)=>{
+              try{
+                const el=e.target&&e.target.closest?e.target.closest('button[title],span'):null;
+                if(!el) return;
+                const txt=(el.title||el.textContent||'').trim();
+                if(/resume\/|\/home\//.test(el.title||'')||/^2:/.test(txt)){
+                  setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },120);
+                }
+              }catch{}
+            },true);
         }
-        // mount entire vim like codemirror-vim repo (deterministic vim) — replaces custom vimHandler for nvim pane
-        // NOTE: runs directly in outer closure with explicit doc/win (iframe document) — NOT stringified,
-        // so closure vars stay valid. Previously injected a stringified fn into the wrong document.
+        // ---- repo-grade vim input layer over DC rendered preview ----
+        // Display stays 100% DC (rendered markdown everywhere, source only on cursor line,
+        // single native block cursor). This layer ONLY handles keys DC lacks, executing via
+        // direct comp methods. Zero synthetic dispatch (caused recursion), zero status writes.
+        // Fiber lookup fixed: container key holds FiberRoot -> start at .current.
+        const resolveComp=()=>{
+          try{
+            if(win.__dcComp&&win.__dcComp.setState&&win.__dcComp.state&&Array.isArray(win.__dcComp.state.open)) return win.__dcComp;
+            const root=doc.getElementById('dc-root'); if(!root) return null;
+            const keys=Object.keys(root).filter(x=>x.includes('react'));
+            for(const k of keys){
+              let f=root[k]; f=(f&&f.current)||f; if(!f) continue;
+              const seen=new Set(); const st=[f];
+              while(st.length){
+                const cur=st.pop(); if(!cur||seen.has(cur)) continue; seen.add(cur);
+                const sn=cur.stateNode;
+                if(sn&&sn.state&&Array.isArray(sn.state.open)&&typeof sn.handleKey==='function'&&typeof sn.readBuf==='function'){ win.__dcComp=sn; return sn; }
+                if(cur.child) st.push(cur.child);
+                if(cur.sibling) st.push(cur.sibling);
+              }
+            }
+          }catch{}
+          return null;
+        };
+        win.__resolveComp=resolveComp;
+        win.__nvimActive=()=>{ try{ const c=resolveComp(); return !!(c&&c.state.pane===2&&(c.state.mode==='normal'||c.state.mode==='visual')); }catch{ return false; } };
+        setInterval(()=>{ try{ resolveComp(); }catch{} },1500);
         if(!win.__cmVimMounted){
           win.__cmVimMounted=true;
           win.__cmTries=0;
@@ -402,40 +439,43 @@ export default function IframeExact(){
             try{
               const root = doc.getElementById('dc-root');
               if(!root) return null;
-              // try all react keys
               let fiber=null;
               for(const kk of Object.keys(root)){ if(kk.includes('react')){ fiber=root[kk]; break; } }
-              if(!fiber) return null;
-              const seen=new Set();
-              const stack=[fiber];
-              while(stack.length){
-                const f=stack.pop();
-                if(!f || seen.has(f)) continue; seen.add(f);
-                // look for vim state: vHead/vAnchor or open/buf
-                if(f.stateNode && f.stateNode.state && (Array.isArray(f.stateNode.state.open) || typeof f.stateNode.state.vHead==='number')) return f.stateNode;
-                if(f.stateNode && typeof f.stateNode.vHead==='number') return f.stateNode;
-                if(f.child) stack.push(f.child);
-                if(f.sibling) stack.push(f.sibling);
-                if(f.alternate) stack.push(f.alternate);
-                if(f.return) {} // ignore
+              let node=null;
+              if(fiber){
+                fiber=(fiber.current)||fiber;
+                const seen=new Set(); const st=[fiber];
+                while(st.length){
+                  const f=st.pop(); if(!f||seen.has(f)) continue; seen.add(f);
+                  const sn=f.stateNode;
+                  if(sn&&sn.state&&Array.isArray(sn.state.open)&&typeof sn.handleKey==='function'&&typeof sn.readBuf==='function'){ node=sn; break; }
+                  if(f.child) st.push(f.child);
+                  if(f.sibling) st.push(f.sibling);
+                  if(f.alternate) st.push(f.alternate);
+                }
               }
-              // fallback: search via window
-              if(win && win.__vimStacks) {
-                // try to find via __exactSetPane holder
-              }
+              if(node) return node;
+              if(win.__dcComp&&win.__dcComp.state&&Array.isArray(win.__dcComp.state.open)) return win.__dcComp;
+              // plain rows fallback
+              const rows=doc.querySelectorAll('[data-cur]'); if(!rows.length) return null;
+              return { __plain:true, rows, doc };
             }catch(e){ console.log('findComponent err', e); }
             return null;
           };
           const getBufInfo = ()=>{
             try{
               const comp = findComponent();
-              if(comp){
+              if(comp&&!comp.__plain){
                 const path = comp.state.open[comp.state.buf];
                 const src = comp.readBuf ? comp.readBuf(path) : '';
                 return { comp, path, src };
               }
+              if(comp&&comp.__plain){
+                const path='/home/sameh/resume/experience.md';
+                const src=Array.from(comp.rows).map(d=> (d.textContent||'').replace(/^\s*\d+\s*/, '')).join('\n');
+                return { comp, path, src };
+              }
             }catch{}
-            // fallback via DOM
             const pathEl = doc.querySelector('span[style*="max-width:40%"]');
             const path = pathEl ? pathEl.textContent.trim() : '/home/sameh/resume/experience.md';
             const lines = Array.from(doc.querySelectorAll('div[data-cur]')).map(d=> d.textContent?.replace(/^\s*\d+\s*/,'') || '');
@@ -857,9 +897,10 @@ export default function IframeExact(){
               setTimeout(()=> pendingCount='', 10);
             }
           };
-          // vimHandler retired: repo vim (CM) owns keys when mounted (see tmuxCapture/dcGuard above);
-          // registering it caused synthetic-dispatch recursion (RangeError) and dual cursors.
-          // Fallback (CM absent): plain keys flow to DC natively; no interception at all.
+          win.addEventListener('keydown', vimHandler, true);
+          doc.addEventListener('keydown', vimHandler, true);
+          // debug one-liner (verifies rendered preview + mode + single cursor even when CM not mounted)
+          try{ const c=findComponent(); if(c){ console.log('[dc vim] pane',c.state.pane,'mode',c.state.mode,'open',c.state.open[c.state.buf],'vimEnhanced',!!win.__vimEnhanced); } }catch{}
         }
 
         if(doc.getElementById('__audio_injected')) return;
