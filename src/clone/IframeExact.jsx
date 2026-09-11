@@ -160,7 +160,19 @@ export default function IframeExact(){
         setTimeout(hideOrigBar, 400); setTimeout(hideOrigBar, 1200); setInterval(hideOrigBar, 2500);
         const statusBar=()=> doc.getElementById('__tmux_top');
         const statusTabs=()=>{ const bar=statusBar(); if(!bar) return []; return Array.from(bar.querySelectorAll('[data-win]')); };
+        // source of truth is DC pane state (or hidden orig bar), NOT our top bar — otherwise
+        // clicking the htop frame directly desyncs highlight (your report: focus htop but ring on terminal)
         const activeIdx=()=>{
+          try{
+            const c=resolveComp(); if(c&&typeof c.state.pane==='number') return c.state.pane;
+          }catch{}
+          try{
+            const b=origBarEl(); if(b){
+              const spans=Array.from(b.querySelectorAll('span')).filter(s=>/^\d:/.test(((s.textContent||'').trim())));
+              const el=spans.find(s=>((s.textContent||'').includes('*')))||spans.find(s=>s.style.opacity==='1')||spans[0];
+              if(el){ const m=/^(\d):/.exec((el.textContent||'').trim()); if(m) return parseInt(m[1],10); }
+            }
+          }catch{}
           const bar=statusBar(); if(!bar) return 0;
           const cur=bar.getAttribute('data-active');
           if(cur!=null) return parseInt(cur,10);
@@ -509,13 +521,30 @@ export default function IframeExact(){
         const observeActive=()=>{
           try{
             const top=doc.getElementById('__tmux_top');
-            if(!top||top.__obs) return;
-            const mo=new MutationObserver(()=> paintPanes());
-            mo.observe(top,{attributes:true, attributeFilter:['data-active']});
-            top.__obs=mo;
+            if(top&&!top.__obs){
+              const mo=new MutationObserver(()=> paintPanes());
+              mo.observe(top,{attributes:true, attributeFilter:['data-active']});
+              top.__obs=mo;
+            }
+            const orig=origBarEl();
+            if(orig&&!orig.__obs2){
+              const mo2=new MutationObserver(()=> paintPanes());
+              mo2.observe(orig,{subtree:true, attributes:true, childList:true, characterData:true});
+              orig.__obs2=mo2;
+            }
+            // pane frame clicks (mouse) — htop vs terminal desync fix
+            ['0: zsh','1: htop — now','2: nvim'].forEach(txt=>{
+              const lab=Array.from(doc.querySelectorAll('div')).find(d=>(d.textContent||'').trim()===txt);
+              const frame=lab?lab.closest('div[style*="border"]')||lab.parentElement:null;
+              if(frame&&!frame.__obsClick){
+                frame.__obsClick=true;
+                frame.addEventListener('mousedown',()=> setTimeout(paintPanes,30), true);
+                frame.addEventListener('click',()=> setTimeout(paintPanes,30), true);
+              }
+            });
           }catch{}
         };
-        setTimeout(observeActive,800);
+        setTimeout(observeActive,800); setInterval(observeActive,1500);
         if(!win.__cmHeal){
           win.__cmHeal=true;
           setInterval(()=>{
