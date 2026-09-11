@@ -169,32 +169,42 @@ export default function IframeExact(){
         const buildTmux=function(){
           if(doc.getElementById('__tmux_top')) return doc.getElementById('__tmux_top');
           try{
-            const host=doc.getElementById('dc-root')?.parentElement||doc.body;
+            // same container as main content: the bordered terminal (border:1px solid + radius 8)
+            const term=doc.querySelector('div[style*="border-radius:8"]')||doc.getElementById('dc-root')?.firstElementChild||doc.getElementById('dc-root')||doc.body;
+            // ensure Nerd Font for icons (site only loads Fira Code)
+            if(!doc.getElementById('__tmux_nf')){
+              const link=doc.createElement('link'); link.id='__tmux_nf'; link.rel='stylesheet';
+              link.href='https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.0/index.min.css';
+              doc.head.appendChild(link);
+              const nf2=doc.createElement('link'); nf2.id='__tmux_nf2'; nf2.rel='stylesheet';
+              nf2.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css';
+              doc.head.appendChild(nf2);
+            }
+            const host=term.parentElement||term;
             const top=doc.createElement('div');
             top.id='__tmux_top';
             top.setAttribute('data-active','0');
-            top.style.cssText='display:flex;align-items:stretch;height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;';
+            top.style.cssText='display:flex;align-items:stretch;height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "JetBrains Mono","Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;border-radius:8px 8px 0 0;';
             top.innerHTML=`
               <div style="display:flex;align-items:stretch;gap:0;">
-                <span id="__tmux_prefix" style="display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#313244;color:#a6e3a1;font-weight:700;">
-                  <span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#1e1e2e;color:inherit;font:700 10px/1 'Fira Code',monospace;"></span>
-                  <span style="color:#cdd6f4;">xix3r</span>
+                <span id="__tmux_prefix" style="display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#313244;color:#a6e3a1;font-weight:700;border-radius:6px 0 0 0;">
+                  <span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#1e1e2e;color:inherit;font:700 10px/1 'JetBrains Mono','Fira Code',monospace;"></span>
+                  <span style="color:#cdd6f4;font-family:'JetBrains Mono','Fira Code',monospace;">xix3r</span>
                 </span>
                 <span style="display:flex;align-items:center;padding:0 6px;color:#6c7086;font-size:10px;">│</span>
-                <span data-win="0" class="__active" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#313244;color:#cdd6f4;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">0: zsh</span>
-                <span data-win="1" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">1: htop</span>
-                <span data-win="2" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">2: nvim</span>
+                <span data-win="0" class="__active" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#313244;color:#cdd6f4;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono','Fira Code',monospace;">0: zsh</span>
+                <span data-win="1" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono','Fira Code',monospace;">1: htop</span>
+                <span data-win="2" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono','Fira Code',monospace;">2: nvim</span>
               </div>
               <div style="flex:1"></div>
               <div style="display:flex;align-items:stretch;gap:6px;padding:0 8px;">
-                <span title="directory" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#f5c2e7;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><span></span><span id="__tmux_dir" style="color:#cdd6f4;">~/portfolio</span></span>
-                <span title="date_time" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#89b4fa;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><span>󰃰</span><span id="__tmux_clock" style="color:#cdd6f4;">00:00</span></span>
+                <span title="directory" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#f5c2e7;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;font-family:'JetBrains Mono','Fira Code',monospace;"><span style="font-family:'JetBrains Mono','Fira Code',monospace;"></span><span id="__tmux_dir" style="color:#cdd6f4;">~/portfolio</span></span>
+                <span title="date_time" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#89b4fa;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;font-family:'JetBrains Mono','Fira Code',monospace;"><span style="font-family:'JetBrains Mono','Fira Code',monospace;">󰃰</span><span id="__tmux_clock" style="color:#cdd6f4;">00:00</span></span>
               </div>
             `;
-            // insert at very top of terminal (before #dc-root)
-            const dc=doc.getElementById('dc-root')||host.firstElementChild;
-            if(dc&&dc.parentElement) dc.parentElement.insertBefore(top, dc);
-            else host.insertBefore(top, host.firstChild);
+            // inside same container as main content (first child of bordered terminal)
+            if(term.firstChild) term.insertBefore(top, term.firstChild);
+            else term.appendChild(top);
             top.querySelectorAll('[data-win]').forEach(el=>{
               el.addEventListener('click',()=>{
                 const n=parseInt(el.getAttribute('data-win'),10);
