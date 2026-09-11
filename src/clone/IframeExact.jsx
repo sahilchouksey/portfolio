@@ -145,22 +145,102 @@ export default function IframeExact(){
         if(!doc || !win) return;
         // ---- tmux single window: 3 pane-images. Fiber-free: tmux status bar DOM is source of truth.
         // Layout: 0=top-left(zsh), 1=bottom-left(htop), 2=right(nvim full height).
-        const statusBar=()=>{ try{ const m=Array.from(doc.querySelectorAll('span')).find(s=>((s.textContent||'').trim()==='[sameh]')); return m?m.parentElement:null; }catch{ return null; } };
-        const statusTabs=()=>{ const bar=statusBar(); if(!bar) return []; return Array.from(bar.querySelectorAll('span')).filter(s=>/^\d:/.test(((s.textContent||'').trim()))); };
-        const activeIdx=()=>{ const ss=statusTabs(); if(!ss.length) return 0; const el=ss.find(s=>((s.textContent||'').includes('*')))||ss.find(s=>s.style.opacity==='1')||ss[0]; const m=/^(\d):/.exec((el.textContent||'').trim()); return m?parseInt(m[1],10):0; };
-        // highlight ring follows focus (explicit ask): outline is additive, React doesn't manage it.
+        // ---- local tmux: hide site's green bottom bar, inject YOUR top bar (catppuccin mocha, prefix ^A, single window xix3r) ----
+        const origBarEl=()=>{ try{ const m=Array.from(doc.querySelectorAll('span')).find(s=>((s.textContent||'').trim()==='[sameh]')); return m?m.parentElement:null; }catch{ return null; } };
+        const hideOrigBar=()=>{
+          try{
+            const b=origBarEl(); if(b){ b.style.display='none'; b.style.height='0'; b.style.overflow='hidden'; }
+            // also hide any other legacy green bar by bg
+            Array.from(doc.querySelectorAll('div')).forEach(d=>{
+              const bg=getComputedStyle(d).backgroundColor;
+              if(bg==='rgb(166, 227, 161)' && d.textContent.includes('[sameh]')) d.style.display='none';
+            });
+          }catch{}
+        };
+        setTimeout(hideOrigBar, 400); setTimeout(hideOrigBar, 1200); setInterval(hideOrigBar, 2500);
+        const statusBar=()=> doc.getElementById('__tmux_top');
+        const statusTabs=()=>{ const bar=statusBar(); if(!bar) return []; return Array.from(bar.querySelectorAll('[data-win]')); };
+        const activeIdx=()=>{
+          const bar=statusBar(); if(!bar) return 0;
+          const cur=bar.getAttribute('data-active');
+          if(cur!=null) return parseInt(cur,10);
+          const tabs=statusTabs(); const el=tabs.find(s=>s.classList.contains('__active'))||tabs[0]; const m=el?/^(\d):/.exec((el.textContent||'').trim()):null; return m?parseInt(m[1],10):0;
+        };
+        const buildTmux=function(){
+          if(doc.getElementById('__tmux_top')) return doc.getElementById('__tmux_top');
+          try{
+            const host=doc.getElementById('dc-root')?.parentElement||doc.body;
+            const top=doc.createElement('div');
+            top.id='__tmux_top';
+            top.setAttribute('data-active','0');
+            top.style.cssText='display:flex;align-items:stretch;height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;';
+            top.innerHTML=`
+              <div style="display:flex;align-items:stretch;gap:0;">
+                <span id="__tmux_prefix" style="display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#313244;color:#a6e3a1;font-weight:700;">
+                  <span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#1e1e2e;color:inherit;font:700 10px/1 'Fira Code',monospace;"></span>
+                  <span style="color:#cdd6f4;">xix3r</span>
+                </span>
+                <span style="display:flex;align-items:center;padding:0 6px;color:#6c7086;font-size:10px;">│</span>
+                <span data-win="0" class="__active" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#313244;color:#cdd6f4;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">0: zsh</span>
+                <span data-win="1" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">1: htop</span>
+                <span data-win="2" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">2: nvim</span>
+              </div>
+              <div style="flex:1"></div>
+              <div style="display:flex;align-items:stretch;gap:6px;padding:0 8px;">
+                <span title="directory" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#f5c2e7;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><span></span><span id="__tmux_dir" style="color:#cdd6f4;">~/portfolio</span></span>
+                <span title="date_time" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#89b4fa;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><span>󰃰</span><span id="__tmux_clock" style="color:#cdd6f4;">00:00</span></span>
+              </div>
+            `;
+            // insert at very top of terminal (before #dc-root)
+            const dc=doc.getElementById('dc-root')||host.firstElementChild;
+            if(dc&&dc.parentElement) dc.parentElement.insertBefore(top, dc);
+            else host.insertBefore(top, host.firstChild);
+            top.querySelectorAll('[data-win]').forEach(el=>{
+              el.addEventListener('click',()=>{
+                const n=parseInt(el.getAttribute('data-win'),10);
+                try{ if(win.__exactSetPane) win.__exactSetPane(n); }catch{}
+              });
+            });
+            const tick=()=>{ try{ const c=doc.getElementById('__tmux_clock'); if(c) c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); const d=doc.getElementById('__tmux_dir'); if(d){ const ae=activeIdx(); const paths=['~/','~/','~/portfolio']; d.textContent=paths[ae]||'~/'; } }catch{} };
+            tick(); setInterval(tick, 30000);
+            return top;
+          }catch(e){ console.log('buildTmux err',e); return null; }
+        };
+        const ensureTmux=()=>{ try{ if(!doc.getElementById('__tmux_top')) buildTmux(); hideOrigBar(); }catch{} };
+        ensureTmux(); setTimeout(ensureTmux,600); setTimeout(ensureTmux,1500);
+        // highlight ring follows focus — catppuccin local uses magenta active border, not green
         const paintPanes=()=>{
           try{
-            const bar=statusBar(); if(!bar) return;
-            const green=getComputedStyle(bar).backgroundColor||'#a6e3a1';
             const idx=activeIdx();
+            const magenta='#cba6f7'; // pane-active-border-style fg=magenta (local)
             ['0: zsh','1: htop — now','2: nvim'].forEach((txt,i)=>{
               const lab=Array.from(doc.querySelectorAll('div')).find(d=>(d.textContent||'').trim()===txt);
               const frame=lab?lab.parentElement:null;
               if(!frame) return;
-              if(i===idx){ frame.style.outline=`2px solid ${green}`; frame.style.outlineOffset='2px'; }
-              else { frame.style.outline='none'; }
+              if(i===idx){ frame.style.outline=`2px solid ${magenta}`; frame.style.outlineOffset='2px'; frame.style.borderColor=magenta; }
+              else { frame.style.outline='none'; frame.style.borderColor=''; }
             });
+            // sync active pill + prefix color
+            const top=doc.getElementById('__tmux_top');
+            if(top){
+              top.setAttribute('data-active', String(idx));
+              top.querySelectorAll('[data-win]').forEach(el=>{
+                const n=parseInt(el.getAttribute('data-win'),10);
+                const active=n===idx;
+                el.classList.toggle('__active',active);
+                el.style.background=active?'#313244':'#1e1e2e';
+                el.style.color=active?'#cdd6f4':'#a6adc8';
+                el.style.borderColor=active?'#cba6f7':'#313244';
+                el.style.fontWeight=active?'700':'500';
+              });
+              const pref=top.querySelector('#__tmux_prefix');
+              if(pref){
+                const on=!!win.__tmuxPrefix;
+                pref.style.color=on?'#f38ba8':'#a6e3a1';
+                pref.style.background=on?'#f38ba8':'#313244';
+                pref.querySelector('span').style.background=on?'#f38ba8':'#1e1e2e';
+              }
+            }
           }catch{}
         };
         win.__paintPanes=paintPanes;
@@ -398,6 +478,7 @@ export default function IframeExact(){
           win.__cmHeal=true;
           setInterval(()=>{
             try{
+              ensureTmux(); hideOrigBar();
               if(!win.__cmView){ try{win.__mountCM&&win.__mountCM();}catch{} return; }
               ensureCmCss();
               let buf=doc.getElementById('__dc_buf');
