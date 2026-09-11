@@ -213,22 +213,40 @@ export default function IframeExact(){
         };
         const ensureTmux=()=>{ try{ if(!doc.getElementById('__tmux_top')) buildTmux(); hideOrigBar(); }catch{} };
         ensureTmux(); setTimeout(ensureTmux,600); setTimeout(ensureTmux,1500);
-        // highlight ring follows focus — catppuccin local uses magenta active border, not green
+        // highlight ring follows focus — must survive React re-renders (site rewrites border every tick)
         const paintPanes=()=>{
           try{
             const idx=activeIdx();
-            const magenta='#cba6f7'; // pane-active-border-style fg=magenta (local)
-            ['0: zsh','1: htop — now','2: nvim'].forEach((txt,i)=>{
+            const magenta='#cba6f7';
+            const panes=[
+              {txt:'0: zsh', sel:'div[style*="border"]'},
+              {txt:'1: htop — now', sel:'div[style*="border"]'},
+              {txt:'2: nvim', sel:'div[style*="border"]'},
+            ];
+            panes.forEach(({txt},i)=>{
               const lab=Array.from(doc.querySelectorAll('div')).find(d=>(d.textContent||'').trim()===txt);
-              const frame=lab?lab.parentElement:null;
+              let frame=lab?lab.closest('div[style*="border"]')||lab.parentElement:null;
+              if(!frame){
+                // fallback: find by pane label id
+                const all=Array.from(doc.querySelectorAll('div'));
+                frame=all.find(d=> d.querySelector&&d.querySelector('div')&&Array.from(d.querySelectorAll('div')).some(x=>(x.textContent||'').trim()===txt));
+              }
               if(!frame) return;
-              if(i===idx){ frame.style.outline=`2px solid ${magenta}`; frame.style.outlineOffset='2px'; frame.style.borderColor=magenta; }
-              else { frame.style.outline='none'; frame.style.borderColor=''; }
+              if(i===idx){
+                frame.style.borderColor=magenta;
+                frame.style.boxShadow=`0 0 0 2px ${magenta}, inset 0 0 0 1px ${magenta}`;
+                frame.style.outline='none';
+              } else {
+                frame.style.borderColor='';
+                frame.style.boxShadow='';
+                frame.style.outline='none';
+              }
             });
-            // sync active pill + prefix color
             const top=doc.getElementById('__tmux_top');
             if(top){
-              top.setAttribute('data-active', String(idx));
+              // don't clobber data-active if caller just set it — read it instead
+              const curAttr=parseInt(top.getAttribute('data-active')||'-1',10);
+              if(curAttr!==idx) top.setAttribute('data-active', String(idx));
               top.querySelectorAll('[data-win]').forEach(el=>{
                 const n=parseInt(el.getAttribute('data-win'),10);
                 const active=n===idx;
@@ -241,12 +259,13 @@ export default function IframeExact(){
               const pref=top.querySelector('#__tmux_prefix');
               if(pref){
                 const on=!!win.__tmuxPrefix;
-                pref.style.color=on?'#f38ba8':'#a6e3a1';
+                pref.style.color=on?'#1e1e2e':'#a6e3a1';
                 pref.style.background=on?'#f38ba8':'#313244';
                 pref.querySelector('span').style.background=on?'#f38ba8':'#1e1e2e';
+                pref.querySelector('span').style.color=on?'#1e1e2e':'';
               }
             }
-          }catch{}
+          }catch(e){ console.log('paintPanes err',e); }
         };
         win.__paintPanes=paintPanes;
         const setPaneNum=(n)=>{
@@ -486,11 +505,22 @@ export default function IframeExact(){
         }
         // heal: re-place CM host (React drops unknown DOM on re-render), reload on tab switch,
         // refocus after wipe-steal, repaint highlight ring. All DOM/LS — no fiber.
+        // observe active changes (click or key) — repaint immediately even if heal hasn't ticked
+        const observeActive=()=>{
+          try{
+            const top=doc.getElementById('__tmux_top');
+            if(!top||top.__obs) return;
+            const mo=new MutationObserver(()=> paintPanes());
+            mo.observe(top,{attributes:true, attributeFilter:['data-active']});
+            top.__obs=mo;
+          }catch{}
+        };
+        setTimeout(observeActive,800);
         if(!win.__cmHeal){
           win.__cmHeal=true;
           setInterval(()=>{
             try{
-              ensureTmux(); hideOrigBar();
+              ensureTmux(); hideOrigBar(); observeActive();
               if(!win.__cmView){ try{win.__mountCM&&win.__mountCM();}catch{} return; }
               ensureCmCss();
               let buf=doc.getElementById('__dc_buf');
@@ -516,7 +546,7 @@ export default function IframeExact(){
               }catch{}
               paintPanes();
             }catch{}
-          },700);
+          },350);
         }
         // enhance vim inside iframe: super/meta fast + full vim multi-key incl undo/redo (buffer) — kept for tmux but vim now handled by cm
         if(!win.__vimEnhanced){
