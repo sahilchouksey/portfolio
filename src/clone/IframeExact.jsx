@@ -286,10 +286,13 @@ export default function IframeExact(){
           setTimeout(paintPanes,60);
         };
         // direct DC state (hidden bar is display:none, so synthetic click never fires)
+        // cache comp once found — avoids repeated fiber walks
         const setDCpane=(n)=>{
           try{
-            const c=resolveComp(); if(c&&typeof c.setState==='function'){ c.setState({pane:n}); return true; }
-          }catch{}
+            let c=win.__dcComp;
+            if(!c||typeof c.state.pane!=='number'){ c=resolveComp(); if(c) win.__dcComp=c; }
+            if(c&&typeof c.setState==='function'){ c.setState({pane:n}); return true; }
+          }catch(e){ console.log('setDCpane err',e); }
           return false;
         };
         if(!win.__exactSetPane){
@@ -315,12 +318,14 @@ export default function IframeExact(){
           win.__exactMoveDir = (dir)=>{
             try{
               const cur=activeIdx(); let nxt=cur;
-              if(dir==='left') nxt = cur===2 ? 0 : cur;
+              // viewport-aware: right from either left pane -> right; left from right -> most recent left (0:zsh)
+              if(dir==='left') nxt = cur===2 ? (win.__lastLeft!=null?win.__lastLeft:0) : cur;
               else if(dir==='right') nxt = (cur===0||cur===1) ? 2 : cur;
               else if(dir==='down') nxt = cur===0 ? 1 : cur;
               else if(dir==='up') nxt = cur===1 ? 0 : cur;
+              if(nxt!==cur){ if(cur===0||cur===1) win.__lastLeft=cur; }
               setPaneNum(nxt);
-            }catch{}
+            }catch(e){ console.log('moveDir err',e); }
           };
         }
         const tmuxKey=(k)=>{
