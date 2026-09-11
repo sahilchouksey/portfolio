@@ -119,8 +119,19 @@ export default function IframeExact(){
         try{ W()?.__exactSetPane(parseInt(k,10)); }catch{}
         return;
       }
-      // scroll nvim buffer directly via DOM (no forwarding, no recursion)
+      // Super+d/u also pane up/down when NOT in nvim (your report: htop super+u should go up)
+      // In nvim, keep vim half-page scroll; in htop/zsh, move pane.
       if(meta && (k==='d' || k==='u' || k==='f' || k==='b')){
+        const isNvim = (()=>{ try{ return W()?.__nvimActive ? W().__nvimActive() : false; }catch{ return false; } })();
+        if(!isNvim){
+          e.preventDefault();
+          try{
+            const dir=(k==='d'||k==='f')?'down':'up';
+            W()?.__exactMoveDir(dir);
+          }catch{}
+          return;
+        }
+        // nvim: scroll buffer (vim half-page)
         e.preventDefault();
         try{
           const cdoc=iframe?.contentDocument;
@@ -318,11 +329,20 @@ export default function IframeExact(){
           win.__exactMoveDir = (dir)=>{
             try{
               const cur=activeIdx(); let nxt=cur;
-              // viewport-aware: right from either left pane -> right; left from right -> most recent left (0:zsh)
-              if(dir==='left') nxt = cur===2 ? (win.__lastLeft!=null?win.__lastLeft:0) : cur;
-              else if(dir==='right') nxt = (cur===0||cur===1) ? 2 : cur;
-              else if(dir==='down') nxt = cur===0 ? 1 : cur;
-              else if(dir==='up') nxt = cur===1 ? 0 : cur;
+              // all directions wrap so Super+* always possible (up/right was stuck from htop)
+              // 0=top-left, 1=bottom-left, 2=right
+              if(dir==='left'){
+                nxt = cur===2 ? (win.__lastLeft!=null?win.__lastLeft:0) : 2;
+              } else if(dir==='right'){
+                nxt = cur===2 ? (win.__lastLeft!=null?win.__lastLeft:0) : 2;
+                if(cur===0||cur===1) nxt=2;
+              } else if(dir==='down'){
+                nxt = cur===0 ? 1 : 0;
+                if(cur===2) nxt=1;
+              } else if(dir==='up'){
+                nxt = cur===1 ? 0 : 1;
+                if(cur===2) nxt=0;
+              }
               if(nxt!==cur){ if(cur===0||cur===1) win.__lastLeft=cur; }
               setPaneNum(nxt);
             }catch(e){ console.log('moveDir err',e); }
@@ -882,15 +902,18 @@ export default function IframeExact(){
               return;
             }
             if(!isNormal || !isNvimPane) {
-              if(meta && k.toLowerCase()==='j'){
-                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; }
-                else { e.preventDefault(); e.stopPropagation(); doScroll(1, 180); }
-                return;
-              }
-              if(meta && k.toLowerCase()==='k'){
-                if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; }
-                else { e.preventDefault(); e.stopPropagation(); doScroll(-1, 180); }
-                return;
+              if(meta){
+                const lk=k.toLowerCase();
+                if(lk==='j'){ if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=buf.scrollHeight; } else { e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('down'); }catch{} } return; }
+                if(lk==='k'){ if(e.shiftKey){ e.preventDefault(); e.stopPropagation(); const buf=doc.querySelector('div[style*="overflow-y:auto"]'); if(buf) buf.scrollTop=0; } else { e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('up'); }catch{} } return; }
+                if(lk==='h'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('left'); }catch{} return; }
+                if(lk==='l'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('right'); }catch{} return; }
+                if(k==='d'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('down'); }catch{} return; }
+                if(k==='u'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('up'); }catch{} return; }
+                if(k==='ArrowLeft'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('left'); }catch{} return; }
+                if(k==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('right'); }catch{} return; }
+                if(k==='ArrowUp'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('up'); }catch{} return; }
+                if(k==='ArrowDown'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('down'); }catch{} return; }
               }
               return;
             }
