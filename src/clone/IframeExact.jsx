@@ -285,18 +285,23 @@ export default function IframeExact(){
           if(n===2){ setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },80); }
           setTimeout(paintPanes,60);
         };
-        // keep original pane click for writeback, but drive our top bar directly (avoids click-loop)
-        const origClickPane=(n)=>{
+        // direct DC state (hidden bar is display:none, so synthetic click never fires)
+        const setDCpane=(n)=>{
           try{
-            const b=origBarEl(); if(!b) return;
-            const spans=Array.from(b.querySelectorAll('span'));
-            const target=spans.find(s=> (s.textContent||'').trim().startsWith(`${n}:`));
-            if(target) target.click();
+            const c=resolveComp(); if(c&&typeof c.setState==='function'){ c.setState({pane:n}); return true; }
           }catch{}
+          return false;
         };
         if(!win.__exactSetPane){
           win.__exactSetPane = (n)=>{
-            try{ origClickPane(n); }catch{}
+            const ok=setDCpane(n);
+            if(!ok){ try{
+              const b=origBarEl(); if(b){
+                const spans=Array.from(b.querySelectorAll('span'));
+                const target=spans.find(s=> (s.textContent||'').trim().startsWith(`${n}:`));
+                if(target) target.click();
+              }
+            }catch{} }
             try{
               const top=doc.getElementById('__tmux_top');
               if(top){ top.setAttribute('data-active', String(n)); }
