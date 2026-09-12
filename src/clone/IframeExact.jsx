@@ -161,22 +161,41 @@ export default function IframeExact(){
         const hideOrigBar=()=>{
           try{
             const b=origBarEl(); if(b){ b.style.display='none'; b.style.height='0'; b.style.overflow='hidden'; }
-            // also hide any other legacy green bar by bg
-            Array.from(doc.querySelectorAll('div')).forEach(d=>{
-              const bg=getComputedStyle(d).backgroundColor;
-              if(bg==='rgb(166, 227, 161)' && d.textContent.includes('[sameh]')) d.style.display='none';
-            });
+            try{
+              const themeBtn=Array.from(doc.querySelectorAll('button')).find(x=>(x.title||'')==='Catppuccin');
+              const hdr=themeBtn?themeBtn.closest('div[style*="border-bottom"]'):null;
+              if(hdr&&hdr.style.display!=='none'){ hdr.style.display='none'; hdr.style.height='0'; hdr.style.overflow='hidden'; }
+            }catch{}
+            // overlay CRT: kill 1px repeating lines everywhere (gaps 1-5px), not just tmux bar
+            try{
+              if(!doc.getElementById('__no_overlay')){
+                const st=doc.createElement('style'); st.id='__no_overlay';
+                st.textContent='div[style*="repeating-linear-gradient"],div[style*="radial-gradient"]{display:none!important;opacity:0!important;visibility:hidden!important}';
+                doc.head.appendChild(st);
+              }
+              const kill=d=>{ try{ d.style.display='none'; d.style.opacity='0'; }catch{} };
+              [...doc.querySelectorAll('div[style*="repeating-linear-gradient"]'), ...doc.querySelectorAll('div[style*="radial-gradient"]')].forEach(kill);
+              Array.from(doc.querySelectorAll('div')).forEach(d=>{
+                const s=d.getAttribute('style')||'';
+                if(s.includes('z-index: 9')&&d.style.position==='fixed') kill(d);
+              });
+              // gaps 1-5px are pane/grid gaps where overlay showed through — make them solid bg
+              Array.from(doc.querySelectorAll('div[style*="gap"]')).forEach(d=>{
+                if(getComputedStyle(d).gap==='8px' || getComputedStyle(d).gap==='12px') d.style.backgroundColor='var(--bg)';
+              });
+            }catch{}
           }catch{}
         };
-        setTimeout(hideOrigBar, 400); setTimeout(hideOrigBar, 1200); setInterval(hideOrigBar, 2500);
+        // hide overlay immediately on creation (site re-creates every second tick)
+        const hideObs=new MutationObserver(()=> hideOrigBar());
+        try{ hideObs.observe(doc.body, {childList:true, subtree:true, attributes:true}); }catch{}
+        setTimeout(hideOrigBar, 100); setTimeout(hideOrigBar, 400); setTimeout(hideOrigBar, 1200); setInterval(hideOrigBar, 500);
         const statusBar=()=> doc.getElementById('__tmux_top');
         const statusTabs=()=>{ const bar=statusBar(); if(!bar) return []; return Array.from(bar.querySelectorAll('[data-win]')); };
-        // source of truth is DC pane state (or hidden orig bar), NOT our top bar — otherwise
-        // clicking the htop frame directly desyncs highlight (your report: focus htop but ring on terminal)
+        // DETERMINISTIC source of truth (no fiber): the hidden orig bar is still
+        // React-rendered every tick, so its `*`/opacity marker is always fresh.
+        // Our top bar only mirrors it — never the other way around.
         const activeIdx=()=>{
-          try{
-            const c=resolveComp(); if(c&&typeof c.state.pane==='number') return c.state.pane;
-          }catch{}
           try{
             const b=origBarEl(); if(b){
               const spans=Array.from(b.querySelectorAll('span')).filter(s=>/^\d:/.test(((s.textContent||'').trim())));
@@ -187,56 +206,221 @@ export default function IframeExact(){
           const bar=statusBar(); if(!bar) return 0;
           const cur=bar.getAttribute('data-active');
           if(cur!=null) return parseInt(cur,10);
-          const tabs=statusTabs(); const el=tabs.find(s=>s.classList.contains('__active'))||tabs[0]; const m=el?/^(\d):/.exec((el.textContent||'').trim()):null; return m?parseInt(m[1],10):0;
+          return 0;
         };
+        const TMUX_VER='v12-window-title';
         const buildTmux=function(){
-          if(doc.getElementById('__tmux_top')) return doc.getElementById('__tmux_top');
+          const stale=doc.getElementById('__tmux_top');
+          if(stale){
+            if(stale.dataset.ver===TMUX_VER) return stale;
+            try{ stale.remove(); }catch{}
+          }
           try{
-            // same container as main content: the bordered terminal (border:1px solid + radius 8)
             const term=doc.querySelector('div[style*="border-radius:8"]')||doc.getElementById('dc-root')?.firstElementChild||doc.getElementById('dc-root')||doc.body;
-            // icons: cross-browser — inline SVG, no Nerd Font dependency (was tofu on many browsers)
-            // keep no external font load; Fira Code already present
             const host=term.parentElement||term;
+            // remove theme picker entirely — catppuccin only. Robust: locate header
+            // via a theme pill button (style-substring selector never matched:
+            // rendered style has a space after the colon).
+            try{
+              const themeBtn=Array.from(doc.querySelectorAll('button')).find(b=>(b.title||'')==='Catppuccin');
+              let hdr=themeBtn?themeBtn.closest('div[style*="border-bottom"]'):null;
+              if(!hdr) hdr=doc.querySelector('div[style*="border-bottom: 1px solid"]');
+              if(hdr){ hdr.style.display='none'; hdr.style.height='0'; hdr.style.overflow='hidden'; hdr.setAttribute('data-hidden','1'); }
+            }catch{}
             const top=doc.createElement('div');
             top.id='__tmux_top';
+            top.dataset.ver=TMUX_VER;
             top.setAttribute('data-active','0');
-            top.style.cssText='display:flex;align-items:stretch;height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "JetBrains Mono","Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;border-radius:8px 8px 0 0;';
+            top.style.cssText='display:flex;align-items:stretch;min-height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "JetBrains Mono","Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;max-width:100%;width:100%;box-sizing:border-box;margin:0;';
+            // left: traffic lights (from window chrome) + xix3r + windows; right: dir + clock (local catppuccin)
+            // traffic lights moved from header into tmux left; window 2 shows file text last window of tmux
+            top.style.cssText='display:flex;align-items:stretch;min-height:28px;background:#1e1e2e;color:#cdd6f4;font:500 11.5px/1 "JetBrains Mono","Fira Code",monospace;flex:none;overflow:hidden;user-select:none;border-bottom:1px solid #313244;max-width:100%;width:100%;box-sizing:border-box;margin:0;min-width:0;';
             top.innerHTML=`
-              <div style="display:flex;align-items:stretch;gap:0;">
-                <span id="__tmux_prefix" style="display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#313244;color:#a6e3a1;font-weight:700;border-radius:6px 0 0 0;">
-                  <span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#1e1e2e;color:inherit;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <div style="display:flex;align-items:center;gap:6px;padding:0 8px;flex:none;min-width:0;overflow:hidden;">
+                <span id="__tmux_dots" style="display:flex;gap:7px;align-items:center;flex:none;min-width:52px;min-height:12px;" title="window controls">
+                  <button data-dot="close" title="close" style="width:12px;height:12px;border-radius:50%;background:#f38ba8;border:1px solid rgba(0,0,0,0.15);cursor:pointer;padding:0;"></button>
+                  <button data-dot="min" title="minimize" style="width:12px;height:12px;border-radius:50%;background:#f9e2af;border:1px solid rgba(0,0,0,0.15);cursor:pointer;padding:0;"></button>
+                  <button data-dot="max" title="maximize" style="width:12px;height:12px;border-radius:50%;background:#a6e3a1;border:1px solid rgba(0,0,0,0.15);cursor:pointer;padding:0;"></button>
+                </span>
+                <span id="__tmux_prefix" style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#313244;color:#a6e3a1;font-weight:700;border-radius:6px;flex:none;">
+                  <span style="display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#1e1e2e;overflow:hidden;flex:none;">
+                    <img src="/images/xix3r-icon.svg" alt="xix3r" width="16" height="16" style="display:block;width:16px;height:16px;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <span style="display:none;font:700 7px/1 'JetBrains Mono','Fira Code',monospace;color:#cdd6f4;">X3</span>
                   </span>
                   <span style="color:#cdd6f4;">xix3r</span>
                 </span>
-                <span style="display:flex;align-items:center;padding:0 6px;color:#6c7086;font-size:10px;">│</span>
-                <span data-win="0" class="__active" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#313244;color:#cdd6f4;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">0: zsh</span>
-                <span data-win="1" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">1: htop</span>
-                <span data-win="2" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;">2: nvim</span>
+                <span data-win="0" class="__active" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#313244;color:#cdd6f4;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;flex:none;">0: zsh</span>
+                <span data-win="1" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;flex:none;">1: htop</span>
+                <span data-win="2" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:#1e1e2e;color:#a6adc8;border:1px solid #313244;border-radius:6px;margin:4px 2px;cursor:pointer;white-space:nowrap;flex:none;">2: nvim</span>
+                <span id="__win2_label" title="window title" style="display:flex;align-items:center;gap:4px;padding:0 10px;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;cursor:pointer;flex:none;"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:0;">nvim ~/resume/experience.md — tmux</span></span>
               </div>
-              <div style="flex:1"></div>
-              <div style="display:flex;align-items:stretch;gap:6px;padding:0 8px;">
+              <div style="flex:1;min-width:8px;"></div>
+              <div style="display:flex;align-items:stretch;gap:6px;padding:0 8px;flex:none;">
                 <span title="directory" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#f5c2e7;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span id="__tmux_dir" style="color:#cdd6f4;">~/portfolio</span></span>
                 <span title="date_time" style="display:flex;align-items:center;gap:6px;padding:0 8px;background:#313244;color:#89b4fa;border-radius:6px;margin:4px 0;font-size:11px;white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="__tmux_clock" style="color:#cdd6f4;">00:00</span></span>
               </div>
             `;
-            // inside same container as main content (first child of bordered terminal)
-            if(term.firstChild) term.insertBefore(top, term.firstChild);
-            else term.appendChild(top);
+            // part of the window itself: take the exact slot of the original
+            // header (same parent, same position), not a detached add-on
+            try{
+              const themeBtn0=Array.from(doc.querySelectorAll('button')).find(x=>(x.title||'')==='Catppuccin');
+              const hdr0=themeBtn0?themeBtn0.closest('div[style*="border-bottom"]'):null;
+              if(hdr0&&hdr0.parentElement){ hdr0.parentElement.insertBefore(top, hdr0); }
+              else if(term.firstChild) term.insertBefore(top, term.firstChild);
+              else term.appendChild(top);
+            }catch{
+              if(term.firstChild) term.insertBefore(top, term.firstChild);
+              else term.appendChild(top);
+            }
             top.querySelectorAll('[data-win]').forEach(el=>{
               el.addEventListener('click',()=>{
                 const n=parseInt(el.getAttribute('data-win'),10);
                 try{ if(win.__exactSetPane) win.__exactSetPane(n); }catch{}
               });
             });
-            const tick=()=>{ try{ const c=doc.getElementById('__tmux_clock'); if(c) c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); const d=doc.getElementById('__tmux_dir'); if(d){ const ae=activeIdx(); const paths=['~/','~/','~/portfolio']; d.textContent=paths[ae]||'~/'; } }catch{} };
-            tick(); setInterval(tick, 30000);
+            // selected file pill -> same as simplistic (2): jumps to nvim pane
+            try{
+              const lbl=top.querySelector('#__win2_label');
+              if(lbl) lbl.addEventListener('click',()=>{ try{ if(win.__exactSetPane) win.__exactSetPane(2); }catch{} });
+            }catch{}
+            // 3 dots = THE SAME buttons as the internal title bar, relocated here.
+            // No copies, no re-implementation: move the original header's 3
+            // traffic-light buttons into #__tmux_dots so behavior is identical
+            // by definition (same DOM nodes, same React onClick bindings).
+            // dots forward to the SAME original header buttons (never moved, never
+            // copied). Header stays hidden; its buttons keep their React bindings,
+            // so our dots behave identically by definition. Direct comp methods
+            // are fallback only.
+            const fwdDot=(which)=>{
+              try{
+                const themeBtn=Array.from(doc.querySelectorAll('button')).find(x=>(x.title||'')==='Catppuccin');
+                const hdr=themeBtn?themeBtn.closest('div[style*="border-bottom"]'):null;
+                const btns=hdr?Array.from(hdr.querySelectorAll('button')):[];
+                const want=which==='close'?'close':which==='min'?'minimize':'max';
+                const target=btns.find(b=>((b.title||'').toLowerCase().startsWith(want)));
+                if(target){ target.click(); return true; }
+              }catch{}
+              return false;
+            };
+            try{
+              top.querySelectorAll('#__tmux_dots [data-dot]').forEach(d=>{
+                d.addEventListener('click',(ev)=>{
+                  ev.stopPropagation();
+                  const which=d.getAttribute('data-dot');
+                  if(fwdDot(which)) return;
+                  try{
+                    let c=win.__dcComp;
+                    if(!c||typeof c.state.pane!=='number'){ c=resolveComp(); if(c) win.__dcComp=c; }
+                    if(c&&typeof c.setState==='function'){
+                      if(which==='close'){ if(typeof c.askClose==='function') c.askClose(); else c.setState({win:'confirm'}); return; }
+                      if(which==='min'){ c.setState({win:'minimized'}); return; }
+                      if(which==='max'){ c.setState({full:!c.state.full}); return; }
+                    }
+                  }catch(e){ console.log('dots err',e); }
+                });
+              });
+            }catch{}
+            const tick=()=>{
+              try{
+                const c=doc.getElementById('__tmux_clock'); if(c) c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+                const d=doc.getElementById('__tmux_dir'); if(d){ const ae=activeIdx(); const paths=['~/','~/','~/portfolio']; d.textContent=paths[ae]||'~/'; }
+                // right-of-(2) pill is the PREVIOUS topbar's window title (same component, same place)
+                try{
+                  const lbl=doc.getElementById('__win2_label');
+                  if(lbl){
+                    let title='';
+                    // previous topbar's window title (hidden hdr, still React-live).
+                    // Match by CONTENT — live DOM serializes styles with spaces,
+                    // so style-substring selectors never match.
+                    try{
+                      const themeBtn=Array.from(doc.querySelectorAll('button')).find(x=>(x.title||'')==='Catppuccin');
+                      const hdr=themeBtn?themeBtn.closest('div[style*="border-bottom"]'):null;
+                      if(hdr){
+                        const kids=Array.from(hdr.children).filter(el=>el.tagName==='DIV');
+                        const tEl=kids.find(d=>/— (zsh|tmux)$/.test((d.textContent||'').trim()));
+                        if(tEl) title=tEl.textContent.trim();
+                      }
+                    }catch{}
+                    if(!title){
+                      // fallback: nvim file as window title
+                      let p='/home/sameh/resume/experience.md';
+                      try{ const comp=resolveComp(); if(comp&&comp.state&&comp.state.open) p=comp.state.open[comp.state.buf]||p; }catch{}
+                      title=`nvim ${p.replace('/home/sameh/','~/')} — tmux`;
+                    }
+                    if(lbl.firstElementChild.textContent!==title) lbl.firstElementChild.textContent=title;
+                    lbl.title=title;
+                    lbl.style.cursor='pointer';
+                  }
+                }catch{}
+              }catch{}
+            };
+            tick(); setInterval(tick, 1000);
             return top;
           }catch(e){ console.log('buildTmux err',e); return null; }
         };
-        const ensureTmux=()=>{ try{ if(!doc.getElementById('__tmux_top')) buildTmux(); hideOrigBar(); }catch{} };
+        const ensureTmux=()=>{
+          try{
+            const t=doc.getElementById('__tmux_top');
+            if(!t||t.dataset.ver!==TMUX_VER){ try{t&&t.remove();}catch{} buildTmux(); }
+            hideOrigBar();
+          }catch{}
+        };
         ensureTmux(); setTimeout(ensureTmux,600); setTimeout(ensureTmux,1500);
-        // highlight ring follows focus — must survive React re-renders (site rewrites border every tick)
+        // markdown preview: rendered everywhere except cursor line (and visual selection) — like neovim
+        const ensurePreviewCss=()=>{
+          if(doc.getElementById('__md_preview')) return;
+          try{
+            const st=doc.createElement('style'); st.id='__md_preview';
+            st.textContent=`
+              /* preview: non-cursor lines hide markdown markers and render as rich text */
+              div[data-cur="0"] span[style*="var(--dim)"]:first-child { opacity:0.0; width:0; overflow:hidden; display:inline-block; }
+              div[data-cur="0"] { opacity:0.96; }
+              /* heading preview */
+              div[data-cur="0"]:has(span[style*="var(--magenta)"]) span[style*="var(--magenta)"]{ font-size:1.15em; }
+              /* bottom play bar respects same container as top bar */
+              #__audio_injected{ max-width:100%; box-sizing:border-box; border-radius:0 0 8px 8px; margin:0; }
+            `;
+            doc.head.appendChild(st);
+          }catch{}
+        };
+        ensurePreviewCss(); setTimeout(ensurePreviewCss,800);
+        // JS toggle for visual selection — show source on selected lines
+        const syncPreview=()=>{
+          try{
+            const comp=resolveComp();
+            const mode=comp?comp.state.mode:'normal';
+            const isVisual=mode==='visual';
+            let a=0,b=0;
+            if(isVisual&&comp&&typeof comp.vAnchor==='number'&&typeof comp.vHead==='number'){
+              a=Math.min(comp.vAnchor,comp.vHead); b=Math.max(comp.vAnchor,comp.vHead);
+            } else if(comp&&typeof comp.state.cursor==='number'){
+              const cur=comp.state.cursor; a=cur; b=cur;
+            } else return;
+            const src=(()=>(comp?comp.readBuf(comp.state.open[comp.state.buf]):''))();
+            const lines=src.split('\n');
+            // map offset to line
+            const off2line=(off)=>{
+              let cur=0;
+              for(let i=0;i<lines.length;i++){
+                const len=lines[i].length+1;
+                if(off<cur+len) return i;
+                cur+=len;
+              }
+              return lines.length-1;
+            };
+            const curLine=isVisual? off2line(a) : off2line(a);
+            const selStart=isVisual? off2line(a):curLine;
+            const selEnd=isVisual? off2line(b):curLine;
+            doc.querySelectorAll('div[data-cur]').forEach((el,i)=>{
+              // DC lines are 1-indexed via n, but DOM order matches src lines
+              const lineIdx=i; // approximate
+              const inSel=isVisual? (lineIdx>=selStart&&lineIdx<=selEnd) : (lineIdx===curLine);
+              el.setAttribute('data-preview', inSel? 'source':'render');
+            });
+          }catch{}
+        };
+        setInterval(syncPreview, 400);
+        // highlight ring: single 2px magenta border (not multi-line boxShadow) — gaps 1-5px stay solid
         const paintPanes=()=>{
           try{
             const idx=activeIdx();
@@ -250,15 +434,15 @@ export default function IframeExact(){
               const lab=Array.from(doc.querySelectorAll('div')).find(d=>(d.textContent||'').trim()===txt);
               let frame=lab?lab.closest('div[style*="border"]')||lab.parentElement:null;
               if(!frame){
-                // fallback: find by pane label id
                 const all=Array.from(doc.querySelectorAll('div'));
                 frame=all.find(d=> d.querySelector&&d.querySelector('div')&&Array.from(d.querySelectorAll('div')).some(x=>(x.textContent||'').trim()===txt));
               }
               if(!frame) return;
               if(i===idx){
                 frame.style.borderColor=magenta;
-                frame.style.boxShadow=`0 0 0 2px ${magenta}, inset 0 0 0 1px ${magenta}`;
-                frame.style.outline='none';
+                frame.style.boxShadow=`0 0 0 1px ${magenta}`;
+                frame.style.outline=`2px solid ${magenta}`;
+                frame.style.outlineOffset='-2px';
               } else {
                 frame.style.borderColor='';
                 frame.style.boxShadow='';
@@ -296,8 +480,18 @@ export default function IframeExact(){
           if(n===2){ setTimeout(()=>{ try{ if(win.__cmView) win.__cmView.focus(); }catch{} },80); }
           setTimeout(paintPanes,60);
         };
-        // direct DC state (hidden bar is display:none, so synthetic click never fires)
-        // cache comp once found — avoids repeated fiber walks
+        // DETERMINISTIC write: click the hidden orig-bar span FIRST — it carries
+        // the real React onClick (verified: native .click() fires it even when
+        // display:none). Fiber setState is only a fallback.
+        const clickOrigPane=(n)=>{
+          try{
+            const b=origBarEl(); if(!b) return false;
+            const spans=Array.from(b.querySelectorAll('span'));
+            const target=spans.find(s=> (s.textContent||'').trim().startsWith(`${n}:`));
+            if(target){ target.click(); return true; }
+          }catch{}
+          return false;
+        };
         const setDCpane=(n)=>{
           try{
             let c=win.__dcComp;
@@ -308,14 +502,7 @@ export default function IframeExact(){
         };
         if(!win.__exactSetPane){
           win.__exactSetPane = (n)=>{
-            const ok=setDCpane(n);
-            if(!ok){ try{
-              const b=origBarEl(); if(b){
-                const spans=Array.from(b.querySelectorAll('span'));
-                const target=spans.find(s=> (s.textContent||'').trim().startsWith(`${n}:`));
-                if(target) target.click();
-              }
-            }catch{} }
+            if(!clickOrigPane(n)) setDCpane(n);
             try{
               const top=doc.getElementById('__tmux_top');
               if(top){ top.setAttribute('data-active', String(n)); }
@@ -352,10 +539,10 @@ export default function IframeExact(){
           if(k==='0'||k==='1'||k==='2'){ setPaneNum(parseInt(k,10)); return; }
           if(k==='o'||k===' '||k==='n'){ try{win.__exactPaneSwitch(1);}catch{} setTimeout(paintPanes,60); return; }
           if(k==='p'){ try{win.__exactPaneSwitch(-1);}catch{} setTimeout(paintPanes,60); return; }
-          if(k==='h'){ try{win.__exactMoveDir('left');}catch{} return; }
-          if(k==='j'){ try{win.__exactMoveDir('down');}catch{} return; }
-          if(k==='k'){ try{win.__exactMoveDir('up');}catch{} return; }
-          if(k==='l'){ try{win.__exactMoveDir('right');}catch{} return; }
+          if(k==='h'||k==='ArrowLeft'){ try{win.__exactMoveDir('left');}catch{} return; }
+          if(k==='j'||k==='ArrowDown'){ try{win.__exactMoveDir('down');}catch{} return; }
+          if(k==='k'||k==='ArrowUp'){ try{win.__exactMoveDir('up');}catch{} return; }
+          if(k==='l'||k==='ArrowRight'){ try{win.__exactMoveDir('right');}catch{} return; }
           // non-trusted synth: our capture ignores it, DC bubble handles theme natively
           if(k==='t'){ try{ doc.dispatchEvent(new KeyboardEvent('keydown',{key:'t',bubbles:true})); }catch{} return; }
           if(k==='?'){ try{ setSiteHelp(v=>!v); }catch{} return; }
@@ -397,38 +584,43 @@ export default function IframeExact(){
                 if(!e.isTrusted) return;
                 const k=e.key, t=e.target;
                 const inShellInput=t&&t.tagName==='INPUT';
-                const ik=!!(e.ctrlKey&&k==='b')||!!(win.__tmuxPrefix);
-                // C-b l/h/j/k + arrows must update highlight + pane focus regardless of cm focus
-                if(e.ctrlKey&&k==='b'&&!inShellInput){
+                const inTextArea=t&&t.tagName==='TEXTAREA';
+                // prefix: C-a (local config) + C-b (compat). Never arm while typing
+                // (shell readline C-a, vim insert) — matches original DC behavior.
+                if(e.ctrlKey&&(k==='b'||k==='a')&&!inShellInput&&!inTextArea){
                   e.preventDefault(); e.stopPropagation();
                   win.__tmuxPrefix=true; try{setTmuxPrefix(true);}catch{}
+                  try{ paintPanes(); }catch{}
                   clearTimeout(win.__tmuxTimer);
-                  win.__tmuxTimer=setTimeout(()=>{ win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{} },2500);
+                  win.__tmuxTimer=setTimeout(()=>{ win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{} try{ paintPanes(); }catch{} },2500);
                   return;
                 }
                 if(win.__tmuxPrefix){
                   if(e.repeat) return;
                   e.preventDefault(); e.stopPropagation();
                   win.__tmuxPrefix=false; try{setTmuxPrefix(false);}catch{}
-                  if(k==='ArrowLeft'){ try{setPaneNum(activeIdx()===2?0:0);}catch{} return; }
-                  if(k==='ArrowRight'){ try{setPaneNum(activeIdx()===0||activeIdx()===1?2:2);}catch{} return; }
-                  if(k==='ArrowUp'){ try{setPaneNum(activeIdx()===1?0:0);}catch{} return; }
-                  if(k==='ArrowDown'){ try{setPaneNum(activeIdx()===0?1:1);}catch{} return; }
                   tmuxKey(k);
+                  try{ paintPanes(); }catch{}
                   return;
                 }
                 const meta=e.metaKey||e.ctrlKey;
-                if(meta&&!inShellInput){
+                if(meta&&!inShellInput&&!inTextArea){
                   const cv=win.__cmView;
                   if(k==='0'||k==='1'||k==='2'){ e.preventDefault(); e.stopPropagation(); setPaneNum(parseInt(k,10)); return; }
+                  const lk=(k||'').toLowerCase();
+                  // Super+h/l/u/d + arrows: directional pane nav (works with or without CM).
+                  // Super+j/k: vim 5-line when CM focused, else directional pane move.
+                  if(lk==='h'||k==='ArrowLeft'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('left'); }catch{} return; }
+                  if(lk==='l'||k==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('right'); }catch{} return; }
+                  if(k==='u'||k==='ArrowUp'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('up'); }catch{} return; }
+                  if(k==='d'||k==='ArrowDown'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('down'); }catch{} return; }
                   if(cv&&isCmFocused(cv)){
-                    const lk=(k||'').toLowerCase();
                     if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); cmMove(cv,lk==='j'?5:-5); return; }
-                    if(k==='d'||k==='u'){ e.preventDefault(); e.stopPropagation(); const d=k==='d'?1:-1; cmMove(cv,d*12); cmHalfScroll(cv,d,1); return; }
                     if(k==='f'||k==='b'){ e.preventDefault(); e.stopPropagation(); const d=k==='f'?1:-1; cmMove(cv,d*24); cmHalfScroll(cv,d,2); return; }
+                    return;
                   }
-                  if(lk==='j'||lk==='k'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactPaneSwitch(lk==='j'?1:-1);}catch{} return; }
-                  if(k==='h'||k==='l'||k==='ArrowLeft'||k==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir(k==='h'||k==='ArrowLeft'?'left':'right');}catch{} return; }
+                  if(lk==='j'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('down'); }catch{} return; }
+                  if(lk==='k'){ e.preventDefault(); e.stopPropagation(); try{ win.__exactMoveDir('up'); }catch{} return; }
                 }
               }catch{}
             };
@@ -488,7 +680,7 @@ export default function IframeExact(){
         };
         win.__resolveComp=resolveComp;
         win.__nvimActive=()=>{ try{ const c=resolveComp(); return !!(c&&c.state.pane===2&&(c.state.mode==='normal'||c.state.mode==='visual')); }catch{ return false; } };
-        setInterval(()=>{ try{ resolveComp(); }catch{} },1500);
+        // comp cache refresh folded into the single heal loop below (no solo interval).
         if(!win.__cmVimMounted){
           win.__cmVimMounted=true;
           win.__cmTries=0;
@@ -574,12 +766,15 @@ export default function IframeExact(){
             });
           }catch{}
         };
-        setTimeout(observeActive,800); setInterval(observeActive,1500);
+        setTimeout(observeActive,800);
+        // ONE heal loop (was 5+ overlapping intervals racing each other):
+        // ensure bars -> hide chrome -> observe -> CM host -> tab sync -> repaint.
         if(!win.__cmHeal){
           win.__cmHeal=true;
           setInterval(()=>{
             try{
               ensureTmux(); hideOrigBar(); observeActive();
+              try{ const c=resolveComp(); if(c) win.__dcComp=c; }catch{}
               if(!win.__cmView){ try{win.__mountCM&&win.__mountCM();}catch{} return; }
               ensureCmCss();
               let buf=doc.getElementById('__dc_buf');
@@ -1098,7 +1293,8 @@ export default function IframeExact(){
 
         const wrapper = doc.createElement('div');
         wrapper.id = '__audio_injected';
-        wrapper.setAttribute('style', 'margin-top:8px; border:1px solid var(--surf); border-radius:3px; background:var(--bg); padding:8px 10px; position:relative;');
+        // bottom bar respects app container (full width inside bordered terminal, like top bar)
+        wrapper.setAttribute('style', 'border-top:1px solid var(--surf); border-radius:0 0 8px 8px; background:var(--bg); padding:8px 10px; position:relative; max-width:100%; box-sizing:border-box; flex:none;');
         wrapper.innerHTML = `
           <div style="position:absolute; top:-7px; left:8px; background:var(--bg); padding:0 4px; font-size:10px; color:var(--muted); white-space:nowrap;">audio <span style="color:var(--fg)">visualizer</span> <span style="color:var(--dim)">· pui / cava</span></div>
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:6px;">
@@ -1115,15 +1311,11 @@ export default function IframeExact(){
           <canvas id="av-canvas" width="680" height="84" style="width:100%; height:84; display:block; border-radius:2px; background:var(--bg2); border:1px solid var(--surf);"></canvas>
           <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--dim); margin-top:4px;"><span id="av-left">○ idle · bars</span><span>below htop · Web Audio API · most famous cava style</span></div>
         `;
-        // insert after htop pane (which is inside left column)
-        if(htopPane && htopPane.parentElement){
-          // htopPane's parent is left column; insert after htop pane but before any splitter after
-          const leftCol = htopPane.parentElement;
-          // htop is second child after zsh, find its index and insert after
-          leftCol.appendChild(wrapper); // append at end of left col (after htop) — visual is below htop
-        } else {
-          doc.body.appendChild(wrapper);
-        }
+        // bottom bar: same container as top bar (bordered terminal), full width
+        const term2=doc.querySelector('div[style*="border-radius:8"]')||doc.getElementById('dc-root')||doc.body;
+        if(term2){ term2.appendChild(wrapper); }
+        else if(htopPane && htopPane.parentElement){ htopPane.parentElement.appendChild(wrapper); }
+        else { doc.body.appendChild(wrapper); }
 
         // wire up canvas logic (vanilla copy of AudioVisualizer)
         const canvas = doc.getElementById('av-canvas');
