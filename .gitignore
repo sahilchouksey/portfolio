@@ -56,3 +56,7 @@ ascii-art*.txt
 !public/images/*.png
 dragons/
 temp/
+
+# Vercel local link (project/org IDs)
+.vercel
+.env*
