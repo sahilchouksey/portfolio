@@ -1889,6 +1889,13 @@ body {
 /* globe: the hovered-state boundary eases in and out — never a hard pop */
 [data-hairline="globe"] .hov-state { transition: opacity 0.38s ease; }
 
+/* globe (light only): the ocean silhouette circle fell back to the SVG
+   default fill (black) — fill it with the component's own plate colour,
+   mirroring how dark theme sits on the near-black plate; stroke unchanged */
+:root[data-theme="light"] [data-hairline="globe"] circle.sil {
+  fill: var(--surface);
+}
+
 /* hero card: the theme toggle is the responsive fallback — pinned
    bottom-right of the left card, shown ONLY when the contact card hides */
 .hero-theme-toggle-wrap {
