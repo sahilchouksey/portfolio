@@ -132,15 +132,82 @@ body {
   min-width: 0; /* Prevent flex item from constraining parent */
 }
 
-.hero-theme-toggle-wrap {
-  display: none;
-}
-
 .contact-theme-toggle-wrap {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: 8px;
+  bottom: 8px;
   z-index: 30;
+}
+
+/* the bomber pill: same whisper-quiet glass trigger as the theme toggle, top-right of the component */
+.contact-bomber-wrap {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 30;
+}
+.contact-bomber-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border: 1px solid color-mix(in srgb, var(--border-default) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 52%, transparent);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.contact-bomber-toggle:hover,
+.contact-bomber-toggle[aria-pressed="true"] {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, #000 16%, transparent);
+}
+.contact-bomber-toggle:active { transform: scale(0.97); }
+.contact-bomber-toggle:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+.contact-bomber-toggle[aria-pressed="true"] {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+.contact-bomber-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+
+/* the theme chips: a whisper-quiet pill so the floating sun knows it is a
+   button - border and glass, a breath of lift on arrival, a press when you
+   commit the flip */
+.hero-theme-toggle,
+.contact-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border: 1px solid color-mix(in srgb, var(--border-default) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 52%, transparent);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-theme-toggle:hover,
+.contact-theme-toggle:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, #000 16%, transparent);
+}
+.hero-theme-toggle:active,
+.contact-theme-toggle:active {
+  transform: translateY(0) scale(0.97);
+}
+.hero-theme-toggle:focus-visible,
+.contact-theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
 }
 
 .theme-toggle-button {
@@ -184,16 +251,11 @@ body {
 }
 
 @media screen and (max-width: 991px) {
-  .contact-theme-toggle-wrap {
-    display: none;
-  }
-
-  .hero-theme-toggle-wrap {
+  .contact-bomber-wrap {
     position: absolute;
-    right: 10px;
-    bottom: 10px;
-    z-index: 20;
-    display: block;
+    top: 8px;
+    right: 8px;
+    z-index: 30;
   }
 }
 
@@ -975,6 +1037,98 @@ body {
   color: #ffffff !important;
 }
 
+/* ===== SOCIAL LINK SWAPS ===== */
+/* The pill keeps its width from the word: the label and the mark share one
+   grid cell, so nothing jumps. On hover the word glides up and away while
+   the platform mark rises into its place. The resume pill keeps its word —
+   behind it the paper of resume.pdf rises instead. */
+.social-link {
+  position: relative;
+  overflow: hidden;
+}
+.social-link .sl-swap {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+.social-link .sl-label,
+.social-link .sl-icon {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  position: relative;
+  z-index: 1; /* the words and marks ride above the paper */
+}
+.social-link .sl-label {
+  transition: transform 340ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease;
+}
+.social-link .sl-icon {
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 340ms cubic-bezier(0.4, 0, 0.2, 1), opacity 260ms ease;
+}
+.social-link:hover .sl-label,
+.social-link:focus-visible .sl-label {
+  transform: translateY(-120%);
+  opacity: 0;
+}
+.social-link:hover .sl-icon,
+.social-link:focus-visible .sl-icon {
+  transform: translateY(0);
+  opacity: 1;
+}
+/* resume: the word stays "hire me!"; the paper rises behind it — the sheet
+   is drawn at twice the pill's height, so the window shows its top half,
+   zoomed out like a page seen from across the desk */
+.social-link .sl-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* the paper sits under the words */
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(1.06);
+  transform-origin: 50% 0;
+  transition: opacity 380ms ease, transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  background-color: #b7b2a7; /* the desk under the sheet, dimmed */
+  background-image: url('/images/resume-preview.png');
+  background-size: auto 200%;
+  background-position: 50% 0;
+  background-repeat: no-repeat;
+}
+.social-link .sl-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 14, 0.42);
+}
+/* resume: idle says "resume."; on hover the word glides away and
+   "hire me!" rises in its place over the paper */
+.social-link .sl-alt {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  position: relative;
+  z-index: 1;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 340ms cubic-bezier(0.4, 0, 0.2, 1), opacity 260ms ease;
+}
+.social-link:hover .sl-alt,
+.social-link:focus-visible .sl-alt {
+  transform: translateY(0);
+  opacity: 1;
+}
+.social-link[data-social='resume']:hover .sl-preview,
+.social-link[data-social='resume']:focus-visible .sl-preview {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .social-link .sl-label,
+  .social-link .sl-icon,
+  .social-link .sl-preview {
+    transition: none;
+  }
+}
+
 /* Mobile nav / burger overlay should follow manual theme toggle */
 :root[data-theme='light'] .nav-menu,
 :root[data-theme='light'] .hamburger-menu.w--open,
@@ -1125,9 +1279,10 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: all 0.2s ease;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--surface-elevated);
   padding: 12px;
   border-radius: 8px;
+  border: 1px solid var(--border-subtle);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 100;
 }
@@ -1139,7 +1294,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.9);
+  border-top-color: var(--surface-elevated);
 }
 
 .tech-skill:hover .tech-icon-tooltip {
@@ -1147,11 +1302,23 @@ body {
   opacity: 1;
 }
 
+/* Icon glyphs render as pure outline, b/w only, following the page theme */
+.tech-icon-tooltip svg {
+  color: var(--text-primary);
+  width: 60px;
+  height: 60px;
+}
+
 .tech-icon {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   display: block;
-  filter: brightness(1.2);
+  /* b/w only: monochrome; invert in light theme to stay readable */
+  filter: grayscale(1) brightness(1.4);
+}
+
+:root[data-theme='light'] .tech-icon {
+  filter: grayscale(1) invert(1) brightness(0.85);
 }
 
 /* ===== TIMELINE (EXPERIENCE) ===== */
@@ -1381,6 +1548,218 @@ body {
 }
 
 /* ===== ASCII FRAME STYLES (Golden Sky Border) ===== */
+/* ===== THE LIVING WORDS ===== */
+/* words that do something wear a faint dotted hairline - the site's own
+   dash language: quiet until you look, marching when you arrive */
+.age-dob,
+.loc-jbp {
+  position: relative;
+}
+.age-dob::after,
+.loc-jbp::after {
+  content: "";
+  position: absolute;
+  left: 0.1em;
+  right: 0.1em;
+  bottom: -0.055em;
+  height: 0.035em;
+  border-radius: 99px;
+  background-image: radial-gradient(circle at 50% 50%, currentColor 38%, transparent 44%);
+  background-size: 0.22em 100%;
+  background-repeat: repeat-x;
+  opacity: 0.07;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.age-dob:hover::after,
+.age-dob.hot::after,
+.loc-jbp:hover::after {
+  opacity: 0.6;
+  animation: dot-march 0.9s linear infinite;
+}
+@keyframes dot-march {
+  to {
+    background-position: 0.14em 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .age-dob:hover::after,
+  .age-dob.hot::after,
+  .loc-jbp:hover::after {
+    animation: none;
+  }
+}
+
+/* the location word: hover warms to the accent, click is the globe's click */
+.loc-jbp {
+  cursor: pointer;
+  transition: color 0.22s ease;
+}
+.loc-jbp:hover {
+  color: var(--accent-primary);
+}
+
+/* the age hover: a candle tooltip rises over the age, hairline cake lit */
+.age-dob {
+  position: relative;
+  cursor: pointer;
+}
+.age-dob.hot {
+  color: var(--accent-primary);
+}
+.dob-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(8px) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: 460px;
+  padding: 18px 18px 14px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  box-shadow: 0 10px 34px color-mix(in srgb, #000 45%, transparent);
+  z-index: 60;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.dob-tip.open {
+  opacity: 0.99;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.dob-tip .micro-fig {
+  width: auto !important;
+  height: 152px !important;
+  aspect-ratio: auto;
+}
+.dob-lines {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.dob-lines .span-gray {
+  font-size: 12.5px;
+}
+
+/* THE CAKE — a real dessert palette layered over the hairline tones. The
+   figure itself stays colour-free: every hot or sweet part carries a token
+   and the theme maps it here. The flame follows the verified fire ramp,
+   hottest = palest at the base; the cake keeps bakery pastels. */
+[data-hairline="cake"] .fire {
+  filter: drop-shadow(0 0 5px rgba(255, 140, 26, 0.55));
+}
+[data-hairline="cake"] .dot.fire {
+  fill: #fff3b0; /* white-heat heart */
+}
+[data-hairline="cake"] .dot.m.fire {
+  fill: #ffd23f; /* golden flame body */
+}
+[data-hairline="cake"] .nf.lo.fire {
+  stroke: #ff8c1a; /* flame edge */
+}
+[data-hairline="cake"] .nf.hi.fire {
+  stroke: #e8361c; /* filament tips */
+}
+/* the dessert, in a patisserie palette: warm oat sponge with a soft caramel
+   edge, dusty blush icing, cocoa lettering, milk-cocoa crumbs and a dusty
+   terracotta candle - muted dessert tones that sit calmly on the hairline
+   plate next to the fire's ramp. Smoke stays smoke. */
+[data-hairline="cake"] .dot.off.tier-b {
+  fill: #ece1cd;
+}
+[data-hairline="cake"] .nf.tier-b {
+  stroke: #ab8760;
+}
+[data-hairline="cake"] .tier-t {
+  fill: #e5b8b0;
+  stroke: #bd8d83;
+}
+[data-hairline="cake"] .dot.m.digits {
+  fill: #5a4234;
+}
+[data-hairline="cake"] .dot.m.crumbs {
+  fill: #8a6a51;
+}
+[data-hairline="cake"] .nf.candle {
+  stroke: #c17a6a;
+}
+/* the fire — three alpha teardrops in one feTurbulence-displaced group,
+   a halo bleeding into the plate and a blue sliver at the wick; all alpha
+   falloffs, no blend modes, so the ramp reads on both themes */
+[data-hairline="cake"] .cake-flame { stroke: none; }
+[data-hairline="cake"] .cake-flame-outer { stroke: none; fill: url(#cakeFlameOuter); }
+[data-hairline="cake"] .cake-flame-mid { stroke: none; fill: url(#cakeFlameMid); }
+[data-hairline="cake"] .cake-flame-core { stroke: none; fill: url(#cakeFlameCore); }
+[data-hairline="cake"] .cake-wick-blue { stroke: none; fill: url(#cakeWickBlue); }
+[data-hairline="cake"] .cake-halo { stroke: none; fill: url(#cakeHalo); opacity: 0.8; }
+/* light theme: deepen the fire so it reads on the light plate; the dessert
+   drops one warm stop so its outlines still carry it on white */
+:root[data-theme="light"] [data-hairline="cake"] .dot.off.tier-b {
+  fill: #e8dcc6;
+}
+:root[data-theme="light"] [data-hairline="cake"] .nf.tier-b {
+  stroke: #9a774f;
+}
+:root[data-theme="light"] [data-hairline="cake"] .tier-t {
+  fill: #dda9a0;
+  stroke: #a87466;
+}
+:root[data-theme="light"] [data-hairline="cake"] .dot.m.digits {
+  fill: #4d372a;
+}
+:root[data-theme="light"] [data-hairline="cake"] .dot.m.crumbs {
+  fill: #7c5e47;
+}
+:root[data-theme="light"] [data-hairline="cake"] .nf.candle {
+  stroke: #b06a58;
+}
+/* light theme: the halo shouts on white, so drop it; the ember coat drops
+   too so the tongue stays legible on the light plate */
+:root[data-theme="light"] [data-hairline="cake"] .cake-halo {
+  opacity: 0.45;
+}
+:root[data-theme="light"] [data-hairline="cake"] .cake-flame-outer {
+  opacity: 0.78;
+}
+
+
+/* the timezone + description row: tighter footprint so the globe card does
+   not sprawl - the freed height goes to them both, not to dead padding */
+.grid-header-reverse .card {
+  padding: 32px 44px;
+}
+.card.timezone {
+  grid-row-gap: 24px;
+}
+.card.timezone .h2-heading.timezone {
+  font-size: 60px;
+  line-height: 66px;
+}
+@media screen and (max-width: 460px) {
+  .card.timezone .h2-heading.timezone {
+    font-size: 46px;
+    line-height: 46px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .grid-header-reverse .card {
+    padding: 32px;
+  }
+  .card.timezone {
+    grid-row-gap: 8px;
+  }
+}
+
 .ascii-frame-container {
   position: absolute;
   inset: 0;
@@ -1408,10 +1787,29 @@ body {
 }
 
 .ascii-frame--glow {
-  text-shadow: 
-    0 0 1px rgba(255, 215, 0, 0.9),
-    0 0 2px rgba(255, 215, 0, 0.6),
-    0 0 4px rgba(255, 215, 0, 0.3);
+  text-shadow:
+    0 0 1px color-mix(in srgb, var(--text-secondary) 90%, transparent),
+    0 0 2px color-mix(in srgb, var(--text-secondary) 60%, transparent),
+    0 0 4px color-mix(in srgb, var(--text-secondary) 30%, transparent);
+}
+
+/* the lit patch that rides the pointer: the same glyphs at accent strength,
+   masked to a small pool whose centre the JS spring steers */
+.ascii-frame-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--map-on, 0);
+  transition: opacity 0.35s ease;
+  -webkit-mask-image: radial-gradient(circle 230px at var(--mx, -999px) var(--my, -999px), #000 0%, rgba(0,0,0,0.75) 42%, transparent 78%);
+  mask-image: radial-gradient(circle 230px at var(--mx, -999px) var(--my, -999px), #000 0%, rgba(0,0,0,0.75) 42%, transparent 78%);
+}
+
+.ascii-frame--lit {
+  color: var(--accent-primary, #22d3ee) !important;
+  opacity: 1;
+  text-shadow: 0 0 1px color-mix(in srgb, var(--accent-primary, #22d3ee) 70%, transparent), 0 0 7px color-mix(in srgb, var(--accent-primary, #22d3ee) 60%, transparent);
 }
 
 /* ===== SHINE SWEEP EFFECT (plays once on load & hover) ===== */
@@ -1473,20 +1871,35 @@ body {
 }
 
 :root[data-theme='dark'] .ascii-frame--glow {
-  text-shadow: 
-    0 0 3px rgba(255, 229, 92, 0.6),
-    0 0 6px rgba(255, 229, 92, 0.4),
-    0 0 12px rgba(255, 229, 92, 0.2);
+  text-shadow:
+    0 0 3px color-mix(in srgb, var(--text-secondary) 60%, transparent),
+    0 0 6px color-mix(in srgb, var(--text-secondary) 40%, transparent),
+    0 0 12px color-mix(in srgb, var(--text-secondary) 20%, transparent);
 }
 
-/* Theme variations for light mode - darker gold */
-:root[data-theme='light'] .ascii-frame {
-  color: #B8860B;
-}
-
+/* Theme variations follow the site tokens — the frame's colour comes from
+   var(--text-secondary) inline, so these legacy gold overrides are retired */
 :root[data-theme='light'] .ascii-frame--glow {
-  text-shadow: 
-    0 0 2px rgba(184, 134, 11, 0.4);
+  text-shadow:
+    0 0 2px color-mix(in srgb, var(--text-secondary) 40%, transparent);
 }
 
 /* Frame is visible until card is hidden at 896px */
+
+/* globe: the hovered-state boundary eases in and out — never a hard pop */
+[data-hairline="globe"] .hov-state { transition: opacity 0.38s ease; }
+
+/* hero card: the theme toggle is the responsive fallback — pinned
+   bottom-right of the left card, shown ONLY when the contact card hides */
+.hero-theme-toggle-wrap {
+  display: none;
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  z-index: 6;
+}
+@media (max-width: 896px) {
+  .hero-theme-toggle-wrap {
+    display: block;
+  }
+}

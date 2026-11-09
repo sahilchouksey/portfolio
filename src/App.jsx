@@ -8,7 +8,7 @@ import TimezoneCard from './components/sections/TimezoneCard';
 import DescriptionCard from './components/sections/DescriptionCard';
 import SocialLinks from './components/sections/SocialLinks';
 import TechStackSection from './components/sections/TechStackSection';
-import ThemeToggleButton from './components/sections/ThemeToggleButton';
+import SunMoonToggle from './micro/SunMoonToggle';
 import { useTheme } from './hooks/useTheme';
 
 
@@ -18,8 +18,9 @@ import FooterSection from './components/sections/FooterSection';
 const ResumeEditor = lazy(() => import('./resume-editor/ResumeEditor.jsx'));
 
 function App() {
-  const { themePreference, resolvedTheme, toggleTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useTheme();
 
+  const [showBombers, setShowBombers] = useState(false);
   const [route, setRoute] = useState(
     typeof window !== 'undefined' && window.location.hash.startsWith('#/resume-editor')
       ? 'editor'
@@ -28,8 +29,7 @@ function App() {
 
   useEffect(() => {
     const onHash = () => {
-      const h = window.location.hash;
-      if (h.startsWith('#/resume-editor')) setRoute('editor');
+      if (window.location.hash.startsWith('#/resume-editor')) setRoute('editor');
       else setRoute('home');
     };
     window.addEventListener('hashchange', onHash);
@@ -76,7 +76,7 @@ function App() {
         navLinks={[
           { text: "home.", href: "#", current: true },
           { text: "experience.", href: "#Experience" },
-          { text: "contact.", href: "#Footer" }
+          { text: "contact.", href: "#Footer" },
         ]}
       />
 
@@ -88,28 +88,35 @@ function App() {
             {/* Top Grid - Hero and Contact */}
             <div className="w-layout-grid grid-header">
               <HeroCard
-                avatarSrc="/images/avatar.webp"
                 name="Sahil Chouksey"
-                title="Full Stack Developer"
                 subtitle="Democratizing technology, one open solution at a time"
                 themeToggle={(
-                  <ThemeToggleButton
+                  <SunMoonToggle
                     resolvedTheme={resolvedTheme}
-                    themePreference={themePreference}
-                    onToggle={toggleTheme}
+                    toggleTheme={toggleTheme}
                     className="hero-theme-toggle"
                   />
                 )}
               />
               <ContactCard
-                title="Have a project in mind?"
-                email="hey@sahilchouksey.in"
-                showButton={true}
+                bombers={showBombers}
+                bomberToggle={(
+                  <button
+                    className="contact-bomber-toggle"
+                    onClick={() => setShowBombers((v) => !v)}
+                    aria-pressed={showBombers}
+                    aria-label={showBombers ? "Hide the bombers" : "Release the bombers"}
+                    title={showBombers ? "hide the B2s" : "release the B2s"}
+                  >
+                    <svg viewBox="0 0 26 14" width="15" height="8" aria-hidden="true" className="contact-bomber-icon">
+                      <path fill="currentColor" d="M13 0 L25 12 L15 9 L13 13 L11 9 L1 12 Z" />
+                    </svg>
+                  </button>
+                )}
                 themeToggle={(
-                  <ThemeToggleButton
+                  <SunMoonToggle
                     resolvedTheme={resolvedTheme}
-                    themePreference={themePreference}
-                    onToggle={toggleTheme}
+                    toggleTheme={toggleTheme}
                     className="contact-theme-toggle"
                   />
                 )}
@@ -129,7 +136,7 @@ function App() {
             {/* Bottom Grid - Timezone and Description */}
             <div className="w-layout-grid grid-header-reverse">
               <TimezoneCard
-                location="Jabalpur,<br />India"
+                location='<span class="loc-jbp">Jabalpur,</span><br />India'
                 timezone="GMT+5:30"
                 iconComponent={
                   <svg width="112" height="112" fill="none" xmlns="http://www.w3.org/2000/svg">

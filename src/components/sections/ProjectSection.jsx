@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useMultipleScrollAnimations } from '../../hooks/useScrollAnimation';
+import MicroFigure from '../../micro/MicroFigure';
 
 const ProjectSection = () => {
     const projects = [
@@ -12,6 +13,7 @@ const ProjectSection = () => {
             link: "https://briohealth.ai",
             tags: ["LangGraph", "Vertex AI", "Gemini"],
             imageSrc: "/images/brio-logo.svg",
+            figure: "brio",
             logoScale: 2, // 2x bigger (reduced from 4x)
             year: "2025"
         },
@@ -33,6 +35,7 @@ const ProjectSection = () => {
             description: "Your finances, your server. A self-hosted expense tracker that keeps your spending data completely private - no third-party access, no data harvesting, just you and your money.",
             link: "#",
             tags: ["React", "Docker", "Node.js"],
+            figure: "monefy",
             imageSrc: "/images/monefy-logo.svg",
             isRounded: true,
             year: "2025"
@@ -44,6 +47,7 @@ const ProjectSection = () => {
             description: "Built a patient records system in Golang, cutting API latency by 4X (200ms→50ms). Features encrypted health records, role-based access for doctors and assistants, and HIPAA-compliant architecture from the ground up.",
             link: "#",
             tags: ["Golang", "Next.js", "HIPAA"],
+            figure: "doct",
             imageSrc: "/images/doct-logo.svg",
             isRounded: true,
             year: "2023"
@@ -55,6 +59,7 @@ const ProjectSection = () => {
             description: "Built my own music player to test my skills building something like YouTube Music. Search any song, album, or artist through a clean, ad-free interface - exactly how streaming should feel.",
             link: "https://soundrex.netlify.app",
             tags: ["Material UI", "MongoDB", "Streaming"],
+            figure: "soundrex",
             imageSrc: "/images/soundrex-logo.svg",
             logoClass: "project-logo--light-black",
             logoScale: 4, // 4x bigger (reduced from 8x)
@@ -160,7 +165,7 @@ const ProjectSection = () => {
         if (!isClickable) {
             return (
                 <div className={cardClassName}>
-                    <div className="project-logo-container">
+                    <div className="project-logo-container" style={{ position: 'relative', zIndex: 1 }}>
                         <img
                             src={project.imageSrc}
                             alt={project.title}
@@ -170,7 +175,7 @@ const ProjectSection = () => {
                             decoding="async"
                         />
                     </div>
-                    <div className="project-title-group">
+                    <div className="project-title-group" style={{ position: 'relative', zIndex: 1 }}>
                         <h3 className="project-title">{project.title}</h3>
                         <div className="project-subtitle">{project.subtitle}</div>
                         <div className="project-tech-stack">
@@ -193,7 +198,7 @@ const ProjectSection = () => {
                         <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </div>
-                <div className="project-logo-container">
+                <div className="project-logo-container" style={{ position: 'relative', zIndex: 1 }}>
                     <img
                         src={project.imageSrc}
                         alt={project.title}
@@ -203,7 +208,7 @@ const ProjectSection = () => {
                         decoding="async"
                     />
                 </div>
-                <div className="project-title-group">
+                <div className="project-title-group" style={{ position: 'relative', zIndex: 1 }}>
                     <h3 className="project-title">{project.title}</h3>
                     <div className="project-subtitle">{project.subtitle}</div>
                     <div className="project-tech-stack">
@@ -221,7 +226,15 @@ const ProjectSection = () => {
 
     const ContentCard = ({ project }) => (
         <div className="project-card project-content-card">
-            <p className="project-description">{project.description}</p>
+            {project.figure && (
+                <MicroFigure
+                    name={project.figure}
+                    read={false}
+                    className="project-fig"
+                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', height: '86%', width: 'auto', pointerEvents: 'none', zIndex: 0 }}
+                />
+            )}
+            <p className="project-description" style={{ position: 'relative', zIndex: 1 }}>{project.description}</p>
         </div>
     );
 

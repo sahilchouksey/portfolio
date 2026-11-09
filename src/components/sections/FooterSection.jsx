@@ -1,4 +1,5 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
+import MicroFigure from '../../micro/MicroFigure';
 import ContactCard from './ContactCard';
 
 const FooterSection = ({ 
@@ -29,13 +30,12 @@ const FooterSection = ({
           ref={footerContact.ref}
         >
           <div className="card-content">
-            <div className="card-shape">
-              <div className="shape w-embed contact-shape-icon">
-                <svg width="112" height="112" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: 'inherit' }}>
-                  <path d="M56 12 L 70 56 L 56 100 L 42 56 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M34 32 L 12 56 L 34 80 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M78 32 L 100 56 L 78 80 Z" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+            <div
+              className="card-shape shape-in-place"
+              style={{ width: 208, height: 'auto', aspectRatio: '199/192', flex: '0 0 auto' }}
+            >
+              <div className="shape w-embed contact-shape-icon" style={{ width: '100%', height: '100%' }}>
+                <MicroFigure name="crystal" read={false} style={{ width: '100%', height: '100%', aspectRatio: 'auto', '--hairline-stroke': 1.35 }} />
               </div>
             </div>
             <h2 className="h2-heading">Let's build<br />something great.</h2>

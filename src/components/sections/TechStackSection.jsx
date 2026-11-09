@@ -1,8 +1,94 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
+import tools from '../../micro/tools.json';
+import React from 'react';
 
 import EducationCard from './EducationCard';
 import './Timeline.css';
 import { useState, useEffect } from 'react';
+
+
+const TOOLS_BY_LABEL = Object.fromEntries(tools.map((t) => [t.label, t]));
+
+/**
+ * TechGlyph: one of our micro-infographic glyphs in its plate, with a spark
+ * that snaps to the nearest outline point under the pointer — no clock, the
+ * pointer drives it.
+ */
+function TechGlyph({ tool }) {
+    const svgRef = React.useRef(null);
+    const pathRef = React.useRef(null);
+    const dotRef = React.useRef(null);
+    React.useEffect(() => {
+        const svg = svgRef.current;
+        const path = pathRef.current;
+        const chip = svg?.closest('.tech-skill');
+        if (!svg || !path || !chip) return undefined;
+        /* the tooltip is pointer-events:none, so the spark listens on the chip */
+        const samples = [];
+        const L = path.getTotalLength();
+        for (let k = 0; k <= 48; k++) samples.push(path.getPointAtLength((k / 48) * L));
+        const onMove = (e) => {
+            const r = svg.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            const px = ((e.clientX - r.left) / r.width) * 40;
+            const py = ((e.clientY - r.top) / r.height) * 40;
+            const gx = (px - TX) / SC;
+            const gy = (py - TY) / SC;
+            let best = null;
+            let bd = 1e9;
+            for (const p of samples) {
+                const d = (p.x - gx) ** 2 + (p.y - gy) ** 2;
+                if (d < bd) { bd = d; best = p; }
+            }
+            const dot = dotRef.current;
+            if (best && bd < 120) {
+                dot.setAttribute('display', 'inline');
+                dot.setAttribute('cx', (best.x * SC + TX).toFixed(2));
+                dot.setAttribute('cy', (best.y * SC + TY).toFixed(2));
+            } else {
+                dot.setAttribute('display', 'none');
+            }
+        };
+        const onLeave = () => dotRef.current?.setAttribute('display', 'none');
+        chip.addEventListener('pointermove', onMove);
+        chip.addEventListener('pointerleave', onLeave);
+        return () => {
+            chip.removeEventListener('pointermove', onMove);
+            chip.removeEventListener('pointerleave', onLeave);
+        };
+    }, [tool]);
+
+    const vb = (tool.vb || '0 0 24 24').split(' ').map(Number);
+    const vw = vb[2] || 24;
+    const SC = 26 / vw;
+    const TX = 20 - (vw * SC) / 2;
+    const TY = 20 - (vw * SC) / 2;
+
+    return (
+        <svg
+            ref={svgRef}
+            viewBox="0 0 40 40"
+            width="30"
+            height="30"
+            style={{ display: 'block', overflow: 'visible' }}
+            aria-hidden="true"
+        >
+            <rect x="2" y="2" width="36" height="36" rx="11" fill="none" stroke="currentColor" strokeWidth="1.1" style={{ opacity: 0.35 }} />
+            <path
+                ref={pathRef}
+                className="glyph"
+                d={tool.d}
+                transform={`translate(${TX.toFixed(2)} ${TY.toFixed(2)}) scale(${SC.toFixed(4)})`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <circle ref={dotRef} r="2.05" display="none" stroke="none" fill="currentColor" />
+        </svg>
+    );
+}
 
 const TechStackSection = () => {
     const animation = useScrollAnimation('fadeInUp', { delay: 0, threshold: 0.1 });
@@ -26,7 +112,9 @@ const TechStackSection = () => {
         setYoe(formattedYoe);
     }, []);
 
-    // Tech icon mapping (using Simple Icons)
+    // Our own micro-infographic set for the tooltips (tools.json), with the
+    // pointer spark riding the glyph outline. Anything missing falls back to
+    // the Simple Icons CDN.
     const techIcons = {
         // Languages & Frameworks
         'JavaScript/TypeScript': 'javascript',
@@ -109,8 +197,7 @@ const TechStackSection = () => {
             id: 1,
             degree: "Master of Computer Applications",
             university: "RGPV, Bhopal",
-            date: "July 2024 - June 2026 (Part-Time)",
-            gpa: "GPA: 7.8/10",
+            date: "July 2024 - June 2026",
             logoSrc: "/images/rgpv-logo.webp",
             link: "https://www.rgpv.ac.in"
         },
@@ -119,7 +206,6 @@ const TechStackSection = () => {
             degree: "Bachelor of Computer Applications",
             university: "Makhanlal Chaturvedi University",
             date: "July 2020 - Aug 2023",
-            gpa: "GPA: 7.9/10",
             logoSrc: "/images/makhanlal-logo.webp",
             link: "https://www.mcu.ac.in"
         }
@@ -176,7 +262,11 @@ const TechStackSection = () => {
                                                 return (
                                                     <span key={idx} className="tech-skill" data-tooltip={skill}>
                                                         {skill}
-                                                        {iconName && (
+                                                        {TOOLS_BY_LABEL[skill] ? (
+                                                            <span className="tech-icon-tooltip">
+                                                                <TechGlyph tool={TOOLS_BY_LABEL[skill]} />
+                                                            </span>
+                                                        ) : iconName && (
                                                             <span className="tech-icon-tooltip">
                                                                  <img
                                                                     src={`https://cdn.simpleicons.org/${iconName}/fff`}
@@ -204,7 +294,11 @@ const TechStackSection = () => {
                                                 return (
                                                     <span key={i} className="tech-skill" data-tooltip={item}>
                                                         {item}
-                                                        {iconName && (
+                                                        {TOOLS_BY_LABEL[item] ? (
+                                                            <span className="tech-icon-tooltip">
+                                                                <TechGlyph tool={TOOLS_BY_LABEL[item]} />
+                                                            </span>
+                                                        ) : iconName && (
                                                             <span className="tech-icon-tooltip">
                                                                  <img
                                                                     src={`https://cdn.simpleicons.org/${iconName}/fff`}

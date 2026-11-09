@@ -540,6 +540,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
     /* Keep center vertical alignment as per bento grid usually, but maybe user wants top? Image shows center. */
     /* Wait, the user said "properply align". The image shows centered text. Usually left aligned is better. */
     /* I will set align-items to flex-start to ensure left alignment of text block. */
@@ -1363,4 +1365,10 @@
     .blog-card-image {
         height: 160px;
     }
+}
+.project-fig { opacity: 0.37; }
+
+/* wire figures are too pale for white cards — same presence, heavier hand */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) .project-fig { opacity: 0.78; }
 }

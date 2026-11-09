@@ -108,7 +108,6 @@
   institution: link("https://rgpv.ac.in")[Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)],
   date: "July 2024 - June 2026",
   location: "Bhopal, India",
-  gpa: "7.8/10",
   degrees: (
     ("Master of Computer Applications", "Computer Science and Engineering"),
   ),
@@ -118,7 +117,6 @@
   institution: link("https://mcu.ac.in")[Makhanlal Chaturvedi University],
   date: "July 2020 - Aug 2023",
   location: "Bhopal, India",
-  gpa: "7.9/10",
   degrees: (
     ("Bachelor of Computer Applications", "Computer Applications"),
   ),

@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import RotatingText from '../RotatingText';
+import MicroFigure from '../../micro/MicroFigure';
 
 const HeroCard = ({
   animationType = 'fadeInUp',
   delay = 200,
   threshold = 0.15,
   name,
-  title,
   subtitle,
   themeToggle
 }) => {
@@ -26,8 +26,8 @@ const HeroCard = ({
   }, []);
 
   const skills = isTinyScreen
-    ? ['Full Stack Dev', 'Applied AI Eng', 'Backend Dev', 'AI Agents', 'Linux Builder']
-    : ['Full Stack Developer', 'Applied AI Engineer', 'Backend Developer', 'AI Agents', 'Linux Enthusiast'];
+    ? ['AI Engineer', 'Voice Agents', 'Agentic Systems', 'Full Stack Dev', 'Backend Dev']
+    : ['AI Engineer', 'Voice Agents', 'Agentic Systems', 'Full Stack Developer', 'Backend Developer', 'Linux Enthusiast'];
 
   const animation = useScrollAnimation(animationType, {
     delay,
@@ -44,7 +44,7 @@ const HeroCard = ({
       ref={animation.ref}
       style={{ position: 'relative' }}
     >
-      {themeToggle ? <div className="hero-theme-toggle-wrap">{themeToggle}</div> : null}
+      {themeToggle && <div className="hero-theme-toggle-wrap">{themeToggle}</div>}
       <h1 className="h1-heading">
         {name}<br />
         <RotatingText skills={skills} interval={2500} />

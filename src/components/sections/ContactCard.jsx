@@ -1,20 +1,17 @@
 // ContactCard Component - Reusable contact card with icon
 import React from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
-import AsciiAvatar from './AsciiAvatar';
-import AsciiFrame from './AsciiFrame';
+import MicroFigure from '../../micro/MicroFigure';
 
 const ContactCard = ({
   animationType = 'fadeInUp',
   delay = 400,
   threshold = 0.15,
-  title = "Have a project in mind?",
-  email = "hey@jenny.com",
   className = "contact-card",
-  showButton = true,
   showFrame = true,
-  frameColor = '#FFD700',
-  themeToggle
+  themeToggle,
+  bombers = false,
+  bomberToggle
 }) => {
   const animation = useScrollAnimation(animationType, {
     delay,
@@ -35,15 +32,19 @@ const ContactCard = ({
         // All sizing handled by CSS .grid-header > .contact-card
       }}
     >
-      {/* Theme toggle - highest z-index */}
+      {/* Theme toggle - highest z-index on the right component only */}
       {themeToggle && (
         <div className="contact-theme-toggle-wrap">{themeToggle}</div>
       )}
+      {/* B2 bomber trigger - icon only, top-right */}
+      {bomberToggle && (
+        <div className="contact-bomber-wrap">{bomberToggle}</div>
+      )}
       
       {/* Avatar layer - relative positioned to give card its size */}
-      <div style={{ 
+      <div style={{
         position: 'relative',
-        width: '100%', 
+        width: '100%',
         height: '100%',
         zIndex: 5,
         display: 'flex',
@@ -51,17 +52,17 @@ const ContactCard = ({
         justifyContent: 'center',
         minHeight: '300px'
       }}>
-        <AsciiAvatar />
-      </div>
-      
-      {/* Golden frame overlay - decorative only */}
-      {showFrame && (
-        <AsciiFrame 
-          color={frameColor}
-          opacity={0.85}
-          enableGlow={true}
+        {/* the contact sheet: the sky-frame border and the portrait on one
+            hairline plate — one pointer, one wave, the border lights with the
+            face under the same hand */}
+        <MicroFigure
+          name={showFrame ? "skyplate" : "portrait"}
+          read={false}
+          stretch
+          bombers={bombers}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', aspectRatio: 'auto' }}
         />
-      )}
+      </div>
     </div>
   );
 };
