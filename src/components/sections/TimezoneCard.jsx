@@ -1,22 +1,11 @@
 // TimezoneCard Component - Location and timezone display
 import React from 'react';
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import MicroFigure from '../../micro/MicroFigure';
 
 const TimezoneCard = ({
-  animationType = 'slideInLeft',
-  delay = 600,
-  threshold = 0.15,
   location = "Brooklyn,<br />New York",
   timezone = "GMT-5"
 }) => {
-  const animation = useScrollAnimation(animationType, {
-    delay,
-    threshold,
-    callbacks: {
-      onEnter: () => console.log('🎯 Timezone card animated in')
-    }
-  });
   const readRef = React.useRef(null);
   const figRef = React.useRef(null);
   const teleport = (e) => {
@@ -31,7 +20,6 @@ const TimezoneCard = ({
     <div
       id="w-node-b4038914-cd95-5e00-ab4b-a5ea4511b262-003f9adc"
       className="card timezone"
-      ref={animation.ref}
     >
       <h2 className="h2-heading timezone" onClick={teleport}>
         Based in<br />

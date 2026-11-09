@@ -1,30 +1,17 @@
 // ContactCard Component - Reusable contact card with icon
 import React from 'react';
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import MicroFigure from '../../micro/MicroFigure';
 
 const ContactCard = ({
-  animationType = 'fadeInUp',
-  delay = 400,
-  threshold = 0.15,
   className = "contact-card",
   showFrame = true,
   themeToggle,
   bombers = false,
   bomberToggle
 }) => {
-  const animation = useScrollAnimation(animationType, {
-    delay,
-    threshold,
-    callbacks: {
-      onEnter: () => console.log('Contact card animated in')
-    }
-  });
-
   return (
     <div
       className={className}
-      ref={animation.ref}
       style={{ 
         position: 'relative', 
         padding: 0, 

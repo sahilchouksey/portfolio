@@ -1,4 +1,3 @@
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import tools from '../../micro/tools.json';
 import React from 'react';
 
@@ -91,7 +90,6 @@ function TechGlyph({ tool }) {
 }
 
 const TechStackSection = () => {
-    const animation = useScrollAnimation('fadeInUp', { delay: 0, threshold: 0.1 });
 
     // Calculate years of experience from Aug 2023
     const [yoe, setYoe] = useState('');
@@ -244,7 +242,7 @@ const TechStackSection = () => {
     ];
 
     return (
-        <section id="TechStack" className="section" ref={animation.ref}>
+        <section id="TechStack" className="section">
             <div className="container">
                 {/* Bento Grid Layout */}
                 <div className="w-layout-grid tech-experience-grid">

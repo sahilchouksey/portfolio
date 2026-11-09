@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 
 const HASHNODE_API = 'https://gql.hashnode.com';
 const HASHNODE_HOST = 'blog.sahilchouksey.in';
@@ -11,7 +10,6 @@ const BlogSection = () => {
     const [shouldFetch, setShouldFetch] = useState(false);
     const sectionRef = useRef(null);
     
-    const animation = useScrollAnimation('fadeInUp', { delay: 0, threshold: 0.1 });
 
     // IntersectionObserver to trigger fetch when section approaches viewport
     useEffect(() => {
@@ -116,7 +114,6 @@ const BlogSection = () => {
     return (
         <section id="Blog" className="section" ref={(node) => {
             sectionRef.current = node;
-            animation.ref.current = node;
         }}>
             <div className="container">
                 <div className="blog-section-container">

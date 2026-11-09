@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useMultipleScrollAnimations } from '../../hooks/useScrollAnimation';
 import MicroFigure from '../../micro/MicroFigure';
 
 const ProjectSection = () => {
@@ -67,7 +66,6 @@ const ProjectSection = () => {
         }
     ];
 
-    const { refs } = useMultipleScrollAnimations(projects.length, "fadeInUp", 100);
 
     const VisualCard = ({ project, isReverse }) => {
         const yearPositionClass = isReverse ? 'year-left' : 'year-right';
@@ -248,7 +246,7 @@ const ProjectSection = () => {
                     {projects.map((project, index) => {
                         const isReverse = index % 2 !== 0;
                         return (
-                            <div key={project.id} className={`project-bento-row ${isReverse ? 'reverse' : ''}`} ref={el => refs.current[index] = el}>
+                            <div key={project.id} className={`project-bento-row ${isReverse ? 'reverse' : ''}`}>
                                 {isReverse ? (
                                     <>
                                         <ContentCard project={project} />

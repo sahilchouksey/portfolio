@@ -1,6 +1,5 @@
 // DescriptionCard Component - About/description section
 import React, { useRef, useState } from 'react';
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import MicroFigure from '../../micro/MicroFigure';
 
 const DOB = "May 18, 2003";
@@ -12,11 +11,7 @@ const getAge = () => {
   return age;
 };
 
-const DescriptionCard = ({
-  animationType = 'fadeInRight',
-  delay = 800,
-  threshold = 0.15,
-}) => {
+const DescriptionCard = () => {
   const age = getAge();
   const cakeRef = useRef(null);
   const [hot, setHot] = useState(false);
@@ -27,19 +22,11 @@ const DescriptionCard = ({
     cakeRef.current?.lean?.(2 * (e.clientX - r.left) / r.width - 1);
   };
   const toggle = () => { (hot ? close : open)(); };
-  const animation = useScrollAnimation(animationType, {
-    delay,
-    threshold,
-    callbacks: {
-      onEnter: () => console.log('🎯 Description card animated in')
-    }
-  });
 
   return (
     <div
       id="w-node-b4038914-cd95-5e00-ab4b-a5ea4511b26b-003f9adc"
       className="card"
-      ref={animation.ref}
     >
       <h3 className="h3-heading">
         I'm a{' '}

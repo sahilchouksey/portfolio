@@ -1,13 +1,9 @@
 // HeroCard Component - Main hero section with ASCII avatar and intro
 import React, { useEffect, useState } from 'react';
-import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import RotatingText from '../RotatingText';
 import MicroFigure from '../../micro/MicroFigure';
 
 const HeroCard = ({
-  animationType = 'fadeInUp',
-  delay = 200,
-  threshold = 0.15,
   name,
   subtitle,
   themeToggle
@@ -29,19 +25,10 @@ const HeroCard = ({
     ? ['AI Engineer', 'Voice Agents', 'Agentic Systems', 'Full Stack Dev', 'Backend Dev']
     : ['AI Engineer', 'Voice Agents', 'Agentic Systems', 'Full Stack Developer', 'Backend Developer', 'Linux Enthusiast'];
 
-  const animation = useScrollAnimation(animationType, {
-    delay,
-    threshold,
-    callbacks: {
-      onEnter: () => console.log('🎯 Hero card animated in')
-    }
-  });
-
   return (
     <div
       id="w-node-_6d7a91e3-1796-9bef-6cf4-0eccd6b5b420-003f9adc"
       className="card"
-      ref={animation.ref}
       style={{ position: 'relative' }}
     >
       {themeToggle && <div className="hero-theme-toggle-wrap">{themeToggle}</div>}
