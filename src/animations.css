@@ -1889,6 +1889,11 @@ body {
 /* globe: the hovered-state boundary eases in and out — never a hard pop */
 [data-hairline="globe"] .hov-state { transition: opacity 0.38s ease; }
 
+/* the leader from the Jabalpur inset chip to the dot on the map — sit a
+   step darker than the rail's edge (a 70/30 edge→hi mix) so it reads at a
+   glance; the mix still adapts per theme */
+[data-hairline="globe"] .leader { stroke: color-mix(in srgb, var(--hl-edge) 70%, var(--hl-hi) 30%); }
+
 /* globe (light only): the ocean silhouette circle fell back to the SVG
    default fill (black) — fill it with the component's own plate colour,
    mirroring how dark theme sits on the near-black plate; stroke unchanged */
